@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Contenedor cuadrado redondeado (Squircle) -->
+  <rect x="40" y="40" width="432" height="432" rx="120" fill="#fa6c12"/>
+  
+  <!-- Texto "RX" centrado -->
+  <text 
+    x="256" 
+    y="340" 
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
+    font-weight="900" 
+    font-size="225" 
+    fill="#ffffff" 
+    text-anchor="middle" 
+    letter-spacing="-2">
+    RX
+  </text>
+</svg>
