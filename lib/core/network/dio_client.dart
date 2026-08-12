@@ -117,7 +117,9 @@ class DioClient {
   Future<void> cerrarSesionPorCaducidad() async {
     await _storage.clearSession();
 
+    final navigator = navigatorKey.currentState;
     final context = navigatorKey.currentContext;
+
     if (context != null && context.mounted) {
       showError(
         context,
@@ -126,8 +128,10 @@ class DioClient {
           esRecuperable: true,
         ),
       );
-      Navigator.pushAndRemoveUntil(
-        context,
+    }
+
+    if (navigator != null) {
+      navigator.pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginPage()),
         (route) => false,
       );
