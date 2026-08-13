@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/entities/venta_pendiente_entity.dart';
@@ -255,9 +256,27 @@ class SalesRepository {
 
   Future<Map<String, dynamic>?> _uploadNoVentaPv(VentaPendiente v) async {
     try {
+      // Subida multipart: los datos de la no venta + el archivo de la foto.
+      // El servidor guarda la imagen en disco (Storage:FotosPath) y deja la
+      // referencia en DOCTOS_PV.DESCRIPCION (segmento FOTO:). Si el archivo
+      // ya no existe (foto simulada o borrada), se envía sin adjunto y la
+      // no venta se registra igual.
+      final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
+      final fotoPath = detalle['foto_path'] as String?;
+      final formData = FormData.fromMap({
+        ...v.toNoVentaFields(),
+        if (fotoPath != null &&
+            fotoPath.isNotEmpty &&
+            File(fotoPath).existsSync())
+          'foto': await MultipartFile.fromFile(
+            fotoPath,
+            filename: '${v.ventaMovilId}.jpg',
+          ),
+      });
+
       final response = await _dioClient.dio.post(
         '/api/v1/pv/noventa',
-        data: v.toNoVentaJson(),
+        data: formData,
       );
       if (response.statusCode == 201 && response.data != null) {
         final data = response.data as Map<String, dynamic>;

@@ -165,6 +165,93 @@ void main() {
     });
   });
 
+  group('VentaPendiente.toNoVentaFields', () {
+    test('incluye todos los campos como strings', () {
+      final v = VentaPendiente(
+        ventaMovilId: 'VTA-NV1',
+        vendedorId: 7,
+        clienteId: 100,
+        clienteNombre: 'Cliente',
+        fechaHora: '2026-08-12T10:00:00',
+        detalles: [
+          {
+            'causa_id': 3,
+            'causa_desc': 'Cliente ausente',
+            'comentario': 'No estaba',
+            'foto_path': '/tmp/foto.jpg',
+          },
+        ],
+      );
+
+      final fields = v.toNoVentaFields();
+
+      expect(fields['venta_movil_id'], 'VTA-NV1');
+      expect(fields['vendedor_id'], '7');
+      expect(fields['cliente_id'], '100');
+      expect(fields['causa_id'], '3');
+      expect(fields['causa_desc'], 'Cliente ausente');
+      expect(fields['comentario'], 'No estaba');
+      // La ruta local no viaja como campo (va como archivo adjunto).
+      expect(fields.containsKey('foto_path'), isFalse);
+    });
+
+    test('omite campos opcionales cuando son null', () {
+      final v = VentaPendiente(
+        ventaMovilId: 'VTA-NV2',
+        vendedorId: 1,
+        clienteId: 1,
+        clienteNombre: 'C',
+        fechaHora: '2026-08-12T10:00:00',
+      );
+
+      final fields = v.toNoVentaFields();
+
+      expect(fields.containsKey('caja_id'), isFalse);
+      expect(fields.containsKey('cajero_id'), isFalse);
+      expect(fields.containsKey('almacen_id'), isFalse);
+      expect(fields.containsKey('sucursal_id'), isFalse);
+      expect(fields.containsKey('usuario_creador'), isFalse);
+    });
+
+    test('incluye identidad completa cuando está disponible', () {
+      final v = VentaPendiente(
+        ventaMovilId: 'VTA-NV3',
+        vendedorId: 1,
+        clienteId: 1,
+        clienteNombre: 'C',
+        fechaHora: '2026-08-12T10:00:00',
+        cajaId: 5,
+        cajeroId: 9,
+        almacenId: 11206,
+        sucursalId: 2,
+        usuarioCreador: 'RUTXVENDEDOR01',
+      );
+
+      final fields = v.toNoVentaFields();
+
+      expect(fields['caja_id'], '5');
+      expect(fields['cajero_id'], '9');
+      expect(fields['almacen_id'], '11206');
+      expect(fields['sucursal_id'], '2');
+      expect(fields['usuario_creador'], 'RUTXVENDEDOR01');
+    });
+
+    test('usa valores por defecto para causa cuando no hay detalle', () {
+      final v = VentaPendiente(
+        ventaMovilId: 'VTA-NV4',
+        vendedorId: 1,
+        clienteId: 1,
+        clienteNombre: 'C',
+        fechaHora: '2026-08-12T10:00:00',
+      );
+
+      final fields = v.toNoVentaFields();
+
+      expect(fields['causa_id'], '0');
+      expect(fields['causa_desc'], 'Sin causa');
+    });
+  });
+
   group('VentaPendiente.toNoVentaJson', () {
     test('retorna detalle vacío cuando no hay detalles', () {
       final v = VentaPendiente(

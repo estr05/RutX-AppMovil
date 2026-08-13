@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -79,13 +80,33 @@ class _NoVentaPageState extends State<NoVentaPage> {
         imageQuality: 70, // Compress slightly
       );
       if (photo != null) {
+        // image_picker guarda en la caché del sistema (se puede borrar en
+        // cualquier momento). Se copia a documentos para que la foto
+        // sobreviva offline, a la limpieza de caché y a los reintentos de
+        // sincronización.
+        final persistente = await _guardarFotoPersistente(photo);
+        if (!mounted) return;
         setState(() {
-          _imagePath = photo.path;
+          _imagePath = persistente;
         });
       }
     } catch (e) {
       showErrorMessage(context, 'Error al tomar foto: $e');
     }
+  }
+
+  /// Copia la foto a un directorio persistente de la app (documentos).
+  Future<String> _guardarFotoPersistente(XFile photo) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final carpeta = Directory('${dir.path}/fotos_no_venta');
+    if (!carpeta.existsSync()) {
+      carpeta.createSync(recursive: true);
+    }
+    final nombre =
+        'no_venta_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final destino = '${carpeta.path}/$nombre';
+    await File(photo.path).copy(destino);
+    return destino;
   }
 
   void _simulatePhoto() {

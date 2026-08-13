@@ -87,6 +87,30 @@ class VentaPendiente {
     return result;
   }
 
+  /// Campos de la no venta para subida multipart (foto incluida).
+  /// `foto_path` (ruta local del archivo) no viaja como campo: el archivo
+  /// se adjunta como `MultipartFile` y el servidor lo guarda en disco
+  /// (Storage:FotosPath), dejando la referencia en `DOCTOS_PV.DESCRIPCION`
+  /// (segmento FOTO:).
+  Map<String, String> toNoVentaFields() {
+    final detalle = detalles.isNotEmpty ? detalles.first : {};
+    return {
+      'venta_movil_id': ventaMovilId,
+      'vendedor_id': '$vendedorId',
+      'cliente_id': '$clienteId',
+      'fecha_hora': fechaHora,
+      'causa_id': '${detalle['causa_id'] as int? ?? 0}',
+      'causa_desc': detalle['causa_desc'] as String? ?? 'Sin causa',
+      'comentario': detalle['comentario'] as String? ?? '',
+      if (cajaId != null) 'caja_id': '$cajaId',
+      if (cajeroId != null) 'cajero_id': '$cajeroId',
+      if (almacenId != null) 'almacen_id': '$almacenId',
+      if (sucursalId != null) 'sucursal_id': '$sucursalId',
+      if (usuarioCreador != null && usuarioCreador!.isNotEmpty)
+        'usuario_creador': usuarioCreador!,
+    };
+  }
+
   /// Convierte a JSON para enviar al endpoint /api/v1/pv/noventa
   Map<String, dynamic> toNoVentaJson() {
     final detalle = detalles.isNotEmpty ? detalles.first : {};

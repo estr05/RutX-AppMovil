@@ -28,7 +28,8 @@ hacia la BD del ERP.
   `RUTXALMACEN01`) y la venta no permite excederlas, incluso sin conexión.
 - 🧾 **Ventas** con folio oficial consecutivo, impuestos compuestos (IVA + IEPS), validación
   de **límite de crédito** y auto-aplicación (`APLICADO='S'`).
-- 🚫 **No-ventas** con causa, comentario y foto.
+- 🚫 **No-ventas** con causa, comentario y foto (persistida en documentos de la
+  app y subida al servidor como multipart).
 - 💳 **Cobranza** de ventas a crédito (abonos contra CxC) y consulta de **créditos**
   pendientes con días de atraso.
 - 👥 **Clientes**: catálogo de la ruta y alta de cliente nuevo.
