@@ -201,6 +201,40 @@ void main() {
     });
   });
 
+  group('cantidadesPorArticulo', () {
+    test('agrupa cantidades por artículo', () {
+      final cantidades = cantidadesPorArticulo([
+        {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 50.0},
+        {'articulo_id': 2, 'unidades': 3, 'precio_unitario': 30.0},
+      ]);
+
+      expect(cantidades, {1: 2, 2: 3});
+    });
+
+    test('suma líneas repetidas del mismo artículo', () {
+      final cantidades = cantidadesPorArticulo([
+        {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 50.0},
+        {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 50.0},
+      ]);
+
+      expect(cantidades, {1: 3});
+    });
+
+    test('ignora artículos sin id o con unidades no positivas', () {
+      final cantidades = cantidadesPorArticulo([
+        {'articulo_id': null, 'unidades': 2},
+        {'articulo_id': 1, 'unidades': 0},
+        {'articulo_id': 2, 'unidades': -1},
+      ]);
+
+      expect(cantidades, isEmpty);
+    });
+
+    test('retorna mapa vacío para detalles vacíos', () {
+      expect(cantidadesPorArticulo([]), isEmpty);
+    });
+  });
+
   group('VentaPendiente roundtrip', () {
     test('toMap -> fromMap preserva datos', () {
       final original = VentaPendiente(

@@ -205,6 +205,15 @@ class SyncRepository {
         await _db.productDao.deleteByIds(analisis.productosRemovidos);
       }
 
+      // 3. Re-aplicar el descuento de ventas aún no sincronizadas ('pendiente'):
+      //    el stock del servidor no las conoce todavía, y sin este paso el
+      //    stock local "regresaría" permitiendo sobreventa offline.
+      try {
+        await _db.ventaDao.reaplicarExistenciasPendientes();
+      } catch (e) {
+        debugPrint('[Sync] Error al reaplicar existencias pendientes: $e');
+      }
+
       // 3. Emisor y sucursal
       if (analisis.emisor != null) {
         await _db.emisorDao.insert(analisis.emisor!);
@@ -242,6 +251,15 @@ class SyncRepository {
         await _db.productDao.insertAll(productos);
       } catch (e) {
         return SyncFailure(mensaje: 'Error SQLite productos: $e', intentos: 3);
+      }
+
+      // Re-aplicar el descuento de ventas pendientes (defensivo: en el sync
+      // completo se limpian las ventas, pero si alguna quedó pendiente el
+      // stock local no debe "regresar").
+      try {
+        await _db.ventaDao.reaplicarExistenciasPendientes();
+      } catch (e) {
+        debugPrint('[Sync] Error al reaplicar existencias pendientes: $e');
       }
 
       if (datos.emisor != null) {

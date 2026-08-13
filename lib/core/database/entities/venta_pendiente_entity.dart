@@ -203,3 +203,17 @@ class VentaPendiente {
     }
   }
 }
+
+/// Agrupa las cantidades vendidas por artículo a partir de los detalles de
+/// una venta. Se usa para descontar/reponer existencias del almacén.
+/// Ignora artículos sin `articulo_id` o con `unidades <= 0`.
+Map<int, int> cantidadesPorArticulo(List<Map<String, dynamic>> detalles) {
+  final cantidades = <int, int>{};
+  for (final d in detalles) {
+    final articuloId = d['articulo_id'] as int?;
+    final unidades = (d['unidades'] as num?)?.toInt() ?? 0;
+    if (articuloId == null || unidades <= 0) continue;
+    cantidades[articuloId] = (cantidades[articuloId] ?? 0) + unidades;
+  }
+  return cantidades;
+}

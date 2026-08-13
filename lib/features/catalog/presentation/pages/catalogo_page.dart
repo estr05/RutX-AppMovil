@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/entities/producto_entity.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
 import '../../../../shared/widgets/sale_utils.dart';
+import '../../../../shared/widgets/stock_label.dart';
 
 class CatalogoPage extends StatefulWidget {
   const CatalogoPage({Key? key}) : super(key: key);
@@ -383,6 +384,8 @@ class _CatalogoPageState extends State<CatalogoPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  StockLabel(existencias: p.existencias),
                 ],
               ),
             ),

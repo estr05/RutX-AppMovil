@@ -100,3 +100,33 @@ double calcularTotalVentasConIVA(List<VentaPendiente> ventas) {
   }
   return total;
 }
+
+// =============================================================================
+// EXISTENCIAS / STOCK DEL ALMACÉN (el coche del vendedor)
+// Las existencias llegan en el sync (`productos[].existencias`) calculadas por
+// el sincronizador para el almacén del vendedor (ej. RUTXALMACEN01).
+// =============================================================================
+
+/// Unidades enteras que se pueden vender del producto (piso de la existencia).
+/// Si la existencia es fraccionaria (ej. 2.5), solo se pueden vender piezas
+/// completas (2).
+int unidadesDisponibles(Producto p) => p.existencias.floor();
+
+/// Formatea la existencia para la UI: enteros sin decimales (ej. '2') y
+/// fracciones con 2 decimales (ej. '2.50').
+String formatearExistencia(double existencias) {
+  if (existencias == existencias.roundToDouble()) {
+    return existencias.toInt().toString();
+  }
+  return existencias.toStringAsFixed(2);
+}
+
+/// ¿Se puede agregar una unidad más al carrito sin exceder la existencia
+/// del almacén? Usado al tocar el botón '+' de la venta.
+bool puedeAgregarUnidad({required Producto producto, required int enCarrito}) =>
+    enCarrito + 1 <= unidadesDisponibles(producto);
+
+/// ¿La cantidad [cantidad] del carrito excede la existencia del almacén?
+/// Validación final antes de confirmar la venta.
+bool ventaExcedeExistencia({required Producto producto, required int cantidad}) =>
+    cantidad > unidadesDisponibles(producto);

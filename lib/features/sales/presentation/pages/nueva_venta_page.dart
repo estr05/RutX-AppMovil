@@ -12,6 +12,7 @@ import '../../../../core/database/entities/producto_entity.dart';
 import '../../../../core/database/entities/venta_pendiente_entity.dart';
 import '../../data/sales_repository.dart';
 import '../../../../shared/widgets/sale_utils.dart';
+import '../../../../shared/widgets/stock_label.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'venta_exitosa_page.dart';
 
@@ -107,8 +108,25 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   }
 
   void _addToCart(int id) {
+    final prod = _findProduct(id);
+    if (prod == null) return;
+    final enCarrito = _cart[id] ?? 0;
+
+    // Validación de existencia: no se puede vender más de lo que lleva
+    // el almacén del vendedor (RUTXALMACEN01).
+    if (!puedeAgregarUnidad(producto: prod, enCarrito: enCarrito)) {
+      showWarning(
+        context,
+        enCarrito > 0
+            ? 'Solo hay ${formatearExistencia(prod.existencias)} disponible y ya llevas $enCarrito en el pedido.'
+            : 'Este producto no tiene existencia disponible en tu almacén.',
+        title: 'Existencia insuficiente',
+      );
+      return;
+    }
+
     setState(() {
-      _cart[id] = (_cart[id] ?? 0) + 1;
+      _cart[id] = enCarrito + 1;
     });
   }
 
@@ -322,6 +340,21 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   void _confirmSale() async {
     if (_cart.isEmpty) return;
 
+    // Validación final de existencias: ninguna línea puede superar lo que
+    // tiene el almacén, aunque el stock haya cambiado desde que se agregó.
+    for (final entry in _cart.entries) {
+      final prod = _findProduct(entry.key);
+      if (prod == null) continue;
+      if (ventaExcedeExistencia(producto: prod, cantidad: entry.value)) {
+        showErrorMessage(
+          context,
+          'No hay suficiente existencia de "${prod.nombre}". '
+          'Disponible en tu almacén: ${formatearExistencia(prod.existencias)}.',
+        );
+        return;
+      }
+    }
+
     setState(() => _isLoading = true);
 
     final localStorage = LocalStorage();
@@ -402,7 +435,16 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     if (mounted) {
       setState(() => _isLoading = false);
 
-      final isOnline = syncResult?['success'] == true;
+      // null = la venta no se guardó (existencia insuficiente en el almacén).
+      if (syncResult == null) {
+        showErrorMessage(
+          context,
+          'No se pudo guardar la venta: la existencia disponible de uno o más productos no es suficiente.',
+        );
+        return;
+      }
+
+      final isOnline = syncResult['success'] == true;
       final folio = syncResult?['folio'] as String?;
       final folioLocal = syncResult?['folio_local'] as String?;
       if (isOnline) {
@@ -686,12 +728,36 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   fontSize: 13,
                                                 ),
                                               ),
+                                              const SizedBox(height: 4),
+                                              StockLabel(
+                                                existencias: p.existencias,
+                                              ),
                                             ],
                                           ),
                                         ),
 
                                         // Product controls
-                                        if (!hasQty)
+                                        if (unidadesDisponibles(p) <= 0)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.statusRedBg,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: const Text(
+                                              'Agotado',
+                                              style: TextStyle(
+                                                color: AppTheme.statusRed,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          )
+                                        else if (!hasQty)
                                           GestureDetector(
                                             onTap:
                                                 () => _addToCart(p.articuloId),
@@ -876,6 +942,12 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                       fontWeight: FontWeight.bold,
                                                       fontSize: 13,
                                                     ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  StockLabel(
+                                                    existencias:
+                                                        prod.existencias,
+                                                    showIcon: false,
                                                   ),
                                                 ],
                                               ),

@@ -150,4 +150,123 @@ class VentaDao {
   Future<void> deleteAll() async {
     await db.delete('ventas_pendientes');
   }
+
+  // ==========================================================================
+  // EXISTENCIAS DEL ALMACÉN (flujo offline-first)
+  // El stock local (`productos.existencias`) se descuenta al confirmar la
+  // venta y se revierte si el servidor la rechaza de forma definitiva.
+  // ==========================================================================
+
+  /// Inserta la venta y descuenta las existencias del almacén en una sola
+  /// transacción. Retorna `false` (con rollback) si algún artículo no tiene
+  /// existencia suficiente, evitando la sobreventa aunque la app esté offline.
+  Future<bool> insertDescontandoExistencia(VentaPendiente venta) async {
+    try {
+      await db.transaction((txn) async {
+        await txn.insert(
+          'ventas_pendientes',
+          venta.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        final cantidades = cantidadesPorArticulo(venta.detalles);
+        for (final entry in cantidades.entries) {
+          final changes = await txn.rawUpdate(
+            'UPDATE productos SET existencias = existencias - ? '
+            'WHERE articulo_id = ? AND existencias >= ?',
+            [entry.value, entry.key, entry.value],
+          );
+          if (changes == 0) {
+            throw StateError(
+              'Existencia insuficiente para el artículo ${entry.key}',
+            );
+          }
+        }
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Suma de vuelta las existencias de los artículos de la venta.
+  /// Se usa cuando el servidor rechaza la venta de forma definitiva (4xx):
+  /// esas unidades nunca salieron del almacén real.
+  Future<void> reponerExistencias(VentaPendiente venta) async {
+    final cantidades = cantidadesPorArticulo(venta.detalles);
+    await db.transaction((txn) async {
+      for (final entry in cantidades.entries) {
+        await txn.rawUpdate(
+          'UPDATE productos SET existencias = existencias + ? '
+          'WHERE articulo_id = ?',
+          [entry.value, entry.key],
+        );
+      }
+    });
+  }
+
+  /// Resta las existencias de los artículos de la venta (con piso en 0).
+  /// Se usa cuando una venta en estado 'error' (cuyo stock se había
+  /// revertido) se reenvía con éxito: las unidades sí salieron del almacén.
+  Future<void> descontarExistencias(VentaPendiente venta) async {
+    final cantidades = cantidadesPorArticulo(venta.detalles);
+    await db.transaction((txn) async {
+      for (final entry in cantidades.entries) {
+        await txn.rawUpdate(
+          'UPDATE productos SET existencias = MAX(0, existencias - ?) '
+          'WHERE articulo_id = ?',
+          [entry.value, entry.key],
+        );
+      }
+    });
+  }
+
+  /// Marca la venta como 'error' (rechazo definitivo del servidor) y revierte
+  /// las existencias descontadas, en una sola transacción. Es idempotente:
+  /// solo revierte si la venta venía de 'pendiente'.
+  Future<void> marcarErrorRevertirExistencia(VentaPendiente venta) async {
+    await db.transaction((txn) async {
+      final rows = await txn.query(
+        'ventas_pendientes',
+        columns: ['estado'],
+        where: 'venta_movil_id = ? AND estado = ?',
+        whereArgs: [venta.ventaMovilId, 'pendiente'],
+      );
+      if (rows.isEmpty) return; // Ya no estaba pendiente: no revertir dos veces.
+
+      await txn.update(
+        'ventas_pendientes',
+        {'estado': 'error'},
+        where: 'venta_movil_id = ?',
+        whereArgs: [venta.ventaMovilId],
+      );
+      final cantidades = cantidadesPorArticulo(venta.detalles);
+      for (final entry in cantidades.entries) {
+        await txn.rawUpdate(
+          'UPDATE productos SET existencias = existencias + ? '
+          'WHERE articulo_id = ?',
+          [entry.value, entry.key],
+        );
+      }
+    });
+  }
+
+  /// Re-aplica el descuento de las ventas aún no sincronizadas ('pendiente')
+  /// sobre las existencias. Se invoca tras una descarga que sobrescribió
+  /// `existencias` con el valor del servidor; sin esto el stock local
+  /// "regresaría" y permitiría sobreventa offline.
+  Future<void> reaplicarExistenciasPendientes() async {
+    final pendientes = await getPendientes();
+    await db.transaction((txn) async {
+      for (final v in pendientes) {
+        final cantidades = cantidadesPorArticulo(v.detalles);
+        for (final entry in cantidades.entries) {
+          await txn.rawUpdate(
+            'UPDATE productos SET existencias = MAX(0, existencias - ?) '
+            'WHERE articulo_id = ?',
+            [entry.value, entry.key],
+          );
+        }
+      }
+    });
+  }
 }

@@ -24,6 +24,8 @@ hacia la BD del ERP.
   `VENDEDORES`/`CAJEROS`) — sin usuarios de la app.
 - 📥 **Descarga del día (sync matutino)**: clientes de la ruta, productos con existencias,
   precios (con impuestos compuestos), formas de cobro, emisor fiscal y sucursal.
+- 📦 **Inventario del coche**: cada producto muestra las existencias de su almacén (ej.
+  `RUTXALMACEN01`) y la venta no permite excederlas, incluso sin conexión.
 - 🧾 **Ventas** con folio oficial consecutivo, impuestos compuestos (IVA + IEPS), validación
   de **límite de crédito** y auto-aplicación (`APLICADO='S'`).
 - 🚫 **No-ventas** con causa, comentario y foto.
@@ -134,10 +136,35 @@ Dos niveles de estado: el del registro de negocio (ej. Venta) y el de la cola de
 - `enviada` — sincronizada con éxito, ya tiene folio oficial.
 - `error` — falló permanentemente (ej. el servidor devolvió un 400).
 
+> [!NOTE] Compromiso de existencias
+> Al confirmar la venta, el stock local del almacén se descuenta en la misma transacción
+> que guarda la venta (`insertDescontandoExistencia`):
+> - `pendiente` / `enviada` → descuentan existencias (las unidades ya no están disponibles).
+> - `error` → el stock se **revierte** (el servidor rechazó la venta; las unidades nunca
+>   salieron del almacén). Si la venta `error` se reenvía con éxito, se vuelve a descontar.
+
 **Cola de sincronización (`sync_queue`)**
 - `pendiente` — esperando ser procesada.
 - `completada` — tarea finalizada con éxito.
 - `error` — tarea finalizada con un error permanente.
+
+### Existencia del almacén (el coche del vendedor)
+
+El sincronizador envía `productos[].existencias` calculado para el almacén del vendedor
+(ej. `RUTXALMACEN01`). La app:
+
+1. **Muestra** la existencia en el catálogo y en la lista de productos de la venta
+   (badge `Existencia: N` — rojo agotado, naranja bajo, verde suficiente).
+2. **Valida** al agregar al carrito y al confirmar la venta: no se puede vender más de lo
+   que hay en el almacén.
+3. **Descuenta** el stock local en la misma transacción que guarda la venta
+   (`insertDescontandoExistencia`), incluso sin conexión. Si algún artículo no alcanza,
+   hay rollback y la venta no se guarda.
+4. **Reviene** el stock si el servidor rechaza la venta de forma definitiva (estado
+   `error`) y lo vuelve a descontar si esa venta se reenvía con éxito.
+5. **Re-aplica** los descuentos de las ventas `pendiente` tras una re-descarga
+   (`reaplicarExistenciasPendientes`), para que el stock local no "regrese" y permita
+   sobreventa offline.
 
 > [!IMPORTANT]
 > **Gestión de errores y reintentos:**
@@ -210,7 +237,8 @@ En `lib/core/constants/api_constants.dart`:
 flutter test
 ```
 Cubre DAOs de SQLite, entidades (producto, venta pendiente), repositorio de sync
-(incluido el reintento de la cola) y smoke test de la app.
+(incluido el reintento de la cola), el flujo de existencias del almacén (descuento
+atómico, reversión por rechazo y re-aplicación tras re-sync) y smoke test de la app.
 
 ---
 

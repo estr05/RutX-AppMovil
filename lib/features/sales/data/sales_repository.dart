@@ -35,8 +35,9 @@ class SalesRepository {
       final conFolio = await _asignarFolioLocal(venta);
       final db = AppDatabase();
       await db.initialize();
-      await db.ventaDao.insert(conFolio);
-      return true;
+      // Transacción atómica: guardar la venta + descontar existencias del
+      // almacén. Retorna false si no hay existencia suficiente (rollback).
+      return await db.ventaDao.insertDescontandoExistencia(conFolio);
     } catch (e) {
       return false;
     }
@@ -52,7 +53,11 @@ class SalesRepository {
       final conFolio = await _asignarFolioLocal(venta);
       final db = AppDatabase();
       await db.initialize();
-      await db.ventaDao.insert(conFolio);
+      // Transacción atómica: guardar la venta + descontar existencias del
+      // almacén. Si algún artículo no tiene existencia suficiente, no se
+      // guarda nada (retorna null) aunque la app esté offline.
+      final guardada = await db.ventaDao.insertDescontandoExistencia(conFolio);
+      if (!guardada) return null;
 
       final queue = SyncQueueProcessor(db: db);
       await queue.enqueue('venta', conFolio.ventaMovilId);
@@ -133,6 +138,12 @@ class SalesRepository {
       for (final v in todas) {
         final result = await _uploadSaleWithRetry(v);
         if (result['success'] == true) {
+          // Si la venta venía de 'error' su stock se había revertido;
+          // al reenviarse con éxito, las unidades sí salen del almacén
+          // y se vuelven a descontar.
+          if (v.estado == 'error') {
+            await db.ventaDao.descontarExistencias(v);
+          }
           await db.ventaDao.updateAfterSync(
             ventaMovilId: v.ventaMovilId,
             estado: 'enviada',
@@ -149,7 +160,10 @@ class SalesRepository {
             sesionCaducada = true;
             await db.ventaDao.updateEstado(v.ventaMovilId, 'pendiente');
           } else if (!_esReintentable(ultimoError)) {
-            await db.ventaDao.updateEstado(v.ventaMovilId, 'error');
+            // Rechazo definitivo del servidor: la venta nunca salió del
+            // almacén real, así que se revierten las existencias locales
+            // que se descontaron al confirmarla.
+            await db.ventaDao.marcarErrorRevertirExistencia(v);
           } else {
             await db.ventaDao.updateEstado(v.ventaMovilId, 'pendiente');
           }
