@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConstants {
   /// Puerto del sincronizador
   static const int port = 5047;
@@ -8,11 +10,13 @@ class ApiConstants {
   /// IP de Tailscale del PC donde corre el sincronizador
   static const String _tailscaleCasaIp = '100.71.116.89';
 
+  static String get scheme => kReleaseMode ? 'https' : 'http';
+
   /// URL para red local
-  static String get empresaUrl => 'https://$_empresaIp:$port';
+  static String get empresaUrl => '$scheme://$_empresaIp:$port';
 
   /// URL por Tailscale (cualquier red con VPN activa)
-  static String get tailscaleCasaUrl => 'https://$_tailscaleCasaIp:$port';
+  static String get tailscaleCasaUrl => '$scheme://$_tailscaleCasaIp:$port';
 
   /// URL por defecto: Tailscale (donde corre el sincronizador).
   /// Si no responde, DioClient intenta la LAN local y
