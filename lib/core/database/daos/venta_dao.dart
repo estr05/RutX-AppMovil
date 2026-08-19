@@ -98,7 +98,8 @@ class VentaDao {
   }
 
   Future<Map<String, dynamic>> getResumenDelDia(String fecha) async {
-    final result = await db.rawQuery('''
+    final result = await db.rawQuery(
+      '''
       SELECT
         COUNT(*) as total_ventas,
         COALESCE(SUM(total), 0) as monto_total,
@@ -107,11 +108,16 @@ class VentaDao {
         COUNT(CASE WHEN estado = 'error' THEN 1 END) as con_error
       FROM ventas_pendientes
       WHERE fecha_hora LIKE ?
-    ''', ['$fecha%']);
+    ''',
+      ['$fecha%'],
+    );
 
-    final jsonRows = await db.rawQuery('''
+    final jsonRows = await db.rawQuery(
+      '''
       SELECT detalles_json FROM ventas_pendientes WHERE fecha_hora LIKE ?
-    ''', ['$fecha%']);
+    ''',
+      ['$fecha%'],
+    );
 
     int piezas = 0;
     for (final row in jsonRows) {
@@ -133,7 +139,7 @@ class VentaDao {
         'piezas_vendidas': piezas,
       };
     }
-    
+
     final map = Map<String, dynamic>.from(result.first);
     map['piezas_vendidas'] = piezas;
     return map;
@@ -231,7 +237,9 @@ class VentaDao {
         where: 'venta_movil_id = ? AND estado = ?',
         whereArgs: [venta.ventaMovilId, 'pendiente'],
       );
-      if (rows.isEmpty) return; // Ya no estaba pendiente: no revertir dos veces.
+      if (rows.isEmpty) {
+        return; // Ya no estaba pendiente: no revertir dos veces.
+      }
 
       await txn.update(
         'ventas_pendientes',

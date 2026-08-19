@@ -9,8 +9,11 @@ class ProductoDao {
   Future<void> insertAll(List<Producto> productos) async {
     final batch = db.batch();
     for (final p in productos) {
-      batch.insert('productos', p.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert(
+        'productos',
+        p.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }
@@ -61,8 +64,7 @@ class ProductoDao {
   }
 
   Future<int> count() async {
-    final result =
-        await db.rawQuery('SELECT COUNT(*) as count FROM productos');
+    final result = await db.rawQuery('SELECT COUNT(*) as count FROM productos');
     return Sqflite.firstIntValue(result) ?? 0;
   }
 

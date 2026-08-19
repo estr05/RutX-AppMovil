@@ -16,11 +16,11 @@ class CobranzaPagoPage extends StatefulWidget {
   final double saldoPendiente;
 
   const CobranzaPagoPage({
-    Key? key,
+    super.key,
     required this.clienteId,
     required this.clienteNombre,
     required this.saldoPendiente,
-  }) : super(key: key);
+  });
 
   @override
   State<CobranzaPagoPage> createState() => _CobranzaPagoPageState();
@@ -94,8 +94,11 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
     }
     _amountControllers.clear();
     for (int i = 0; i < _documentos.length; i++) {
-      final saldo = (_documentos[i]['saldo_pendiente'] as num?)?.toDouble() ?? 0;
-      _amountControllers[i] = TextEditingController(text: saldo.toStringAsFixed(2));
+      final saldo =
+          (_documentos[i]['saldo_pendiente'] as num?)?.toDouble() ?? 0;
+      _amountControllers[i] = TextEditingController(
+        text: saldo.toStringAsFixed(2),
+      );
     }
   }
 
@@ -146,10 +149,7 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
     }
 
     final pagos = <Map<String, dynamic>>[
-      {
-        'forma_cobro_id': _formaCobroId,
-        'importe': _montoPagoIngresado,
-      },
+      {'forma_cobro_id': _formaCobroId, 'importe': _montoPagoIngresado},
     ];
 
     final cobranza = CobranzaPendiente(
@@ -171,14 +171,15 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => CobranzaExitosaPage(
-              clienteNombre: widget.clienteNombre,
-              totalCobrado: _montoPagoIngresado,
-              documentosPagados: documentosCobrar.length,
-              folio: result['folio'] as String?,
-              doctoPvId: result['docto_pv_id'] as int?,
-              esOffline: result['error'] == true,
-            ),
+            builder:
+                (_) => CobranzaExitosaPage(
+                  clienteNombre: widget.clienteNombre,
+                  totalCobrado: _montoPagoIngresado,
+                  documentosPagados: documentosCobrar.length,
+                  folio: result['folio'] as String?,
+                  doctoPvId: result['docto_pv_id'] as int?,
+                  esOffline: result['error'] == true,
+                ),
           ),
         );
       }
@@ -189,8 +190,6 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -209,14 +208,18 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
           ),
         ],
       ),
-      body: _isLoadingDocs
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentColor))
-          : _documentos.isEmpty
+      body:
+          _isLoadingDocs
+              ? const Center(
+                child: CircularProgressIndicator(color: AppTheme.accentColor),
+              )
+              : _documentos.isEmpty
               ? _buildEmptyState(textTheme, colorScheme)
               : _buildContent(textTheme, colorScheme),
-      bottomNavigationBar: _isLoadingDocs || _documentos.isEmpty
-          ? null
-          : _buildBottomBar(textTheme),
+      bottomNavigationBar:
+          _isLoadingDocs || _documentos.isEmpty
+              ? null
+              : _buildBottomBar(textTheme),
     );
   }
 
@@ -225,16 +228,24 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle_outline, size: 64, color: AppTheme.statusGreen),
+          Icon(
+            Icons.check_circle_outline,
+            size: 64,
+            color: AppTheme.statusGreen,
+          ),
           const SizedBox(height: 16),
           Text(
             'No hay documentos pendientes',
-            style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             '${widget.clienteNombre} no tiene creditos pendientes',
-            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -391,7 +402,11 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
               Expanded(
                 child: Row(
                   children: [
-                    Icon(Icons.receipt_outlined, size: 16, color: AppTheme.textSecondary),
+                    Icon(
+                      Icons.receipt_outlined,
+                      size: 16,
+                      color: AppTheme.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Folio: $folio',
@@ -423,14 +438,19 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
                   width: 140,
                   height: 36,
                   child: TextField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[\d.]+')),
                     ],
                     decoration: InputDecoration(
                       isDense: true,
                       prefixText: '\$ ',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(color: AppTheme.borderLight),
@@ -444,10 +464,13 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
                         borderSide: BorderSide(color: AppTheme.accentColor),
                       ),
                     ),
-                    style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     controller: _amountControllers[index]!,
                     onChanged: (val) {
-                      final monto = double.tryParse(val.replaceAll(',', '')) ?? 0;
+                      final monto =
+                          double.tryParse(val.replaceAll(',', '')) ?? 0;
                       setState(() => _montosPagar[index] = monto);
                     },
                   ),
@@ -476,42 +499,58 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: _formasCobro.map((fc) {
-            final id = fc['id'] as int;
-            final isActive = _formaCobroId == id;
-            return GestureDetector(
-              onTap: () => setState(() => _formaCobroId = id),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: isActive ? AppTheme.accentBgLight : AppTheme.surfaceCard,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isActive ? AppTheme.accentColor : AppTheme.borderLight,
-                    width: isActive ? 1.5 : 1.0,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      fc['icono'] as IconData,
-                      size: 18,
-                      color: isActive ? AppTheme.accentColor : AppTheme.textSecondary,
+          children:
+              _formasCobro.map((fc) {
+                final id = fc['id'] as int;
+                final isActive = _formaCobroId == id;
+                return GestureDetector(
+                  onTap: () => setState(() => _formaCobroId = id),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      fc['nombre'] as String,
-                      style: textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: isActive ? AppTheme.accentColor : AppTheme.textSecondary,
+                    decoration: BoxDecoration(
+                      color:
+                          isActive
+                              ? AppTheme.accentBgLight
+                              : AppTheme.surfaceCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color:
+                            isActive
+                                ? AppTheme.accentColor
+                                : AppTheme.borderLight,
+                        width: isActive ? 1.5 : 1.0,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          fc['icono'] as IconData,
+                          size: 18,
+                          color:
+                              isActive
+                                  ? AppTheme.accentColor
+                                  : AppTheme.textSecondary,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          fc['nombre'] as String,
+                          style: textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color:
+                                isActive
+                                    ? AppTheme.accentColor
+                                    : AppTheme.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
         ),
         if (_formaCobroId != null) ...[
           const SizedBox(height: 16),
@@ -525,14 +564,19 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
                 child: TextField(
                   controller: _montoPagoController,
                   onChanged: _onMontoChanged,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[\d.]+')),
                   ],
                   decoration: InputDecoration(
                     isDense: true,
                     prefixText: '\$ ',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(color: AppTheme.borderLight),
@@ -546,7 +590,9 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
                       borderSide: BorderSide(color: AppTheme.accentColor),
                     ),
                   ),
-                  style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -579,9 +625,19 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
             ),
           ),
           const SizedBox(height: 12),
-          _resumenRow('Total documentos', '\$${_currencyFormat.format(_totalSeleccionado)}', textTheme, false),
+          _resumenRow(
+            'Total documentos',
+            '\$${_currencyFormat.format(_totalSeleccionado)}',
+            textTheme,
+            false,
+          ),
           const SizedBox(height: 6),
-          _resumenRow('Total pagado', '\$${_currencyFormat.format(_montoPagoIngresado)}', textTheme, false),
+          _resumenRow(
+            'Total pagado',
+            '\$${_currencyFormat.format(_montoPagoIngresado)}',
+            textTheme,
+            false,
+          ),
           const SizedBox(height: 6),
           if (diferencia != 0)
             _resumenRow(
@@ -595,11 +651,19 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
     );
   }
 
-  Widget _resumenRow(String label, String value, TextTheme textTheme, bool isError) {
+  Widget _resumenRow(
+    String label,
+    String value,
+    TextTheme textTheme,
+    bool isError,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary)),
+        Text(
+          label,
+          style: textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
+        ),
         Text(
           value,
           style: textTheme.titleSmall?.copyWith(
@@ -627,21 +691,29 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
       child: SafeArea(
         child: ElevatedButton.icon(
           onPressed: _puedeCobrar ? _procesarCobro : null,
-          icon: _isSubmitting
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
-              : const Icon(Icons.payment),
+          icon:
+              _isSubmitting
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                  : const Icon(Icons.payment),
           label: Text(_isSubmitting ? 'PROCESANDO...' : 'COBRAR'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.accentColor,
-            disabledBackgroundColor: AppTheme.accentColor.withValues(alpha: 0.4),
+            disabledBackgroundColor: AppTheme.accentColor.withValues(
+              alpha: 0.4,
+            ),
             foregroundColor: Colors.white,
             disabledForegroundColor: Colors.white70,
             minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         ),
       ),

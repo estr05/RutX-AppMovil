@@ -10,15 +10,19 @@ class EmisorDao {
   static const int _rowId = 1;
 
   Future<void> insert(Emisor emisor) async {
-    await db.insert(
-      'emisor',
-      {'id': _rowId, ...emisor.toMap()},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('emisor', {
+      'id': _rowId,
+      ...emisor.toMap(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<Emisor?> get() async {
-    final maps = await db.query('emisor', where: 'id = ?', whereArgs: [_rowId], limit: 1);
+    final maps = await db.query(
+      'emisor',
+      where: 'id = ?',
+      whereArgs: [_rowId],
+      limit: 1,
+    );
     if (maps.isEmpty) return null;
     return Emisor.fromMap(maps.first);
   }

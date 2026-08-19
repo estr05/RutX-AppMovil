@@ -12,8 +12,7 @@ class SyncQueueProcessor {
   final AppDatabase _db;
   final Map<String, SyncHandler> _handlers = {};
 
-  SyncQueueProcessor({AppDatabase? db})
-      : _db = db ?? AppDatabase();
+  SyncQueueProcessor({AppDatabase? db}) : _db = db ?? AppDatabase();
 
   bool get _isOffline =>
       ConnectionStateService().currentState == RutxConnectionState.offline;
@@ -46,7 +45,10 @@ class SyncQueueProcessor {
           await _colaDao.marcarCompletado(item.id!);
           procesados++;
         } else {
-          await _colaDao.marcarError(item.id!, result['error']?.toString() ?? 'Error desconocido');
+          await _colaDao.marcarError(
+            item.id!,
+            result['error']?.toString() ?? 'Error desconocido',
+          );
         }
       } catch (e) {
         await _colaDao.marcarError(item.id!, e.toString());
@@ -71,7 +73,10 @@ class SyncQueueProcessor {
       if (result['success'] == true) {
         await _colaDao.marcarCompletado(item.id!);
       } else {
-        await _colaDao.marcarError(item.id!, result['error']?.toString() ?? 'Error');
+        await _colaDao.marcarError(
+          item.id!,
+          result['error']?.toString() ?? 'Error',
+        );
       }
       return result;
     } catch (e) {

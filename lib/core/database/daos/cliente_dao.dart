@@ -9,17 +9,17 @@ class ClienteDao {
   Future<void> insertAll(List<Cliente> clientes) async {
     final batch = db.batch();
     for (final c in clientes) {
-      batch.insert('clientes', c.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert(
+        'clientes',
+        c.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }
 
   Future<List<Cliente>> getAll() async {
-    final maps = await db.query(
-      'clientes',
-      orderBy: 'nombre_cliente ASC',
-    );
+    final maps = await db.query('clientes', orderBy: 'nombre_cliente ASC');
     return maps.map((m) => Cliente.fromMap(m)).toList();
   }
 

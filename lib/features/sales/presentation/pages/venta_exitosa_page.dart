@@ -7,8 +7,9 @@ class VentaExitosaPage extends StatelessWidget {
   final String clienteNombre;
   final double subtotal; // Total sin IVA
   final String ventaId;
-  final String? folioMicrosip; // Folio real generado por Microsip (ej: V000000123)
-  final String? folioLocal;    // Folio provisional offline (ej: PRV-0000001)
+  final String?
+  folioMicrosip; // Folio real generado por Microsip (ej: V000000123)
+  final String? folioLocal; // Folio provisional offline (ej: PRV-0000001)
   final bool isOnline;
   final List<Map<String, dynamic>> detalles;
   final double abono; // Abono en venta a credito
@@ -45,13 +46,13 @@ class VentaExitosaPage extends StatelessWidget {
     // Si hay folio real de Microsip PV, usarlo directamente (verde).
     // Si no, mostrar el folio provisional offline PRV-xxxxxxx (ambar).
     // Como ultimo recurso, una referencia local derivada del ID movil.
-    final folioDisplay = folioMicrosip != null
-        ? folioMicrosip!                            // ej: JA0000007 (folio oficial PV)
-        : folioLocal != null
-            ? folioLocal!                           // ej: PRV-0000001 (provisional)
-            : 'REF-${ventaId.length >= 8              // referencia local
-                ? ventaId.substring(ventaId.length - 8).toUpperCase()
-                : ventaId.toUpperCase()}';
+    final folioDisplay =
+        folioMicrosip != null
+            ? folioMicrosip! // ej: JA0000007 (folio oficial PV)
+            : folioLocal != null
+            ? folioLocal! // ej: PRV-0000001 (provisional)
+            : 'REF-${ventaId.length >= 8 // referencia local
+                    ? ventaId.substring(ventaId.length - 8).toUpperCase() : ventaId.toUpperCase()}';
     final esFolioReal = folioMicrosip != null;
 
     // Calculos de IVA usando utilidad compartida
@@ -148,9 +149,8 @@ class VentaExitosaPage extends StatelessWidget {
                   iva: iva,
                   totalConIva: totalConIva,
                   abono: abono,
-                  headerSubtitle: isOnline
-                      ? 'Comprobante de venta'
-                      : 'Venta pendiente',
+                  headerSubtitle:
+                      isOnline ? 'Comprobante de venta' : 'Venta pendiente',
                   emisorRfc: emisorRfc,
                   emisorNombre: emisorNombre,
                   sucursalDireccion: sucursalDireccion,
@@ -173,7 +173,11 @@ class VentaExitosaPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pop(context, 'go_home');
                       },
-                      icon: const Icon(Icons.home_outlined, color: AppTheme.textWhite, size: 22),
+                      icon: const Icon(
+                        Icons.home_outlined,
+                        color: AppTheme.textWhite,
+                        size: 22,
+                      ),
                       label: const Text(
                         'Inicio',
                         style: TextStyle(
@@ -203,7 +207,10 @@ class VentaExitosaPage extends StatelessWidget {
                             onPressed: () {
                               Navigator.pop(context, 'new_sale');
                             },
-                            icon: const Icon(Icons.add_circle_outline, size: 18),
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              size: 18,
+                            ),
                             label: const Text(
                               'Nueva venta',
                               style: TextStyle(
@@ -235,7 +242,10 @@ class VentaExitosaPage extends StatelessWidget {
                             onPressed: () {
                               Navigator.pop(context, 'go_history');
                             },
-                            icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                            icon: const Icon(
+                              Icons.receipt_long_outlined,
+                              size: 18,
+                            ),
                             label: const Text(
                               'Historial',
                               style: TextStyle(

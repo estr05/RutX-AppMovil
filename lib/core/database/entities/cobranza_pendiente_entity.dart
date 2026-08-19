@@ -34,22 +34,28 @@ class CobranzaPendiente {
       'vendedor_id': vendedorId,
       'cliente_id': clienteId,
       'fecha_hora': fechaHora,
-      'pagos': pagos.map((p) => {
-        'forma_cobro_id': p['forma_cobro_id'] as int,
-        'importe': (p['importe'] as num).toDouble(),
-      }).toList(),
-      'documentos_cobrar': documentos.map((d) => {
-        'docto_pv_original_id': d['docto_pv_original_id'] as int,
-        'importe_pagado': (d['importe_pagado'] as num).toDouble(),
-      }).toList(),
+      'pagos':
+          pagos
+              .map(
+                (p) => {
+                  'forma_cobro_id': p['forma_cobro_id'] as int,
+                  'importe': (p['importe'] as num).toDouble(),
+                },
+              )
+              .toList(),
+      'documentos_cobrar':
+          documentos
+              .map(
+                (d) => {
+                  'docto_pv_original_id': d['docto_pv_original_id'] as int,
+                  'importe_pagado': (d['importe_pagado'] as num).toDouble(),
+                },
+              )
+              .toList(),
     };
   }
 
-  CobranzaPendiente copyWith({
-    String? estado,
-    int? doctoPvId,
-    String? folio,
-  }) {
+  CobranzaPendiente copyWith({String? estado, int? doctoPvId, String? folio}) {
     return CobranzaPendiente(
       cobranzaMovilId: cobranzaMovilId,
       vendedorId: vendedorId,

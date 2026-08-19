@@ -4,7 +4,8 @@ import '../../features/notifications/data/repositories/notification_repository.d
 import '../storage/local_storage.dart';
 
 class NotificationPollingService with WidgetsBindingObserver {
-  static final NotificationPollingService _instance = NotificationPollingService._();
+  static final NotificationPollingService _instance =
+      NotificationPollingService._();
   factory NotificationPollingService() => _instance;
   NotificationPollingService._();
 

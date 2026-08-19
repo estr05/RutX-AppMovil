@@ -6,6 +6,7 @@ import 'login_page.dart';
 import '../../../sync/presentation/pages/download_page.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../../widgets/premium_delivery_animation.dart';
+
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -28,18 +29,22 @@ class _SplashPageState extends State<SplashPage> {
 
     try {
       final hasToken = await _authRepository.hasValidToken();
-      
+
       if (!mounted) return;
 
       if (hasToken) {
         final db = AppDatabase();
-        
+
         // Timeout de 10 segundos para la inicialización de la BD
         await db.initialize().timeout(const Duration(seconds: 10));
-        
-        final clientes = await db.clienteDao.getAll().timeout(const Duration(seconds: 5));
-        final productos = await db.productDao.getAll().timeout(const Duration(seconds: 5));
-        
+
+        final clientes = await db.clienteDao.getAll().timeout(
+          const Duration(seconds: 5),
+        );
+        final productos = await db.productDao.getAll().timeout(
+          const Duration(seconds: 5),
+        );
+
         if (!mounted) return;
 
         if (clientes.isNotEmpty && productos.isNotEmpty) {
@@ -120,10 +125,13 @@ class _SplashPageState extends State<SplashPage> {
                       letterSpacing: 2,
                     ),
                   ),
-                  const SizedBox(height: 32), // Ajustamos el espaciado para que respire la animación
+                  const SizedBox(
+                    height: 32,
+                  ), // Ajustamos el espaciado para que respire la animación
                   SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: const PremiumDeliveryAnimation(), // La nueva animación
+                    child:
+                        const PremiumDeliveryAnimation(), // La nueva animación
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -139,7 +147,10 @@ class _SplashPageState extends State<SplashPage> {
                 padding: const EdgeInsets.only(bottom: 24.0),
                 child: Text(
                   'v2.4.1 • Sincronizador M3',
-                  style: TextStyle(color: AppTheme.secondaryColor60, fontSize: 12),
+                  style: TextStyle(
+                    color: AppTheme.secondaryColor60,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ),

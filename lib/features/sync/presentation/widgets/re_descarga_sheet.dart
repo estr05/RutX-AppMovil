@@ -15,7 +15,7 @@ import '../../data/sync_repository.dart';
 ///
 /// Retorna `true` vía Navigator cuando la descarga terminó con éxito.
 class ReDescargaSheet extends StatefulWidget {
-  const ReDescargaSheet({Key? key}) : super(key: key);
+  const ReDescargaSheet({super.key});
 
   @override
   State<ReDescargaSheet> createState() => _ReDescargaSheetState();
@@ -39,7 +39,8 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
   Future<void> _ejecutarAnalisis() async {
     if (ConnectionStateService().isOffline) {
       setState(() {
-        _error = 'Sin conexión al servidor. Conéctate a una red e intenta nuevamente.';
+        _error =
+            'Sin conexión al servidor. Conéctate a una red e intenta nuevamente.';
         _analizando = false;
       });
       return;
@@ -185,7 +186,10 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.textSecondary,
+              ),
             ),
             const SizedBox(height: 24),
             OutlinedButton.icon(
@@ -207,7 +211,8 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
       final totalRemovidos = _analisis?.totalRemovidos ?? 0;
       String textoProgreso = 'Actualizando catálogos...';
       if (totalNuevos > 0 && totalRemovidos > 0) {
-        textoProgreso = 'Actualizando catálogo ($totalNuevos nuevos, $totalRemovidos obsoletos)...';
+        textoProgreso =
+            'Actualizando catálogo ($totalNuevos nuevos, $totalRemovidos obsoletos)...';
       } else if (totalNuevos > 0) {
         textoProgreso = 'Descargando $totalNuevos elementos faltantes...';
       } else if (totalRemovidos > 0) {
@@ -222,7 +227,10 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
             const SizedBox(height: 20),
             Text(
               textoProgreso,
-              style: const TextStyle(fontSize: 15, color: AppTheme.textSecondary),
+              style: const TextStyle(
+                fontSize: 15,
+                color: AppTheme.textSecondary,
+              ),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -258,7 +266,8 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
     final analisis = _analisis!;
     final estaAlDia = analisis.estaAlDia;
 
-    String mensajeBanner = 'Estás al día: tu catálogo coincide con el servidor.';
+    String mensajeBanner =
+        'Estás al día: tu catálogo coincide con el servidor.';
     if (!estaAlDia) {
       if (analisis.totalNuevos > 0 && analisis.totalRemovidos > 0) {
         mensajeBanner =
@@ -307,7 +316,8 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: estaAlDia ? AppTheme.alertSuccessBg : AppTheme.primaryLightBg,
+            color:
+                estaAlDia ? AppTheme.alertSuccessBg : AppTheme.primaryLightBg,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -323,7 +333,10 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: estaAlDia ? AppTheme.statusGreen : AppTheme.primaryDarkText,
+                    color:
+                        estaAlDia
+                            ? AppTheme.statusGreen
+                            : AppTheme.primaryDarkText,
                   ),
                 ),
               ),
@@ -350,25 +363,27 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
         _buildFilaComparacion(
           icon: Icons.business_outlined,
           titulo: 'Emisor y sucursal',
-          detalle: analisis.emisor != null || analisis.sucursal != null
-              ? 'Disponibles en el servidor (se actualizarán)'
-              : 'No incluidos en la respuesta',
+          detalle:
+              analisis.emisor != null || analisis.sucursal != null
+                  ? 'Disponibles en el servidor (se actualizarán)'
+                  : 'No incluidos en la respuesta',
           color: AppTheme.categoryTeal,
         ),
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: estaAlDia
-              ? ElevatedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.check),
-                  label: Text(botonLabel),
-                )
-              : ElevatedButton.icon(
-                  onPressed: _descargar,
-                  icon: const Icon(Icons.download_outlined),
-                  label: Text(botonLabel),
-                ),
+          child:
+              estaAlDia
+                  ? ElevatedButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.check),
+                    label: Text(botonLabel),
+                  )
+                  : ElevatedButton.icon(
+                    onPressed: _descargar,
+                    icon: const Icon(Icons.download_outlined),
+                    label: Text(botonLabel),
+                  ),
         ),
         if (!estaAlDia) ...[
           const SizedBox(height: 8),
@@ -395,54 +410,57 @@ class _ReDescargaSheetState extends State<ReDescargaSheet> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: AppTheme.borderLight,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  const Icon(Icons.sync, color: AppTheme.accentColor),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      'Descargar nuevamente',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+          top: false,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: AppTheme.borderLight,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close, color: AppTheme.textSecondary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Descarga solo lo que te falte, sin duplicar datos.',
-                style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-              ),
-              const SizedBox(height: 20),
-              _buildContenido(),
-            ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    const Icon(Icons.sync, color: AppTheme.accentColor),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Descargar nuevamente',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(
+                        Icons.close,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Descarga solo lo que te falte, sin duplicar datos.',
+                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                ),
+                const SizedBox(height: 20),
+                _buildContenido(),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

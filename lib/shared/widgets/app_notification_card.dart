@@ -12,7 +12,7 @@ class AppNotificationCard extends StatelessWidget {
   final VoidCallback? onClose;
 
   const AppNotificationCard({
-    Key? key,
+    super.key,
     this.title,
     required this.message,
     required this.icon,
@@ -21,7 +21,7 @@ class AppNotificationCard extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +43,15 @@ class AppNotificationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Left color border
-            Container(
-              width: 6,
-              color: iconColor,
-            ),
-            
+            Container(width: 6, color: iconColor),
+
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 12.0,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -100,7 +100,7 @@ class AppNotificationCard extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Close button
             if (onClose != null)
               Align(

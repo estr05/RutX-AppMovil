@@ -10,14 +10,14 @@ class SummaryMetricsCard extends StatelessWidget {
   final VoidCallback? onPiezasTap;
 
   const SummaryMetricsCard({
-    Key? key,
+    super.key,
     required this.totalVentas,
     required this.clientesVisitados,
     required this.piezasVendidas,
     this.onVentasTap,
     this.onClientesTap,
     this.onPiezasTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -103,10 +103,7 @@ class SummaryMetricsCard extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: bgColor,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
               child: Icon(icon, color: iconColor, size: 24),
             ),
             const SizedBox(height: 12),

@@ -21,28 +21,39 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2800), // Un poco más rápido para el cierre
+      duration: const Duration(
+        milliseconds: 2800,
+      ), // Un poco más rápido para el cierre
     );
 
     // Movimiento horizontal del auto (de la derecha 1.0 a la izquierda 0.0)
     _carTranslation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.15, 0.85, curve: Curves.easeInOutCubic), 
+        curve: const Interval(0.15, 0.85, curve: Curves.easeInOutCubic),
       ),
     );
 
     // Efecto de rebote del auto al avanzar
     _carBounce = TweenSequence<double>([
       for (int i = 0; i < 7; i++) ...[
-        TweenSequenceItem(tween: Tween(begin: 0.0, end: -3.0).chain(CurveTween(curve: Curves.easeOut)), weight: 1),
-        TweenSequenceItem(tween: Tween(begin: -3.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 1),
-      ]
+        TweenSequenceItem(
+          tween: Tween(
+            begin: 0.0,
+            end: -3.0,
+          ).chain(CurveTween(curve: Curves.easeOut)),
+          weight: 1,
+        ),
+        TweenSequenceItem(
+          tween: Tween(
+            begin: -3.0,
+            end: 0.0,
+          ).chain(CurveTween(curve: Curves.easeIn)),
+          weight: 1,
+        ),
+      ],
     ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.15, 0.85),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.15, 0.85)),
     );
 
     // Viento/Líneas de velocidad (van hacia la derecha porque el camión va a la izquierda)
@@ -79,7 +90,8 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
           return AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              final bool isCarMoving = _controller.value > 0.15 && _controller.value < 0.85;
+              final bool isCarMoving =
+                  _controller.value > 0.15 && _controller.value < 0.85;
 
               return Stack(
                 alignment: Alignment.centerLeft,
@@ -113,7 +125,9 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
                               width: 15,
                               height: 2,
                               decoration: BoxDecoration(
-                                color: AppTheme.textWhite.withValues(alpha: 0.5),
+                                color: AppTheme.textWhite.withValues(
+                                  alpha: 0.5,
+                                ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -122,7 +136,9 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
                               width: 8,
                               height: 2,
                               decoration: BoxDecoration(
-                                color: AppTheme.textWhite.withValues(alpha: 0.3),
+                                color: AppTheme.textWhite.withValues(
+                                  alpha: 0.3,
+                                ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -136,12 +152,14 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
                     bottom: 8,
                     left: maxDistance,
                     child: Opacity(
-                      opacity: 0.6, // Le bajamos la opacidad para dar a entender que ya está inactiva/cerrada
+                      opacity:
+                          0.6, // Le bajamos la opacidad para dar a entender que ya está inactiva/cerrada
                       child: SvgPicture.asset(
-                        'assets/images/store_3d.svg', 
+                        'assets/images/store_3d.svg',
                         width: 48,
                         height: 48,
-                        placeholderBuilder: (BuildContext context) => const SizedBox.shrink(),
+                        placeholderBuilder:
+                            (BuildContext context) => const SizedBox.shrink(),
                       ),
                     ),
                   ),
@@ -151,12 +169,16 @@ class _EndOfDayAnimationState extends State<EndOfDayAnimation>
                     bottom: 12,
                     left: 0,
                     child: Transform.translate(
-                      offset: Offset(_carTranslation.value * maxDistance, _carBounce.value),
+                      offset: Offset(
+                        _carTranslation.value * maxDistance,
+                        _carBounce.value,
+                      ),
                       child: SvgPicture.asset(
                         'assets/images/truck_comeback_3d.svg', // El nuevo camión mirando a la izquierda
                         width: 42,
                         height: 42,
-                        placeholderBuilder: (BuildContext context) => const SizedBox.shrink(),
+                        placeholderBuilder:
+                            (BuildContext context) => const SizedBox.shrink(),
                       ),
                     ),
                   ),

@@ -13,11 +13,18 @@ class CobranzaRepository {
   bool get _isOffline =>
       ConnectionStateService().currentState == RutxConnectionState.offline;
 
-  Future<Map<String, dynamic>> insertCobranza(CobranzaPendiente cobranza) async {
+  Future<Map<String, dynamic>> insertCobranza(
+    CobranzaPendiente cobranza,
+  ) async {
     await _saveLocally(cobranza);
     final queue = SyncQueueProcessor();
     await queue.enqueue('cobranza', cobranza.cobranzaMovilId);
-    if (_isOffline) return {'error': true, 'message': 'Guardado local. Pendiente de sincronizacion.'};
+    if (_isOffline) {
+      return {
+        'error': true,
+        'message': 'Guardado local. Pendiente de sincronizacion.',
+      };
+    }
     final result = await _syncOne(cobranza);
     if (result['error'] != true) {
       await queue.markCompleted('cobranza', cobranza.cobranzaMovilId);
@@ -54,7 +61,8 @@ class CobranzaRepository {
     } catch (e) {
       return {
         'error': true,
-        'message': 'Cobranza guardada localmente. Se sincronizara cuando haya conexion.',
+        'message':
+            'Cobranza guardada localmente. Se sincronizara cuando haya conexion.',
       };
     }
   }
@@ -69,7 +77,9 @@ class CobranzaRepository {
         (c) => c?.cobranzaMovilId == cobranzaMovilId,
         orElse: () => null,
       );
-      if (cobranza == null) return {'error': true, 'message': 'cobranza_no_encontrada'};
+      if (cobranza == null) {
+        return {'error': true, 'message': 'cobranza_no_encontrada'};
+      }
       return await _syncOne(cobranza);
     } catch (e) {
       return {'error': true, 'message': e.toString()};

@@ -8,7 +8,7 @@ import '../../data/sync_repository.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
 
 class DownloadPage extends StatefulWidget {
-  const DownloadPage({Key? key}) : super(key: key);
+  const DownloadPage({super.key});
 
   @override
   State<DownloadPage> createState() => _DownloadPageState();
@@ -63,7 +63,12 @@ class _DownloadPageState extends State<DownloadPage> {
     }
   }
 
-  Widget _buildSyncCard(String title, String subtitle, IconData icon, String status) {
+  Widget _buildSyncCard(
+    String title,
+    String subtitle,
+    IconData icon,
+    String status,
+  ) {
     Color statusColor = AppTheme.textSecondary;
     if (status == 'Descargando...') {
       statusColor = AppTheme.accentColor;
@@ -91,13 +96,34 @@ class _DownloadPageState extends State<DownloadPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ),
-          Text(status, style: TextStyle(color: statusColor, fontSize: 14, fontWeight: status == 'En espera' ? FontWeight.normal : FontWeight.bold)),
+          Text(
+            status,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 14,
+              fontWeight:
+                  status == 'En espera' ? FontWeight.normal : FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -147,7 +173,12 @@ class _DownloadPageState extends State<DownloadPage> {
           // Encabezado
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 60, bottom: 30, left: 24, right: 24),
+            padding: const EdgeInsets.only(
+              top: 60,
+              bottom: 30,
+              left: 24,
+              right: 24,
+            ),
             color: AppTheme.primaryColor,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,18 +195,42 @@ class _DownloadPageState extends State<DownloadPage> {
                       child: const Center(
                         child: Text(
                           'RX',
-                          style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                            color: AppTheme.textWhite,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text('RutX', style: TextStyle(color: AppTheme.textWhite, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'RutX',
+                      style: TextStyle(
+                        color: AppTheme.textWhite,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                const Text('Descarga del día', style: TextStyle(color: AppTheme.textWhite, fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Descarga del día',
+                  style: TextStyle(
+                    color: AppTheme.textWhite,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                const Text('Descarga los datos para trabajar sin internet hoy.', style: TextStyle(color: AppTheme.secondaryColor, fontSize: 14)),
+                const Text(
+                  'Descarga los datos para trabajar sin internet hoy.',
+                  style: TextStyle(
+                    color: AppTheme.secondaryColor,
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ),
@@ -199,12 +254,37 @@ class _DownloadPageState extends State<DownloadPage> {
                     ),
                     child: Column(
                       children: [
-                        _buildSyncCard('Catálogo de productos', _productsCount, Icons.inventory_2_outlined, _syncStatus),
-                        _buildSyncCard('Clientes de la ruta', _clientsCount, Icons.people_outline, _syncStatus),
+                        _buildSyncCard(
+                          'Catálogo de productos',
+                          _productsCount,
+                          Icons.inventory_2_outlined,
+                          _syncStatus,
+                        ),
+                        _buildSyncCard(
+                          'Clientes de la ruta',
+                          _clientsCount,
+                          Icons.people_outline,
+                          _syncStatus,
+                        ),
                         if (_creditoCount != '-- clientes')
-                          _buildSyncCard('Clientes a crédito', _creditoCount, Icons.credit_card_outlined, _syncStatus),
-                        _buildSyncCard('Lista de precios', 'Vigente hoy', Icons.price_change_outlined, _syncStatus),
-                        _buildSyncCard('Ruta asignada', 'Ruta Activa', Icons.map_outlined, _syncStatus),
+                          _buildSyncCard(
+                            'Clientes a crédito',
+                            _creditoCount,
+                            Icons.credit_card_outlined,
+                            _syncStatus,
+                          ),
+                        _buildSyncCard(
+                          'Lista de precios',
+                          'Vigente hoy',
+                          Icons.price_change_outlined,
+                          _syncStatus,
+                        ),
+                        _buildSyncCard(
+                          'Ruta asignada',
+                          'Ruta Activa',
+                          Icons.map_outlined,
+                          _syncStatus,
+                        ),
                       ],
                     ),
                   ),
@@ -212,13 +292,21 @@ class _DownloadPageState extends State<DownloadPage> {
                   if (_isSyncing && _syncStatus == 'Descargando...')
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: CircularProgressIndicator(color: AppTheme.accentColor),
+                      child: CircularProgressIndicator(
+                        color: AppTheme.accentColor,
+                      ),
                     )
                   else ...[
                     ElevatedButton.icon(
                       onPressed: _isSyncing ? null : _handleSync,
                       icon: const Icon(Icons.download_outlined),
-                      label: const Text('Descargar datos del día', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      label: const Text(
+                        'Descargar datos del día',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -228,12 +316,16 @@ class _DownloadPageState extends State<DownloadPage> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const HomePage()),
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.skip_next_outlined),
                         label: const Text('Continuar con datos locales'),
-                        style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.textSecondary,
+                        ),
                       ),
                   ],
                   const SizedBox(height: 12),
@@ -242,10 +334,18 @@ class _DownloadPageState extends State<DownloadPage> {
                       onPressed: _forceResync,
                       icon: const Icon(Icons.refresh, size: 18),
                       label: const Text('Forzar re-sincronización'),
-                      style: TextButton.styleFrom(foregroundColor: AppTheme.accentColor),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.accentColor,
+                      ),
                     ),
                   const SizedBox(height: 16),
-                  Text('$_vendedorNombre • Vendedor #$_vendedorId', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                  Text(
+                    '$_vendedorNombre • Vendedor #$_vendedorId',
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),

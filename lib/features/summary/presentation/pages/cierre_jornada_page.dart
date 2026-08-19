@@ -11,10 +11,10 @@ class CierreJornadaPage extends StatefulWidget {
   final VoidCallback onConfirmar;
 
   const CierreJornadaPage({
-    Key? key,
+    super.key,
     required this.vendedorId,
     required this.onConfirmar,
-  }) : super(key: key);
+  });
 
   @override
   State<CierreJornadaPage> createState() => _CierreJornadaPageState();
@@ -52,9 +52,7 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
     });
 
     try {
-      final result = await _summaryRepo.getDailySummary(
-        DateTime.now(),
-      );
+      final result = await _summaryRepo.getDailySummary(DateTime.now());
 
       if (mounted) {
         if (result != null) {
@@ -62,7 +60,8 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             _summaryData = result;
             _isLoading = false;
           });
-        } else if (ConnectionStateService().currentState == RutxConnectionState.offline) {
+        } else if (ConnectionStateService().currentState ==
+            RutxConnectionState.offline) {
           setState(() {
             _errorMessage = 'sin_conexion';
             _isLoading = false;
@@ -89,9 +88,12 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: const RutxAppBar(title: 'Cierre de Jornada'),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentColor))
-          : _errorMessage.isNotEmpty
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: AppTheme.accentColor),
+              )
+              : _errorMessage.isNotEmpty
               ? _buildErrorState()
               : _buildSummaryState(),
     );
@@ -100,10 +102,12 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
   Widget _buildErrorState() {
     final bool isSinConexion = _errorMessage == 'sin_conexion';
 
-    final String titulo = isSinConexion ? 'Sin conexion' : 'Error al obtener el resumen';
-    final String mensaje = isSinConexion
-        ? 'No hay conexion al servidor. Puedes cerrar la jornada de forma local y los datos se sincronizaran cuando se restablezca la conexion.'
-        : 'El servidor respondio con un error. Verifica que el servicio este activo e intenta de nuevo.';
+    final String titulo =
+        isSinConexion ? 'Sin conexion' : 'Error al obtener el resumen';
+    final String mensaje =
+        isSinConexion
+            ? 'No hay conexion al servidor. Puedes cerrar la jornada de forma local y los datos se sincronizaran cuando se restablezca la conexion.'
+            : 'El servidor respondio con un error. Verifica que el servicio este activo e intenta de nuevo.';
 
     return Center(
       child: Padding(
@@ -118,7 +122,9 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isSinConexion ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+                isSinConexion
+                    ? Icons.wifi_off_rounded
+                    : Icons.error_outline_rounded,
                 color: AppTheme.statusRed,
                 size: 56,
               ),
@@ -136,7 +142,11 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             Text(
               mensaje,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14, height: 1.5),
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 14,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 32),
             // Solo mostrar el botón de cierre local si no hay conexión
@@ -148,12 +158,18 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
                   icon: const Icon(Icons.lock_rounded, color: Colors.white),
                   label: const Text(
                     'Cerrar jornada sin conexion',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accentColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
               ),
@@ -172,7 +188,9 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
               },
               icon: const Icon(Icons.refresh_rounded, size: 18),
               label: const Text('Reintentar'),
-              style: TextButton.styleFrom(foregroundColor: AppTheme.primaryColor),
+              style: TextButton.styleFrom(
+                foregroundColor: AppTheme.primaryColor,
+              ),
             ),
           ],
         ),
@@ -194,7 +212,8 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
     final num dineroCaja = resumen['total_cierre'] ?? 0;
     final num cobros = resumen['cobrado'] ?? 0;
     final num totalCredito = resumen['credito'] ?? 0;
-    final num totalEfectivo = (resumen['contado'] ?? 0) + (resumen['cobrado_efectivo'] ?? 0);
+    final num totalEfectivo =
+        (resumen['contado'] ?? 0) + (resumen['cobrado_efectivo'] ?? 0);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -219,10 +238,29 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
           _buildMetricCard(
             title: 'Indicadores',
             items: [
-              _buildRowItem('Clientes Visitados', clientesVisitados.toString(), Icons.people),
-              _buildRowItem('Efectividad (Ventas)', efectividad.toString(), Icons.check_circle, color: Colors.green),
-              _buildRowItem('No Ventas', noVentas.toString(), Icons.cancel, color: Colors.red),
-              _buildRowItem('Devoluciones', devoluciones.toString(), Icons.keyboard_return, color: Colors.orange),
+              _buildRowItem(
+                'Clientes Visitados',
+                clientesVisitados.toString(),
+                Icons.people,
+              ),
+              _buildRowItem(
+                'Efectividad (Ventas)',
+                efectividad.toString(),
+                Icons.check_circle,
+                color: Colors.green,
+              ),
+              _buildRowItem(
+                'No Ventas',
+                noVentas.toString(),
+                Icons.cancel,
+                color: Colors.red,
+              ),
+              _buildRowItem(
+                'Devoluciones',
+                devoluciones.toString(),
+                Icons.keyboard_return,
+                color: Colors.orange,
+              ),
             ],
           ),
 
@@ -231,10 +269,29 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
           _buildMetricCard(
             title: 'Valores',
             items: [
-              _buildRowItem('Dinero en Caja', formatter.format(dineroCaja), Icons.account_balance_wallet, bold: true),
-              _buildRowItem('Cobros Realizados', formatter.format(cobros), Icons.monetization_on),
-              _buildRowItem('Total Credito', formatter.format(totalCredito), Icons.credit_card),
-              _buildRowItem('Total Efectivo', formatter.format(totalEfectivo), Icons.attach_money, color: Colors.green, bold: true),
+              _buildRowItem(
+                'Dinero en Caja',
+                formatter.format(dineroCaja),
+                Icons.account_balance_wallet,
+                bold: true,
+              ),
+              _buildRowItem(
+                'Cobros Realizados',
+                formatter.format(cobros),
+                Icons.monetization_on,
+              ),
+              _buildRowItem(
+                'Total Credito',
+                formatter.format(totalCredito),
+                Icons.credit_card,
+              ),
+              _buildRowItem(
+                'Total Efectivo',
+                formatter.format(totalEfectivo),
+                Icons.attach_money,
+                color: Colors.green,
+                bold: true,
+              ),
             ],
           ),
 
@@ -244,32 +301,49 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Confirmar Cierre'),
-                  content: const Text('Estas seguro de que deseas cerrar la jornada? No podras registrar mas ventas hoy.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancelar'),
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text('Confirmar Cierre'),
+                      content: const Text(
+                        'Estas seguro de que deseas cerrar la jornada? No podras registrar mas ventas hoy.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancelar'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.accentColor,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            widget.onConfirmar();
+                          },
+                          child: const Text(
+                            'Cerrar Jornada',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentColor),
-                      onPressed: () {
-                        Navigator.pop(context);
-                        widget.onConfirmar();
-                      },
-                      child: const Text('Cerrar Jornada', style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
               );
             },
             icon: const Icon(Icons.lock, color: Colors.white),
-            label: const Text('CONFIRMAR CIERRE', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            label: const Text(
+              'CONFIRMAR CIERRE',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.accentColor,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -277,7 +351,10 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
     );
   }
 
-  Widget _buildMetricCard({required String title, required List<Widget> items}) {
+  Widget _buildMetricCard({
+    required String title,
+    required List<Widget> items,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surfaceColor,
@@ -287,7 +364,7 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -311,7 +388,13 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
     );
   }
 
-  Widget _buildRowItem(String label, String value, IconData icon, {Color? color, bool bold = false}) {
+  Widget _buildRowItem(
+    String label,
+    String value,
+    IconData icon, {
+    Color? color,
+    bool bold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -323,7 +406,10 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary),
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: AppTheme.textPrimary,
+                ),
               ),
             ],
           ),
@@ -332,7 +418,10 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: bold ? FontWeight.bold : FontWeight.w500,
-              color: bold ? (color ?? AppTheme.textPrimary) : AppTheme.textSecondary,
+              color:
+                  bold
+                      ? (color ?? AppTheme.textPrimary)
+                      : AppTheme.textSecondary,
             ),
           ),
         ],

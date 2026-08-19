@@ -7,9 +7,9 @@ class ImpuestoProducto {
   ImpuestoProducto({required this.impuestoId, required this.pctjeImpuesto});
 
   Map<String, dynamic> toMap() => {
-        'impuesto_id': impuestoId,
-        'pctje_impuesto': pctjeImpuesto,
-      };
+    'impuesto_id': impuestoId,
+    'pctje_impuesto': pctjeImpuesto,
+  };
 
   factory ImpuestoProducto.fromMap(Map<String, dynamic> map) =>
       ImpuestoProducto(
@@ -23,10 +23,10 @@ class Producto {
   final String nombre;
   final String estatus;
   final String clave;
-  final double precio;             // Sin impuestos (PRECIOS_ARTICULOS, lista 42)
-  final double precioConImpuesto;  // Con impuestos compuestos (∏ 1+pctje/100)
-  final int porcentajeImpuesto;   // Impuesto principal (0, 16, etc.)
-  final int impuestoId;           // Impuesto principal (622, 2204, etc.)
+  final double precio; // Sin impuestos (PRECIOS_ARTICULOS, lista 42)
+  final double precioConImpuesto; // Con impuestos compuestos (∏ 1+pctje/100)
+  final int porcentajeImpuesto; // Impuesto principal (0, 16, etc.)
+  final int impuestoId; // Impuesto principal (622, 2204, etc.)
   final List<ImpuestoProducto> impuestos; // Impuestos reales del articulo
 
   // Nuevos campos para detalle
@@ -54,23 +54,24 @@ class Producto {
   });
 
   Map<String, dynamic> toMap() => {
-        'articulo_id': articuloId,
-        'nombre': nombre,
-        'estatus': estatus,
-        'clave': clave,
-        'precio': precio,
-        'precio_con_impuesto': precioConImpuesto,
-        'porcentaje_impuesto': porcentajeImpuesto,
-        'impuesto_id': impuestoId,
-        'impuestos_json': impuestos.isEmpty
+    'articulo_id': articuloId,
+    'nombre': nombre,
+    'estatus': estatus,
+    'clave': clave,
+    'precio': precio,
+    'precio_con_impuesto': precioConImpuesto,
+    'porcentaje_impuesto': porcentajeImpuesto,
+    'impuesto_id': impuestoId,
+    'impuestos_json':
+        impuestos.isEmpty
             ? null
             : jsonEncode(impuestos.map((i) => i.toMap()).toList()),
-        'existencias_gral': existenciasGral,
-        'existencias': existencias,
-        'peso': peso,
-        'merma': merma,
-        'permite_merma': permiteMerma,
-      };
+    'existencias_gral': existenciasGral,
+    'existencias': existencias,
+    'peso': peso,
+    'merma': merma,
+    'permite_merma': permiteMerma,
+  };
 
   factory Producto.fromMap(Map<String, dynamic> map) {
     final id = map['articulo_id'] as int;
@@ -89,7 +90,8 @@ class Producto {
       estatus: map['estatus'] as String? ?? 'A',
       clave: clave,
       precio: precio,
-      precioConImpuesto: (map['precio_con_impuesto'] as num?)?.toDouble() ?? 0.0,
+      precioConImpuesto:
+          (map['precio_con_impuesto'] as num?)?.toDouble() ?? 0.0,
       porcentajeImpuesto: map['porcentaje_impuesto'] as int? ?? 16,
       impuestoId: map['impuesto_id'] as int? ?? 622,
       impuestos: _parseImpuestos(map['impuestos_json'] as String?),

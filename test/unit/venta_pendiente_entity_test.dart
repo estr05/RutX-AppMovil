@@ -9,7 +9,8 @@ Map<String, dynamic> _fullMap() => {
   'fecha_hora': '2026-07-28T10:30:00.000',
   'estado': 'pendiente',
   'total': 150.0,
-  'detalles_json': '[{"articulo_id":1,"unidades":2,"precio_unitario":75.0,"impuesto_id":622}]',
+  'detalles_json':
+      '[{"articulo_id":1,"unidades":2,"precio_unitario":75.0,"impuesto_id":622}]',
   'forma_cobro_id': 67,
   'caja_id': null,
   'docto_pv_id': null,
@@ -90,8 +91,12 @@ void main() {
         clienteNombre: 'Test',
         fechaHora: '2026-01-01T00:00:00',
         total: 100.0,
-        detalles: [{'articulo_id': 1, 'unidades': 1, 'precio_unitario': 100.0}],
-        pagos: [{'forma_cobro_id': 67, 'importe': 100.0}],
+        detalles: [
+          {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 100.0},
+        ],
+        pagos: [
+          {'forma_cobro_id': 67, 'importe': 100.0},
+        ],
       );
 
       final map = v.toMap();
@@ -138,8 +143,18 @@ void main() {
         clienteNombre: 'Test',
         fechaHora: '2026-01-01T00:00:00',
         formaCobroId: 71,
-        detalles: [{'articulo_id': 1, 'unidades': 2, 'precio_unitario': 50.0, 'impuesto_id': 622}],
-        pagos: [{'forma_cobro_id': 67, 'importe': 50.0}, {'forma_cobro_id': 71, 'importe': 50.0}],
+        detalles: [
+          {
+            'articulo_id': 1,
+            'unidades': 2,
+            'precio_unitario': 50.0,
+            'impuesto_id': 622,
+          },
+        ],
+        pagos: [
+          {'forma_cobro_id': 67, 'importe': 50.0},
+          {'forma_cobro_id': 71, 'importe': 50.0},
+        ],
       );
 
       final json = v.toPvJson();
@@ -156,7 +171,14 @@ void main() {
         clienteId: 1,
         clienteNombre: 'Test',
         fechaHora: '2026-01-01T00:00:00',
-        detalles: [{'articulo_id': 1, 'unidades': 1, 'precio_unitario': 50.0, 'impuesto_id': 622}],
+        detalles: [
+          {
+            'articulo_id': 1,
+            'unidades': 1,
+            'precio_unitario': 50.0,
+            'impuesto_id': 622,
+          },
+        ],
       );
 
       final json = v.toPvJson();
@@ -332,7 +354,12 @@ void main() {
         fechaHora: '2026-07-28T12:00:00.000',
         total: 250.0,
         detalles: [
-          {'articulo_id': 1, 'unidades': 5, 'precio_unitario': 50.0, 'impuesto_id': 622},
+          {
+            'articulo_id': 1,
+            'unidades': 5,
+            'precio_unitario': 50.0,
+            'impuesto_id': 622,
+          },
         ],
         formaCobroId: 67,
       );

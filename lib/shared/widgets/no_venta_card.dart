@@ -15,11 +15,7 @@ class NoVentaCard extends StatelessWidget {
   /// Callback opcional al presionar la tarjeta (navegación al resumen).
   final VoidCallback? onTap;
 
-  const NoVentaCard({
-    super.key,
-    required this.venta,
-    this.onTap,
-  });
+  const NoVentaCard({super.key, required this.venta, this.onTap});
 
   Map<String, dynamic> get _detalle =>
       venta.detalles.isNotEmpty ? venta.detalles.first : {};
@@ -101,8 +97,11 @@ class NoVentaCard extends StatelessWidget {
                       // Motivo
                       Row(
                         children: [
-                          const Icon(Icons.report_problem_outlined,
-                              size: 14, color: AppTheme.statusRed),
+                          const Icon(
+                            Icons.report_problem_outlined,
+                            size: 14,
+                            color: AppTheme.statusRed,
+                          ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -132,8 +131,11 @@ class NoVentaCard extends StatelessWidget {
                       // Fecha y hora
                       Row(
                         children: [
-                          const Icon(Icons.access_time_rounded,
-                              size: 13, color: AppTheme.textSecondary),
+                          const Icon(
+                            Icons.access_time_rounded,
+                            size: 13,
+                            color: AppTheme.textSecondary,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             _formatDateTime(venta.fechaHora),
@@ -151,8 +153,11 @@ class NoVentaCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 if (onTap != null)
-                  const Icon(Icons.chevron_right_rounded,
-                      size: 20, color: AppTheme.textSecondary),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: AppTheme.textSecondary,
+                  ),
               ],
             ),
           ),

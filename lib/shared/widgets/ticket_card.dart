@@ -118,13 +118,19 @@ class TicketCard extends StatelessWidget {
                   _TicketRow(label: 'Empresa', value: emisorNombre!),
                   const SizedBox(height: 2),
                 ],
-                if ((sucursalDireccion != null && sucursalDireccion!.isNotEmpty) ||
-                    (sucursalPoblacion != null && sucursalPoblacion!.isNotEmpty)) ...[
+                if ((sucursalDireccion != null &&
+                        sucursalDireccion!.isNotEmpty) ||
+                    (sucursalPoblacion != null &&
+                        sucursalPoblacion!.isNotEmpty)) ...[
                   _TicketRow(
                     label: 'Direccion',
                     value: [
-                      if (sucursalDireccion != null && sucursalDireccion!.isNotEmpty) sucursalDireccion,
-                      if (sucursalPoblacion != null && sucursalPoblacion!.isNotEmpty) sucursalPoblacion,
+                      if (sucursalDireccion != null &&
+                          sucursalDireccion!.isNotEmpty)
+                        sucursalDireccion,
+                      if (sucursalPoblacion != null &&
+                          sucursalPoblacion!.isNotEmpty)
+                        sucursalPoblacion,
                     ].join(', '),
                   ),
                   const SizedBox(height: 2),
@@ -138,8 +144,8 @@ class TicketCard extends StatelessWidget {
                 _TicketRow(
                   label: 'Folio',
                   value: folioDisplay,
-                  valueColor: esFolioReal                       ? AppTheme.statusGreen
-                       : AppTheme.statusAmber,
+                  valueColor:
+                      esFolioReal ? AppTheme.statusGreen : AppTheme.statusAmber,
                 ),
                 const SizedBox(height: 4),
                 _TicketRow(label: 'Fecha', value: dateTimeStr),
@@ -413,11 +419,7 @@ class _TicketRow extends StatelessWidget {
   final String value;
   final Color? valueColor;
 
-  const _TicketRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
+  const _TicketRow({required this.label, required this.value, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -428,10 +430,7 @@ class _TicketRow extends StatelessWidget {
           width: 70,
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-            ),
+            style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
           ),
         ),
         const Text(
@@ -512,9 +511,10 @@ class _DashedLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final linePaint = Paint()
-      ..color = AppTheme.borderLight
-      ..strokeWidth = 1;
+    final linePaint =
+        Paint()
+          ..color = AppTheme.borderLight
+          ..strokeWidth = 1;
     const dashWidth = 6.0;
     const dashSpace = 4.0;
     double startX = 0;
@@ -594,9 +594,10 @@ class _TicketEdgePainter extends CustomPainter {
       path.close();
     }
 
-    final bgPaint = Paint()
-      ..color = AppTheme.backgroundColor
-      ..style = PaintingStyle.fill;
+    final bgPaint =
+        Paint()
+          ..color = AppTheme.backgroundColor
+          ..style = PaintingStyle.fill;
     canvas.drawPath(path, bgPaint);
   }
 

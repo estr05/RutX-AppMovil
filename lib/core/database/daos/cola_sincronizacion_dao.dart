@@ -51,7 +51,10 @@ class ColaSincronizacionDao {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  Future<ColaSincronizacion?> getByTipoYEntidad(String tipo, String entidadId) async {
+  Future<ColaSincronizacion?> getByTipoYEntidad(
+    String tipo,
+    String entidadId,
+  ) async {
     final maps = await db.query(
       'cola_sincronizacion',
       where: 'tipo = ? AND entidad_id = ?',

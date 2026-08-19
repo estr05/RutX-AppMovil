@@ -30,10 +30,7 @@ class FolioLocal {
     );
   }
 
-  FolioLocal copyWith({
-    int? consecutivo,
-    String? actualizadoEn,
-  }) {
+  FolioLocal copyWith({int? consecutivo, String? actualizadoEn}) {
     return FolioLocal(
       cajeroId: cajeroId,
       consecutivo: consecutivo ?? this.consecutivo,

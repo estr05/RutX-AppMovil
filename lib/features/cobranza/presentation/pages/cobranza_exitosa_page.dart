@@ -12,14 +12,14 @@ class CobranzaExitosaPage extends StatelessWidget {
   final bool esOffline;
 
   const CobranzaExitosaPage({
-    Key? key,
+    super.key,
     required this.clienteNombre,
     required this.totalCobrado,
     required this.documentosPagados,
     this.folio,
     this.doctoPvId,
     this.esOffline = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,18 +38,24 @@ class CobranzaExitosaPage extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: esOffline ? AppTheme.alertWarningBg : AppTheme.alertSuccessBg,
+                    color:
+                        esOffline
+                            ? AppTheme.alertWarningBg
+                            : AppTheme.alertSuccessBg,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     esOffline ? Icons.cloud_off : Icons.check_circle,
                     size: 64,
-                    color: esOffline ? AppTheme.statusAmber : AppTheme.statusGreen,
+                    color:
+                        esOffline ? AppTheme.statusAmber : AppTheme.statusGreen,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  esOffline ? 'Cobro guardado localmente' : 'Cobro registrado exitosamente',
+                  esOffline
+                      ? 'Cobro guardado localmente'
+                      : 'Cobro registrado exitosamente',
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -60,7 +66,9 @@ class CobranzaExitosaPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Se sincronizara automaticamente cuando haya conexion',
-                    style: textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -126,11 +134,12 @@ class CobranzaExitosaPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 TextButton.icon(
-                  onPressed: () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomePage()),
-                    (route) => false,
-                  ),
+                  onPressed:
+                      () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomePage()),
+                        (route) => false,
+                      ),
                   icon: const Icon(Icons.home_outlined),
                   label: const Text('IR AL INICIO'),
                   style: TextButton.styleFrom(
@@ -145,7 +154,12 @@ class CobranzaExitosaPage extends StatelessWidget {
     );
   }
 
-  Widget _detalleRow(String label, String value, TextTheme textTheme, {bool isBold = false}) {
+  Widget _detalleRow(
+    String label,
+    String value,
+    TextTheme textTheme, {
+    bool isBold = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

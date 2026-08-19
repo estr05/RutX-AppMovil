@@ -7,7 +7,7 @@ import '../../../../shared/widgets/feedback_utils.dart';
 class ProximoClienteCard extends StatelessWidget {
   final Map<String, dynamic>? clienteMap;
 
-  const ProximoClienteCard({Key? key, this.clienteMap}) : super(key: key);
+  const ProximoClienteCard({super.key, this.clienteMap});
 
   void _onCardTapped(BuildContext context) {
     if (clienteMap == null) return;
@@ -66,12 +66,14 @@ class ProximoClienteCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  clienteMap != null 
-                    ? (clienteMap!['nombre_cliente'] as String).substring(0, 2).toUpperCase() 
-                    : 'NA',
+                  clienteMap != null
+                      ? (clienteMap!['nombre_cliente'] as String)
+                          .substring(0, 2)
+                          .toUpperCase()
+                      : 'NA',
                   style: const TextStyle(
-                    color: AppTheme.textWhite, 
-                    fontWeight: FontWeight.bold, 
+                    color: AppTheme.textWhite,
+                    fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
@@ -83,22 +85,22 @@ class ProximoClienteCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    clienteMap != null 
-                      ? clienteMap!['nombre_cliente'] as String 
-                      : 'Sin clientes',
+                    clienteMap != null
+                        ? clienteMap!['nombre_cliente'] as String
+                        : 'Sin clientes',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold, 
-                      fontSize: 16, 
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                       color: AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    clienteMap != null 
-                      ? (clienteMap!['calle'] as String?) ?? 'Sin dirección' 
-                      : 'Todo visitado',
+                    clienteMap != null
+                        ? (clienteMap!['calle'] as String?) ?? 'Sin dirección'
+                        : 'Todo visitado',
                     style: const TextStyle(
-                      color: AppTheme.textSecondary, 
+                      color: AppTheme.textSecondary,
                       fontSize: 14,
                     ),
                   ),

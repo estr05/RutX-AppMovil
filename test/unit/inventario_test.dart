@@ -55,20 +55,20 @@ VentaPendiente _venta(
   String id, {
   String estado = 'pendiente',
   List<Map<String, dynamic>>? detalles,
-}) =>
-    VentaPendiente(
-      ventaMovilId: id,
-      vendedorId: 1,
-      clienteId: 1,
-      clienteNombre: 'Cliente',
-      fechaHora: '2026-08-12T10:00:00.000',
-      estado: estado,
-      total: 100.0,
-      detalles: detalles ??
-          [
-            {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 100.0},
-          ],
-    );
+}) => VentaPendiente(
+  ventaMovilId: id,
+  vendedorId: 1,
+  clienteId: 1,
+  clienteNombre: 'Cliente',
+  fechaHora: '2026-08-12T10:00:00.000',
+  estado: estado,
+  total: 100.0,
+  detalles:
+      detalles ??
+      [
+        {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 100.0},
+      ],
+);
 
 void main() {
   setUpAll(() {
@@ -86,9 +86,27 @@ void main() {
     ventaDao = VentaDao(db);
     productDao = ProductoDao(db);
     await productDao.insertAll([
-      Producto(articuloId: 1, nombre: 'Tostadas 500g', clave: 'TOS001', precio: 20.0, existencias: 2.0),
-      Producto(articuloId: 2, nombre: 'Refresco 600ml', clave: 'REF001', precio: 15.0, existencias: 10.0),
-      Producto(articuloId: 3, nombre: 'Agua 1L', clave: 'AGU001', precio: 10.0, existencias: 0.0),
+      Producto(
+        articuloId: 1,
+        nombre: 'Tostadas 500g',
+        clave: 'TOS001',
+        precio: 20.0,
+        existencias: 2.0,
+      ),
+      Producto(
+        articuloId: 2,
+        nombre: 'Refresco 600ml',
+        clave: 'REF001',
+        precio: 15.0,
+        existencias: 10.0,
+      ),
+      Producto(
+        articuloId: 3,
+        nombre: 'Agua 1L',
+        clave: 'AGU001',
+        precio: 10.0,
+        existencias: 0.0,
+      ),
     ]);
   });
 
@@ -97,9 +115,12 @@ void main() {
   group('insertDescontandoExistencia', () {
     test('guarda la venta y descuenta existencias del almacén', () async {
       final guardada = await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+          ],
+        ),
       );
 
       expect(guardada, isTrue);
@@ -112,28 +133,37 @@ void main() {
       expect(venta!.estado, 'pendiente');
     });
 
-    test('NO guarda la venta si no hay existencia suficiente (rollback)', () async {
-      // Tostadas tiene solo 2; se intenta vender 3.
-      final guardada = await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 3, 'precio_unitario': 20.0},
-        ]),
-      );
+    test(
+      'NO guarda la venta si no hay existencia suficiente (rollback)',
+      () async {
+        // Tostadas tiene solo 2; se intenta vender 3.
+        final guardada = await ventaDao.insertDescontandoExistencia(
+          _venta(
+            'VTA-001',
+            detalles: [
+              {'articulo_id': 1, 'unidades': 3, 'precio_unitario': 20.0},
+            ],
+          ),
+        );
 
-      expect(guardada, isFalse);
+        expect(guardada, isFalse);
 
-      final p1 = await productDao.getById(1);
-      expect(p1!.existencias, 2.0); // Sin cambios
-      expect(await ventaDao.getById('VTA-001'), isNull); // No se insertó
-    });
+        final p1 = await productDao.getById(1);
+        expect(p1!.existencias, 2.0); // Sin cambios
+        expect(await ventaDao.getById('VTA-001'), isNull); // No se insertó
+      },
+    );
 
     test('hace rollback completo si alguna línea falla', () async {
       // Línea 1 válida (2 tostadas), línea 2 inválida (1 agua, hay 0).
       final guardada = await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-          {'articulo_id': 3, 'unidades': 1, 'precio_unitario': 10.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+            {'articulo_id': 3, 'unidades': 1, 'precio_unitario': 10.0},
+          ],
+        ),
       );
 
       expect(guardada, isFalse);
@@ -153,9 +183,12 @@ void main() {
       );
 
       final guardada = await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 3, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 3, 'precio_unitario': 20.0},
+          ],
+        ),
       );
 
       expect(guardada, isFalse);
@@ -167,9 +200,12 @@ void main() {
   group('reponerExistencias', () {
     test('suma de vuelta las existencias de la venta', () async {
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       final venta = (await ventaDao.getById('VTA-001'))!;
 
@@ -191,9 +227,12 @@ void main() {
       );
 
       await ventaDao.descontarExistencias(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+          ],
+        ),
       );
 
       final p1 = await productDao.getById(1);
@@ -204,9 +243,12 @@ void main() {
   group('marcarErrorRevertirExistencia', () {
     test('marca error y revierte las existencias', () async {
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       final venta = (await ventaDao.getById('VTA-001'))!;
       expect((await productDao.getById(1))!.existencias, 0.0);
@@ -219,9 +261,12 @@ void main() {
 
     test('es idempotente: no revierte dos veces', () async {
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 2, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       final venta = (await ventaDao.getById('VTA-001'))!;
 
@@ -237,18 +282,30 @@ void main() {
       // El vendedor confirma 2 ventas (stock 2 -> 0) y después un re-sync
       // sobrescribe el stock con el valor del servidor (2, sin ventas).
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-002', detalles: [
-          {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-002',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       // Simula la descarga del servidor (sobrescribe existencias).
       await productDao.insertAll([
-        Producto(articuloId: 1, nombre: 'Tostadas 500g', clave: 'TOS001', precio: 20.0, existencias: 2.0),
+        Producto(
+          articuloId: 1,
+          nombre: 'Tostadas 500g',
+          clave: 'TOS001',
+          precio: 20.0,
+          existencias: 2.0,
+        ),
       ]);
       expect((await productDao.getById(1))!.existencias, 2.0);
 
@@ -260,9 +317,12 @@ void main() {
 
     test('ignora ventas ya enviadas y con error', () async {
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-001', detalles: [
-          {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
-        ]),
+        _venta(
+          'VTA-001',
+          detalles: [
+            {'articulo_id': 1, 'unidades': 1, 'precio_unitario': 20.0},
+          ],
+        ),
       );
       await db.update(
         'ventas_pendientes',
@@ -271,9 +331,12 @@ void main() {
         whereArgs: ['VTA-001'],
       );
       await ventaDao.insertDescontandoExistencia(
-        _venta('VTA-002', detalles: [
-          {'articulo_id': 2, 'unidades': 1, 'precio_unitario': 15.0},
-        ]),
+        _venta(
+          'VTA-002',
+          detalles: [
+            {'articulo_id': 2, 'unidades': 1, 'precio_unitario': 15.0},
+          ],
+        ),
       );
       await db.update(
         'ventas_pendientes',
@@ -284,8 +347,20 @@ void main() {
 
       // Re-sync: stock del servidor 2 y 10.
       await productDao.insertAll([
-        Producto(articuloId: 1, nombre: 'Tostadas 500g', clave: 'TOS001', precio: 20.0, existencias: 2.0),
-        Producto(articuloId: 2, nombre: 'Refresco 600ml', clave: 'REF001', precio: 15.0, existencias: 10.0),
+        Producto(
+          articuloId: 1,
+          nombre: 'Tostadas 500g',
+          clave: 'TOS001',
+          precio: 20.0,
+          existencias: 2.0,
+        ),
+        Producto(
+          articuloId: 2,
+          nombre: 'Refresco 600ml',
+          clave: 'REF001',
+          precio: 15.0,
+          existencias: 10.0,
+        ),
       ]);
 
       await ventaDao.reaplicarExistenciasPendientes();

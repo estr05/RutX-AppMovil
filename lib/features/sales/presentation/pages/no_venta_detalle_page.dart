@@ -80,7 +80,10 @@ class NoVentaDetallePage extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.statusRedBg,
                           borderRadius: BorderRadius.circular(20),
@@ -100,7 +103,10 @@ class NoVentaDetallePage extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'Cliente ${venta.clienteId}',
-                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                    style: const TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Align(
@@ -133,11 +139,16 @@ class NoVentaDetallePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppTheme.alertErrorBg,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.statusRed.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: AppTheme.statusRed.withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.report_problem_outlined, color: AppTheme.statusRed),
+                  const Icon(
+                    Icons.report_problem_outlined,
+                    color: AppTheme.statusRed,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -218,7 +229,10 @@ class NoVentaDetallePage extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+            ),
           ),
         ),
       ],

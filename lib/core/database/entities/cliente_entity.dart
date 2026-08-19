@@ -32,32 +32,32 @@ class Cliente {
   });
 
   Map<String, dynamic> toMap() => {
-        'cliente_id': clienteId,
-        'clave': clave,
-        'nombre_cliente': nombreCliente,
-        'telefono': telefono,
-        'calle': calle,
-        'colonia': colonia,
-        'poblacion': poblacion,
-        'codigo_postal': codigoPostal,
-        'limite_credito': limiteCredito,
-        'saldo': saldo,
-        'tipo_venta': tipoVenta,
-        'cliente_rfc': rfc,
-      };
+    'cliente_id': clienteId,
+    'clave': clave,
+    'nombre_cliente': nombreCliente,
+    'telefono': telefono,
+    'calle': calle,
+    'colonia': colonia,
+    'poblacion': poblacion,
+    'codigo_postal': codigoPostal,
+    'limite_credito': limiteCredito,
+    'saldo': saldo,
+    'tipo_venta': tipoVenta,
+    'cliente_rfc': rfc,
+  };
 
   factory Cliente.fromMap(Map<String, dynamic> map) => Cliente(
-        clienteId: map['cliente_id'] as int,
-        clave: map['clave'] as String? ?? '',
-        nombreCliente: map['nombre_cliente'] as String,
-        telefono: map['telefono'] as String? ?? '',
-        calle: map['calle'] as String?,
-        colonia: map['colonia'] as String?,
-        poblacion: map['poblacion'] as String? ?? '',
-        codigoPostal: map['codigo_postal'] as String?,
-        limiteCredito: (map['limite_credito'] as num?)?.toDouble() ?? 0.0,
-        saldo: (map['saldo'] as num?)?.toDouble() ?? 0.0,
-        tipoVenta: map['tipo_venta'] as int? ?? 1,
-        rfc: map['cliente_rfc'] as String?,
-      );
+    clienteId: map['cliente_id'] as int,
+    clave: map['clave'] as String? ?? '',
+    nombreCliente: map['nombre_cliente'] as String,
+    telefono: map['telefono'] as String? ?? '',
+    calle: map['calle'] as String?,
+    colonia: map['colonia'] as String?,
+    poblacion: map['poblacion'] as String? ?? '',
+    codigoPostal: map['codigo_postal'] as String?,
+    limiteCredito: (map['limite_credito'] as num?)?.toDouble() ?? 0.0,
+    saldo: (map['saldo'] as num?)?.toDouble() ?? 0.0,
+    tipoVenta: map['tipo_venta'] as int? ?? 1,
+    rfc: map['cliente_rfc'] as String?,
+  );
 }

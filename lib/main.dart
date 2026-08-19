@@ -9,35 +9,40 @@ import 'core/network/notification_polling_service.dart';
 import 'core/network/connection_state_service.dart';
 
 void main() async {
-  runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
 
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-    ));
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+        ),
+      );
 
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-    };
+      FlutterError.onError = (details) {
+        FlutterError.presentError(details);
+      };
 
-    PlatformDispatcher.instance.onError = (error, stack) {
-      return true;
-    };
+      PlatformDispatcher.instance.onError = (error, stack) {
+        return true;
+      };
 
-    await AppDatabase().initialize();
+      await AppDatabase().initialize();
 
-    ConnectionStateService().start();
-    SyncService().start();
-    NotificationPollingService().start();
+      ConnectionStateService().start();
+      SyncService().start();
+      NotificationPollingService().start();
 
-    runApp(const RutxApp());
-  }, (error, stackTrace) {
-    // Zone error captured
-  });
+      runApp(const RutxApp());
+    },
+    (error, stackTrace) {
+      // Zone error captured
+    },
+  );
 }

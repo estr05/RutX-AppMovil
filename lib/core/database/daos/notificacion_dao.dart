@@ -9,8 +9,11 @@ class NotificacionDao {
   Future<void> insertAll(List<Notificacion> notificaciones) async {
     final batch = db.batch();
     for (final n in notificaciones) {
-      batch.insert('notificaciones', n.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      batch.insert(
+        'notificaciones',
+        n.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     }
     await batch.commit(noResult: true);
   }

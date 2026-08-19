@@ -3,7 +3,7 @@ import '../../core/network/connection_state_service.dart';
 import '../../core/theme/app_theme.dart';
 
 class ConnectionIndicator extends StatefulWidget {
-  const ConnectionIndicator({Key? key}) : super(key: key);
+  const ConnectionIndicator({super.key});
 
   @override
   State<ConnectionIndicator> createState() => _ConnectionIndicatorState();

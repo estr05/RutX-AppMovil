@@ -17,7 +17,7 @@ import '../../../../core/storage/local_storage.dart';
 class NoVentaPage extends StatefulWidget {
   final Cliente cliente;
 
-  const NoVentaPage({Key? key, required this.cliente}) : super(key: key);
+  const NoVentaPage({super.key, required this.cliente});
 
   @override
   State<NoVentaPage> createState() => _NoVentaPageState();
@@ -26,7 +26,7 @@ class NoVentaPage extends StatefulWidget {
 class _NoVentaPageState extends State<NoVentaPage> {
   final TextEditingController _comentarioController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  
+
   List<CausaNoVenta> _causas = [];
   CausaNoVenta? _selectedCausa;
   String? _imagePath;
@@ -59,7 +59,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final db = AppDatabase();
     await db.initialize();
     var causas = await db.causaNoVentaDao.getAll();
-    
+
     if (causas.isEmpty) {
       await db.causaNoVentaDao.insertAll(CausaNoVenta.causasSemilla);
       causas = await db.causaNoVentaDao.getAll();
@@ -102,8 +102,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
     if (!carpeta.existsSync()) {
       carpeta.createSync(recursive: true);
     }
-    final nombre =
-        'no_venta_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final nombre = 'no_venta_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final destino = '${carpeta.path}/$nombre';
     await File(photo.path).copy(destino);
     return destino;
@@ -123,7 +122,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
       showErrorMessage(context, 'Debes seleccionar una causa');
       return;
     }
-    
+
     if (_imagePath == null) {
       showErrorMessage(context, 'Es obligatorio adjuntar una fotografía');
       return;
@@ -161,12 +160,12 @@ class _NoVentaPageState extends State<NoVentaPage> {
           'causa_desc': _selectedCausa!.descripcion,
           'comentario': _comentarioController.text,
           'foto_path': _imagePath,
-        }
+        },
       ],
     );
 
-    final _salesRepository = SalesRepository();
-    final syncResult = await _salesRepository.saveAndSyncSale(noVenta);
+    final salesRepository = SalesRepository();
+    final syncResult = await salesRepository.saveAndSyncSale(noVenta);
 
     if (mounted) {
       if (syncResult?['success'] == true) {
@@ -174,7 +173,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
       } else {
         showInfo(context, 'No Venta guardada localmente');
       }
-      Navigator.of(context).pop(); 
+      Navigator.of(context).pop();
     }
   }
 
@@ -188,187 +187,272 @@ class _NoVentaPageState extends State<NoVentaPage> {
         actions: [
           _isSaving
               ? const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppTheme.textWhite,
-                  ),
-                )
-              : IconButton(
-                  icon: const Icon(Icons.save, color: AppTheme.textWhite),
-                  onPressed: _saveNoVenta,
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.textWhite,
                 ),
+              )
+              : IconButton(
+                icon: const Icon(Icons.save, color: AppTheme.textWhite),
+                onPressed: _saveNoVenta,
+              ),
         ],
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Resumen Cliente / Folio
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.bgWhite,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderLight),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const SizedBox(width: 80, child: Text('Fecha y hora', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary))),
-                      Expanded(
-                        child: Text(
-                          _fechaHoraDisplay,
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Resumen Cliente / Folio
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgWhite,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.borderLight),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 80,
+                                child: Text(
+                                  'Fecha y hora',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  _fechaHoraDisplay,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            height: 24,
+                            color: AppTheme.borderLight,
+                          ),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 80,
+                                child: Text(
+                                  'Cliente',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${widget.cliente.clave.isNotEmpty ? widget.cliente.clave : widget.cliente.clienteId} - ${widget.cliente.nombreCliente}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textPrimary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Causa Dropdown
+                    const Text(
+                      'Causa',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.bgWhite,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppTheme.borderLight),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<CausaNoVenta>(
+                          isExpanded: true,
+                          value: _selectedCausa,
+                          items:
+                              _causas.map((CausaNoVenta causa) {
+                                return DropdownMenuItem<CausaNoVenta>(
+                                  value: causa,
+                                  child: Text(
+                                    causa.descripcion,
+                                    style: const TextStyle(
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                          onChanged: (CausaNoVenta? newValue) {
+                            setState(() {
+                              _selectedCausa = newValue;
+                            });
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                  const Divider(height: 24, color: AppTheme.borderLight),
-                  Row(
-                    children: [
-                      const SizedBox(width: 80, child: Text('Cliente', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary))),
-                      Expanded(
-                        child: Text(
-                          '${widget.cliente.clave.isNotEmpty ? widget.cliente.clave : widget.cliente.clienteId} - ${widget.cliente.nombreCliente}', 
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                        )
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            
-            // Causa Dropdown
-            const Text('Causa', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppTheme.bgWhite,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderLight),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<CausaNoVenta>(
-                  isExpanded: true,
-                  value: _selectedCausa,
-                  items: _causas.map((CausaNoVenta causa) {
-                    return DropdownMenuItem<CausaNoVenta>(
-                      value: causa,
-                      child: Text(causa.descripcion, style: const TextStyle(color: AppTheme.textPrimary)),
-                    );
-                  }).toList(),
-                  onChanged: (CausaNoVenta? newValue) {
-                    setState(() {
-                      _selectedCausa = newValue;
-                    });
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Comentario
-            const Text('Comentario', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _comentarioController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Agregar notas...',
-                filled: true,
-                fillColor: AppTheme.bgWhite,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.borderLight),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryColor),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Foto Section
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _takePhoto,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      foregroundColor: AppTheme.textWhite,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('FOTO (Obligatorio)'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Botón algorítmico de prueba solicitado por el usuario
-                OutlinedButton(
-                  onPressed: _simulatePhoto,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.statusOrange,
-                    side: const BorderSide(color: AppTheme.statusOrange),
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Simular Prueba'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // Image Preview Area
-            Container(
-              height: 250,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppTheme.lightGrey.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderLight, width: 2, style: BorderStyle.solid),
-              ),
-              child: _imagePath == null 
-                ? const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.image_outlined, size: 64, color: AppTheme.textSecondary),
-                      SizedBox(height: 8),
-                      Text('No se ha tomado foto', style: TextStyle(color: AppTheme.textSecondary)),
-                    ],
-                  )
-                : _imagePath == 'simulated_photo_path_123.jpg'
-                  ? const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    const SizedBox(height: 20),
+
+                    // Comentario
+                    const Text(
+                      'Comentario',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _comentarioController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Agregar notas...',
+                        filled: true,
+                        fillColor: AppTheme.bgWhite,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppTheme.borderLight,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Foto Section
+                    Row(
                       children: [
-                        Icon(Icons.check_circle_outline, size: 64, color: AppTheme.statusGreen),
-                        SizedBox(height: 8),
-                        Text('Foto Simulada (Modo Pruebas)', style: TextStyle(color: AppTheme.statusGreen, fontWeight: FontWeight.bold)),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _takePhoto,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryColor,
+                              foregroundColor: AppTheme.textWhite,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            icon: const Icon(Icons.camera_alt),
+                            label: const Text('FOTO (Obligatorio)'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Botón algorítmico de prueba solicitado por el usuario
+                        OutlinedButton(
+                          onPressed: _simulatePhoto,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.statusOrange,
+                            side: const BorderSide(
+                              color: AppTheme.statusOrange,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Simular Prueba'),
+                        ),
                       ],
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.file(
-                        File(_imagePath!),
-                        fit: BoxFit.cover,
-                      ),
                     ),
-            ),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
+                    const SizedBox(height: 16),
+
+                    // Image Preview Area
+                    Container(
+                      height: 250,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightGrey.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.borderLight,
+                          width: 2,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child:
+                          _imagePath == null
+                              ? const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.image_outlined,
+                                    size: 64,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'No se ha tomado foto',
+                                    style: TextStyle(
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : _imagePath == 'simulated_photo_path_123.jpg'
+                              ? const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 64,
+                                    color: AppTheme.statusGreen,
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Foto Simulada (Modo Pruebas)',
+                                    style: TextStyle(
+                                      color: AppTheme.statusGreen,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  File(_imagePath!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
     );
   }
 }

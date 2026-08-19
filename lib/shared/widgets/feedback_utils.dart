@@ -18,7 +18,8 @@ void showError(BuildContext context, AppError error, {VoidCallback? onRetry}) {
         icon: Icons.error,
         iconColor: AppTheme.statusRed,
         backgroundColor: AppTheme.alertErrorBg,
-        actionLabel: (error.esRecuperable && onRetry != null) ? 'REINTENTAR' : null,
+        actionLabel:
+            (error.esRecuperable && onRetry != null) ? 'REINTENTAR' : null,
         onAction: onRetry,
         onClose: () {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -70,7 +71,12 @@ void showSuccess(BuildContext context, String mensaje) {
   );
 }
 
-void showInfo(BuildContext context, String mensaje, {String? actionLabel, VoidCallback? onAction}) {
+void showInfo(
+  BuildContext context,
+  String mensaje, {
+  String? actionLabel,
+  VoidCallback? onAction,
+}) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

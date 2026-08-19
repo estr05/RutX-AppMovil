@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field, unused_local_variable
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -680,3 +681,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+

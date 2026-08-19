@@ -9,7 +9,7 @@ import '../../../../shared/widgets/rutx_app_bar.dart';
 import '../../data/repositories/notification_repository.dart';
 
 class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({Key? key}) : super(key: key);
+  const NotificationsPage({super.key});
 
   @override
   State<NotificationsPage> createState() => _NotificationsPageState();
@@ -17,7 +17,8 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   final NotificationRepository _repository = NotificationRepository();
-  final NotificationPollingService _pollingService = NotificationPollingService();
+  final NotificationPollingService _pollingService =
+      NotificationPollingService();
   List<Notificacion> _notifications = [];
   int _unreadCount = 0;
   bool _isLoading = true;
@@ -77,7 +78,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _pollingService.refresh();
     if (mounted) {
       if (error != null) {
-        showError(context, AppError(mensajeUsuario: error, esRecuperable: false));
+        showError(
+          context,
+          AppError(mensajeUsuario: error, esRecuperable: false),
+        );
       } else {
         showSuccess(context, 'Todas las notificaciones marcadas como leídas');
       }
@@ -90,26 +94,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _pollingService.refresh();
     if (mounted) {
       if (error != null) {
-        showError(context, AppError(mensajeUsuario: error, esRecuperable: false));
+        showError(
+          context,
+          AppError(mensajeUsuario: error, esRecuperable: false),
+        );
       } else {
-        showSuccess(context, 'Notificaciones restablecidas con datos de prueba');
+        showSuccess(
+          context,
+          'Notificaciones restablecidas con datos de prueba',
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final pending = _notifications.where((n) {
-      final parts = n.mensaje.split('|');
-      final status = parts.length > 3 ? parts[3] : '';
-      return !n.leida || status != 'Confirmado';
-    }).toList();
+    final pending =
+        _notifications.where((n) {
+          final parts = n.mensaje.split('|');
+          final status = parts.length > 3 ? parts[3] : '';
+          return !n.leida || status != 'Confirmado';
+        }).toList();
 
-    final history = _notifications.where((n) {
-      final parts = n.mensaje.split('|');
-      final status = parts.length > 3 ? parts[3] : '';
-      return n.leida && status == 'Confirmado';
-    }).toList();
+    final history =
+        _notifications.where((n) {
+          final parts = n.mensaje.split('|');
+          final status = parts.length > 3 ? parts[3] : '';
+          return n.leida && status == 'Confirmado';
+        }).toList();
 
     return DefaultTabController(
       length: 2,
@@ -167,61 +179,79 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ],
           ),
         ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: AppTheme.accentColor))
-            : Column(
-                children: [
-                  if (_unreadCount > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary10,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppTheme.primary20),
+        body:
+            _isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(color: AppTheme.accentColor),
+                )
+                : Column(
+                  children: [
+                    if (_unreadCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 16.0,
+                          right: 16.0,
+                          top: 16.0,
                         ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.notifications_active, color: AppTheme.primaryColor),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Tienes $_unreadCount mensajes sin leer',
-                                style: const TextStyle(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary10,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppTheme.primary20),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.notifications_active,
+                                color: AppTheme.primaryColor,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Tienes $_unreadCount mensajes sin leer',
+                                  style: const TextStyle(
+                                    color: AppTheme.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          _buildNotificationsList(pending, isPendingTab: true),
+                          _buildNotificationsList(history, isPendingTab: false),
+                        ],
+                      ),
                     ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildNotificationsList(pending, isPendingTab: true),
-                        _buildNotificationsList(history, isPendingTab: false),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
       ),
     );
   }
 
-  Widget _buildNotificationsList(List<Notificacion> list, {required bool isPendingTab}) {
+  Widget _buildNotificationsList(
+    List<Notificacion> list, {
+    required bool isPendingTab,
+  }) {
     if (list.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              isPendingTab ? Icons.assignment_turned_in_outlined : Icons.history_toggle_off,
+              isPendingTab
+                  ? Icons.assignment_turned_in_outlined
+                  : Icons.history_toggle_off,
               size: 64,
               color: AppTheme.textSecondary50,
             ),
@@ -230,7 +260,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
               isPendingTab
                   ? 'No tienes notificaciones pendientes.'
                   : 'Historial de notificaciones vacío.',
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 16,
+              ),
             ),
           ],
         ),
@@ -274,9 +307,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
         decoration: BoxDecoration(
           border: Border(
             left: BorderSide(
-              color: isUnread
-                  ? AppTheme.accentColor
-                  : (isConfirmed ? AppTheme.statusGreen : AppTheme.borderLight),
+              color:
+                  isUnread
+                      ? AppTheme.accentColor
+                      : (isConfirmed
+                          ? AppTheme.statusGreen
+                          : AppTheme.borderLight),
               width: 5,
             ),
           ),
@@ -301,16 +337,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: isUnread
-                        ? AppTheme.primaryColor
-                        : AppTheme.borderLight50,
+                    color:
+                        isUnread
+                            ? AppTheme.primaryColor
+                            : AppTheme.borderLight50,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       avatarLetter,
                       style: TextStyle(
-                        color: isUnread ? AppTheme.textWhite : AppTheme.textPrimary,
+                        color:
+                            isUnread
+                                ? AppTheme.textWhite
+                                : AppTheme.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
@@ -331,7 +371,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
-                                color: isUnread ? AppTheme.primaryColor : AppTheme.textPrimary,
+                                color:
+                                    isUnread
+                                        ? AppTheme.primaryColor
+                                        : AppTheme.textPrimary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -350,7 +393,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       Text(
                         title,
                         style: TextStyle(
-                          fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isUnread ? FontWeight.bold : FontWeight.normal,
                           fontSize: 15,
                           color: AppTheme.textPrimary,
                         ),
@@ -362,7 +406,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           if (isConfirmed)
                             const Row(
                               children: [
-                                Icon(Icons.check_circle, color: AppTheme.statusGreen, size: 18),
+                                Icon(
+                                  Icons.check_circle,
+                                  color: AppTheme.statusGreen,
+                                  size: 18,
+                                ),
                                 SizedBox(width: 6),
                                 Text(
                                   'Confirmado',
@@ -376,12 +424,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             )
                           else
                             TextButton.icon(
-                              icon: const Icon(Icons.check_circle_outline, size: 18),
+                              icon: const Icon(
+                                Icons.check_circle_outline,
+                                size: 18,
+                              ),
                               label: const Text('Confirmar Recibido'),
                               style: TextButton.styleFrom(
                                 backgroundColor: AppTheme.accent10,
                                 foregroundColor: AppTheme.accentColor,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
                                 minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 shape: RoundedRectangleBorder(
@@ -389,7 +443,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 ),
                               ),
                               onPressed: () {
-                                final newMsg = '$title|$sender|$time|Confirmado';
+                                final newMsg =
+                                    '$title|$sender|$time|Confirmado';
                                 if (n.id != null) {
                                   _confirmNotification(n.id!, newMsg);
                                 }
@@ -397,7 +452,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             ),
                           if (isUnread)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppTheme.accentColor,
                                 borderRadius: BorderRadius.circular(10),

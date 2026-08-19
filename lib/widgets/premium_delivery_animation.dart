@@ -7,7 +7,8 @@ class PremiumDeliveryAnimation extends StatefulWidget {
   const PremiumDeliveryAnimation({super.key});
 
   @override
-  State<PremiumDeliveryAnimation> createState() => _PremiumDeliveryAnimationState();
+  State<PremiumDeliveryAnimation> createState() =>
+      _PremiumDeliveryAnimationState();
 }
 
 class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
@@ -34,21 +35,30 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
     _carTranslation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.15, 0.60, curve: Curves.easeInOutCubic), 
+        curve: const Interval(0.15, 0.60, curve: Curves.easeInOutCubic),
       ),
     );
 
     // Efecto de rebote del auto al avanzar
     _carBounce = TweenSequence<double>([
       for (int i = 0; i < 5; i++) ...[
-        TweenSequenceItem(tween: Tween(begin: 0.0, end: -3.0).chain(CurveTween(curve: Curves.easeOut)), weight: 1),
-        TweenSequenceItem(tween: Tween(begin: -3.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)), weight: 1),
-      ]
+        TweenSequenceItem(
+          tween: Tween(
+            begin: 0.0,
+            end: -3.0,
+          ).chain(CurveTween(curve: Curves.easeOut)),
+          weight: 1,
+        ),
+        TweenSequenceItem(
+          tween: Tween(
+            begin: -3.0,
+            end: 0.0,
+          ).chain(CurveTween(curve: Curves.easeIn)),
+          weight: 1,
+        ),
+      ],
     ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.15, 0.60),
-      ),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.15, 0.60)),
     );
 
     // Viento/Líneas de velocidad
@@ -61,14 +71,29 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
 
     // Escala elástica de la tienda cuando llega el auto
     _storeScale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.3).chain(CurveTween(curve: Curves.easeOut)), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 1.3, end: 0.95).chain(CurveTween(curve: Curves.easeInOut)), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.0).chain(CurveTween(curve: Curves.easeOut)), weight: 40),
-    ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.55, 0.75), 
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.0,
+          end: 1.3,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 30,
       ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 1.3,
+          end: 0.95,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 30,
+      ),
+      TweenSequenceItem(
+        tween: Tween(
+          begin: 0.95,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 40,
+      ),
+    ]).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.55, 0.75)),
     );
 
     // Movimiento vertical de la moneda
@@ -99,7 +124,7 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
     // Esto evita que la animación se salte el viaje del camión si el teléfono es lento al abrir la app.
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
-        // En lugar de repeat(), usamos forward() para que se quede estacionado en la tienda 
+        // En lugar de repeat(), usamos forward() para que se quede estacionado en la tienda
         // y no se reinicie a la posición original justo antes de entrar a la app.
         _controller.forward();
       }
@@ -124,13 +149,15 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
           return AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              
               // Desvanece la moneda al final del ciclo
-              final double finalCoinOpacity = _controller.value > 0.85 
-                  ? 1.0 - ((_controller.value - 0.85) / 0.15).clamp(0.0, 1.0) 
-                  : _coinOpacity.value;
+              final double finalCoinOpacity =
+                  _controller.value > 0.85
+                      ? 1.0 -
+                          ((_controller.value - 0.85) / 0.15).clamp(0.0, 1.0)
+                      : _coinOpacity.value;
 
-              final bool isCarMoving = _controller.value > 0.15 && _controller.value < 0.60;
+              final bool isCarMoving =
+                  _controller.value > 0.15 && _controller.value < 0.60;
 
               return Stack(
                 alignment: Alignment.centerLeft,
@@ -179,9 +206,10 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
                       offset: Offset(0, _coinY.value),
                       child: Transform(
                         alignment: Alignment.center,
-                        transform: Matrix4.identity()
-                          ..setEntry(3, 2, 0.001) // Perspectiva sutil
-                          ..rotateY(_coinRotation.value),
+                        transform:
+                            Matrix4.identity()
+                              ..setEntry(3, 2, 0.001) // Perspectiva sutil
+                              ..rotateY(_coinRotation.value),
                         child: Opacity(
                           opacity: finalCoinOpacity.clamp(0.0, 1.0),
                           child: Container(
@@ -213,7 +241,8 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
                         width: 48,
                         height: 48,
                         // Fallback: Espacio vacío para evitar parpadeos de iconos viejos
-                        placeholderBuilder: (BuildContext context) => const SizedBox.shrink(),
+                        placeholderBuilder:
+                            (BuildContext context) => const SizedBox.shrink(),
                       ),
                     ),
                   ),
@@ -223,13 +252,17 @@ class _PremiumDeliveryAnimationState extends State<PremiumDeliveryAnimation>
                     bottom: 12,
                     left: 0,
                     child: Transform.translate(
-                      offset: Offset(_carTranslation.value * maxDistance, _carBounce.value),
+                      offset: Offset(
+                        _carTranslation.value * maxDistance,
+                        _carBounce.value,
+                      ),
                       child: SvgPicture.asset(
                         'assets/images/truck_3d.svg', // Tu archivo SVG de Canva
                         width: 42,
                         height: 42,
                         // Fallback vacío para evitar parpadeo
-                        placeholderBuilder: (BuildContext context) => const SizedBox.shrink(),
+                        placeholderBuilder:
+                            (BuildContext context) => const SizedBox.shrink(),
                       ),
                     ),
                   ),

@@ -34,52 +34,72 @@ class AppDatabase {
   FolioLocalDao? _folioLocalDao;
 
   ClienteDao get clienteDao {
-    if (_clienteDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_clienteDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _clienteDao!;
   }
 
   ProductoDao get productDao {
-    if (_productDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_productDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _productDao!;
   }
 
   VentaDao get ventaDao {
-    if (_ventaDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_ventaDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _ventaDao!;
   }
 
   NotificacionDao get notificacionDao {
-    if (_notificacionDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_notificacionDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _notificacionDao!;
   }
 
   CausaNoVentaDao get causaNoVentaDao {
-    if (_causaNoVentaDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_causaNoVentaDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _causaNoVentaDao!;
   }
 
   CobranzaDao get cobranzaDao {
-    if (_cobranzaDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_cobranzaDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _cobranzaDao!;
   }
 
   EmisorDao get emisorDao {
-    if (_emisorDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_emisorDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _emisorDao!;
   }
 
   SucursalDao get sucursalDao {
-    if (_sucursalDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_sucursalDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _sucursalDao!;
   }
 
   ColaSincronizacionDao get colaDao {
-    if (_colaDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_colaDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _colaDao!;
   }
 
   FolioLocalDao get folioLocalDao {
-    if (_folioLocalDao == null) throw StateError('AppDatabase not initialized. Call initialize() first.');
+    if (_folioLocalDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
     return _folioLocalDao!;
   }
 
@@ -111,23 +131,41 @@ class AppDatabase {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // Migración incremental para preservar datos existentes
     if (oldVersion < 4) {
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN forma_cobro_id INTEGER DEFAULT 67');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN caja_id INTEGER');
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN forma_cobro_id INTEGER DEFAULT 67',
+      );
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN caja_id INTEGER',
+      );
     }
     if (oldVersion < 5) {
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN docto_pv_id INTEGER');
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN docto_pv_id INTEGER',
+      );
       await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN folio TEXT');
     }
     if (oldVersion < 6) {
-      await db.execute('ALTER TABLE productos ADD COLUMN porcentaje_impuesto INTEGER DEFAULT 16');
-      await db.execute('ALTER TABLE productos ADD COLUMN impuesto_id INTEGER DEFAULT 622');
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN porcentaje_impuesto INTEGER DEFAULT 16',
+      );
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN impuesto_id INTEGER DEFAULT 622',
+      );
     }
     if (oldVersion < 7) {
       await db.execute('ALTER TABLE clientes ADD COLUMN clave TEXT DEFAULT ""');
-      await db.execute('ALTER TABLE clientes ADD COLUMN telefono TEXT DEFAULT ""');
-      await db.execute('ALTER TABLE clientes ADD COLUMN poblacion TEXT DEFAULT ""');
-      await db.execute('ALTER TABLE clientes ADD COLUMN saldo REAL DEFAULT 0.0');
-      await db.execute('ALTER TABLE clientes ADD COLUMN tipo_venta INTEGER DEFAULT 1');
+      await db.execute(
+        'ALTER TABLE clientes ADD COLUMN telefono TEXT DEFAULT ""',
+      );
+      await db.execute(
+        'ALTER TABLE clientes ADD COLUMN poblacion TEXT DEFAULT ""',
+      );
+      await db.execute(
+        'ALTER TABLE clientes ADD COLUMN saldo REAL DEFAULT 0.0',
+      );
+      await db.execute(
+        'ALTER TABLE clientes ADD COLUMN tipo_venta INTEGER DEFAULT 1',
+      );
     }
     if (oldVersion < 8) {
       await db.execute('''
@@ -139,14 +177,26 @@ class AppDatabase {
       ''');
     }
     if (oldVersion < 9) {
-      await db.execute('ALTER TABLE productos ADD COLUMN existencias_gral REAL DEFAULT 0.0');
-      await db.execute('ALTER TABLE productos ADD COLUMN existencias REAL DEFAULT 0.0');
-      await db.execute('ALTER TABLE productos ADD COLUMN peso REAL DEFAULT 0.0');
-      await db.execute('ALTER TABLE productos ADD COLUMN merma REAL DEFAULT 0.0');
-      await db.execute('ALTER TABLE productos ADD COLUMN permite_merma TEXT DEFAULT "No"');
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN existencias_gral REAL DEFAULT 0.0',
+      );
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN existencias REAL DEFAULT 0.0',
+      );
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN peso REAL DEFAULT 0.0',
+      );
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN merma REAL DEFAULT 0.0',
+      );
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN permite_merma TEXT DEFAULT "No"',
+      );
     }
     if (oldVersion < 10) {
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN pagos_json TEXT');
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN pagos_json TEXT',
+      );
     }
     if (oldVersion < 11) {
       await db.execute('''
@@ -243,8 +293,12 @@ class AppDatabase {
           ultimo_error TEXT
         )
       ''');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_cola_estado ON cola_sincronizacion(estado)');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_cola_tipo_entidad ON cola_sincronizacion(tipo, entidad_id)');
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_cola_estado ON cola_sincronizacion(estado)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_cola_tipo_entidad ON cola_sincronizacion(tipo, entidad_id)',
+      );
       // Migrar registros pendientes existentes a la cola
       await db.rawInsert('''
         INSERT OR IGNORE INTO cola_sincronizacion (tipo, entidad_id, estado, creado_en)
@@ -260,12 +314,22 @@ class AppDatabase {
     // Version 15: Impuestos compuestos + precio con impuesto en el catalogo,
     //              identidad completa en las ventas pendientes
     if (oldVersion < 15) {
-      await db.execute('ALTER TABLE productos ADD COLUMN precio_con_impuesto REAL DEFAULT 0.0');
+      await db.execute(
+        'ALTER TABLE productos ADD COLUMN precio_con_impuesto REAL DEFAULT 0.0',
+      );
       await db.execute('ALTER TABLE productos ADD COLUMN impuestos_json TEXT');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN cajero_id INTEGER');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN almacen_id INTEGER');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN sucursal_id INTEGER');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN usuario_creador TEXT');
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN cajero_id INTEGER',
+      );
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN almacen_id INTEGER',
+      );
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN sucursal_id INTEGER',
+      );
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN usuario_creador TEXT',
+      );
     }
     // Version 16: Folios provisionales offline (folios_locales) + referencia
     // local en cada venta pendiente
@@ -277,7 +341,9 @@ class AppDatabase {
           actualizado_en TEXT
         )
       ''');
-      await db.execute('ALTER TABLE ventas_pendientes ADD COLUMN folio_local TEXT');
+      await db.execute(
+        'ALTER TABLE ventas_pendientes ADD COLUMN folio_local TEXT',
+      );
     }
   }
 
@@ -317,8 +383,6 @@ class AppDatabase {
         permite_merma TEXT DEFAULT 'No'
       )
     ''');
-
-
 
     await db.execute('''
       CREATE TABLE ventas_pendientes (
@@ -416,8 +480,12 @@ class AppDatabase {
         ultimo_error TEXT
       )
     ''');
-    await db.execute('CREATE INDEX idx_cola_estado ON cola_sincronizacion(estado)');
-    await db.execute('CREATE INDEX idx_cola_tipo_entidad ON cola_sincronizacion(tipo, entidad_id)');
+    await db.execute(
+      'CREATE INDEX idx_cola_estado ON cola_sincronizacion(estado)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_cola_tipo_entidad ON cola_sincronizacion(tipo, entidad_id)',
+    );
 
     // Folios provisionales offline (uno por cajero)
     await db.execute('''
@@ -444,30 +512,74 @@ class AppDatabase {
     _folioLocalDao = FolioLocalDao(db);
 
     // Auto-seed ONLY if no clients exist (sync will provide real data)
-    final clientesCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM clientes')) ?? 0;
+    final clientesCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM clientes'),
+        ) ??
+        0;
     if (clientesCount == 0) {
       await seedDatabase();
     } else {
       // Ensure local-only tables like causas_no_venta are seeded even if clients were synced
-      final causasCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM causas_no_venta')) ?? 0;
+      final causasCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM causas_no_venta'),
+          ) ??
+          0;
       if (causasCount == 0) {
         await causaNoVentaDao.insertAll(CausaNoVenta.causasSemilla);
       }
     }
-
   }
 
   Future<void> seedDatabase() async {
     // 1. Notificaciones
     await notificacionDao.insertAll([
-      Notificacion(mensaje: 'Promoción refrescos hoy|Oficina Central|08:00|Confirmado', leida: true, fechaCreacion: '2026-07-02 08:00:00'),
-      Notificacion(mensaje: 'Meta del día actualizada|Gerente de Ventas|09:30|', leida: true, fechaCreacion: '2026-07-02 09:30:00'),
-      Notificacion(mensaje: 'Producto sin stock: Refresco Naranja 600ml|Almacén|10:15|', leida: false, fechaCreacion: '2026-07-02 10:15:00'),
-      Notificacion(mensaje: 'Recordatorio de cierre obligatorio de jornada|Oficina Central|14:00|', leida: false, fechaCreacion: '2026-07-02 14:00:00'),
-      Notificacion(mensaje: 'Aviso: Actualización obligatoria de precios de gasolina|Administración|11:00|', leida: true, fechaCreacion: '2026-07-02 11:00:00'),
-      Notificacion(mensaje: 'Reunión de urgencia con equipo de ventas a las 16:00|Dirección General|13:00|', leida: false, fechaCreacion: '2026-07-02 13:00:00'),
-      Notificacion(mensaje: 'Nueva ruta asignada para mañana: Sector Norte|Logística|12:30|Confirmado', leida: true, fechaCreacion: '2026-07-02 12:30:00'),
-      Notificacion(mensaje: 'Bono mensual por efectividad liberado|Recursos Humanos|09:00|Confirmado', leida: true, fechaCreacion: '2026-07-02 09:00:00'),
+      Notificacion(
+        mensaje: 'Promoción refrescos hoy|Oficina Central|08:00|Confirmado',
+        leida: true,
+        fechaCreacion: '2026-07-02 08:00:00',
+      ),
+      Notificacion(
+        mensaje: 'Meta del día actualizada|Gerente de Ventas|09:30|',
+        leida: true,
+        fechaCreacion: '2026-07-02 09:30:00',
+      ),
+      Notificacion(
+        mensaje: 'Producto sin stock: Refresco Naranja 600ml|Almacén|10:15|',
+        leida: false,
+        fechaCreacion: '2026-07-02 10:15:00',
+      ),
+      Notificacion(
+        mensaje:
+            'Recordatorio de cierre obligatorio de jornada|Oficina Central|14:00|',
+        leida: false,
+        fechaCreacion: '2026-07-02 14:00:00',
+      ),
+      Notificacion(
+        mensaje:
+            'Aviso: Actualización obligatoria de precios de gasolina|Administración|11:00|',
+        leida: true,
+        fechaCreacion: '2026-07-02 11:00:00',
+      ),
+      Notificacion(
+        mensaje:
+            'Reunión de urgencia con equipo de ventas a las 16:00|Dirección General|13:00|',
+        leida: false,
+        fechaCreacion: '2026-07-02 13:00:00',
+      ),
+      Notificacion(
+        mensaje:
+            'Nueva ruta asignada para mañana: Sector Norte|Logística|12:30|Confirmado',
+        leida: true,
+        fechaCreacion: '2026-07-02 12:30:00',
+      ),
+      Notificacion(
+        mensaje:
+            'Bono mensual por efectividad liberado|Recursos Humanos|09:00|Confirmado',
+        leida: true,
+        fechaCreacion: '2026-07-02 09:00:00',
+      ),
     ]);
 
     // 4. Causas de No Venta (Semilla local predeterminada)

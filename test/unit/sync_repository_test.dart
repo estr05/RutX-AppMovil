@@ -3,33 +3,33 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rutx_movil/core/network/sync_result.dart';
 import 'package:rutx_movil/features/sync/data/sync_repository.dart';
 
-Dio _createMockDio({
-  int? statusCode,
-  DioExceptionType? errorType,
-}) {
+Dio _createMockDio({int? statusCode, DioExceptionType? errorType}) {
   final dio = Dio();
-  dio.interceptors.add(InterceptorsWrapper(
-    onRequest: (options, handler) {
-      if (errorType != null) {
-        handler.reject(DioException(
-          requestOptions: options,
-          type: errorType,
-          response: statusCode != null
-              ? Response(
-                  requestOptions: options,
-                  statusCode: statusCode,
-                )
-              : null,
-        ));
-      } else if (statusCode != null && statusCode != 200) {
-        handler.resolve(Response(
-          requestOptions: options,
-          statusCode: statusCode,
-          data: {},
-        ));
-      }
-    },
-  ));
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (errorType != null) {
+          handler.reject(
+            DioException(
+              requestOptions: options,
+              type: errorType,
+              response:
+                  statusCode != null
+                      ? Response(
+                        requestOptions: options,
+                        statusCode: statusCode,
+                      )
+                      : null,
+            ),
+          );
+        } else if (statusCode != null && statusCode != 200) {
+          handler.resolve(
+            Response(requestOptions: options, statusCode: statusCode, data: {}),
+          );
+        }
+      },
+    ),
+  );
   return dio;
 }
 

@@ -10,15 +10,19 @@ class SucursalDao {
   static const int _rowId = 1;
 
   Future<void> insert(Sucursal sucursal) async {
-    await db.insert(
-      'sucursal',
-      {'id': _rowId, ...sucursal.toMap()},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('sucursal', {
+      'id': _rowId,
+      ...sucursal.toMap(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<Sucursal?> get() async {
-    final maps = await db.query('sucursal', where: 'id = ?', whereArgs: [_rowId], limit: 1);
+    final maps = await db.query(
+      'sucursal',
+      where: 'id = ?',
+      whereArgs: [_rowId],
+      limit: 1,
+    );
     if (maps.isEmpty) return null;
     return Sucursal.fromMap(maps.first);
   }

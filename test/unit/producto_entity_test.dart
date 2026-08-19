@@ -65,11 +65,13 @@ void main() {
 
       expect(
         () => Producto.fromMap(map),
-        throwsA(isA<StateError>().having(
-          (e) => e.message,
-          'message',
-          contains('clave'),
-        )),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('clave'),
+          ),
+        ),
       );
     });
 
@@ -82,11 +84,13 @@ void main() {
 
       expect(
         () => Producto.fromMap(map),
-        throwsA(isA<StateError>().having(
-          (e) => e.message,
-          'message',
-          contains('precio'),
-        )),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('precio'),
+          ),
+        ),
       );
     });
   });

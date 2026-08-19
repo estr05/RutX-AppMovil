@@ -20,9 +20,10 @@ class StockLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final agotado = existencias <= 0;
-    final color = agotado
-        ? AppTheme.statusRed
-        : existencias <= 5
+    final color =
+        agotado
+            ? AppTheme.statusRed
+            : existencias <= 5
             ? AppTheme.statusOrange
             : AppTheme.statusGreen;
 
@@ -35,7 +36,9 @@ class StockLabel extends StatelessWidget {
         ],
         Flexible(
           child: Text(
-            agotado ? 'Agotado' : 'Existencia: ${formatearExistencia(existencias)}',
+            agotado
+                ? 'Agotado'
+                : 'Existencia: ${formatearExistencia(existencias)}',
             style: TextStyle(
               color: color,
               fontSize: 12,

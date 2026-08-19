@@ -36,10 +36,10 @@ class CausaNoVenta {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is CausaNoVenta &&
-      other.causaId == causaId &&
-      other.descripcion == descripcion;
+        other.causaId == causaId &&
+        other.descripcion == descripcion;
   }
 
   @override

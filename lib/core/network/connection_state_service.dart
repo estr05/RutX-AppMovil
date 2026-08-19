@@ -4,20 +4,18 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 
-enum RutxConnectionState {
-  connected,
-  connecting,
-  offline,
-}
+enum RutxConnectionState { connected, connecting, offline }
 
 class ConnectionStateService {
-  static final ConnectionStateService _instance = ConnectionStateService._internal();
+  static final ConnectionStateService _instance =
+      ConnectionStateService._internal();
   factory ConnectionStateService() => _instance;
 
   final Connectivity _connectivity = Connectivity();
-  final StreamController<RutxConnectionState> _stateController = StreamController<RutxConnectionState>.broadcast();
+  final StreamController<RutxConnectionState> _stateController =
+      StreamController<RutxConnectionState>.broadcast();
   StreamSubscription? _connectivitySubscription;
-  
+
   RutxConnectionState _currentState = RutxConnectionState.offline;
   bool _started = false;
 
@@ -26,7 +24,8 @@ class ConnectionStateService {
   Stream<RutxConnectionState> get connectionStream => _stateController.stream;
   RutxConnectionState get currentState => _currentState;
   bool get isStarted => _started;
-  bool get isOffline => _started && _currentState == RutxConnectionState.offline;
+  bool get isOffline =>
+      _started && _currentState == RutxConnectionState.offline;
 
   @visibleForTesting
   void setMockState(RutxConnectionState state) {
@@ -38,7 +37,9 @@ class ConnectionStateService {
     if (_started) return;
     _started = true;
     _initConnectivity();
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      List<ConnectivityResult> results,
+    ) {
       if (results.isNotEmpty && !results.contains(ConnectivityResult.none)) {
         _checkActualConnection();
       } else {
@@ -66,7 +67,7 @@ class ConnectionStateService {
 
   Future<void> _checkActualConnection() async {
     _updateState(RutxConnectionState.connecting);
-    
+
     try {
       final List<String> allUrls = [
         ApiConstants.empresaUrl,
@@ -74,12 +75,16 @@ class ConnectionStateService {
       ];
 
       bool hasConnection = false;
-      
+
       // Intentar conectar con el socket a cualquiera de las IPs conocidas del servidor
       for (final url in allUrls) {
         try {
           final uri = Uri.parse(url);
-          final socket = await Socket.connect(uri.host, uri.port, timeout: const Duration(seconds: 2));
+          final socket = await Socket.connect(
+            uri.host,
+            uri.port,
+            timeout: const Duration(seconds: 2),
+          );
           socket.destroy();
           hasConnection = true;
           break; // Conectó a uno, el servidor está disponible

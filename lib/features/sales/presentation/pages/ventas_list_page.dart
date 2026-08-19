@@ -13,7 +13,7 @@ import '../../../../shared/widgets/feedback_utils.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
 
 class VentasListPage extends StatefulWidget {
-  const VentasListPage({Key? key}) : super(key: key);
+  const VentasListPage({super.key});
 
   @override
   State<VentasListPage> createState() => _VentasListPageState();
@@ -32,7 +32,7 @@ class _VentasListPageState extends State<VentasListPage> {
 
   Future<void> _loadVentas() async {
     await AppDatabase().initialize();
-    
+
     // Intentar sincronizar primero para ver los errores
     final result = await SalesRepository().syncPendingSales();
     if (result is SyncFailure && mounted) {
@@ -42,10 +42,10 @@ class _VentasListPageState extends State<VentasListPage> {
 
     // Obtenemos la fecha de hoy en formato YYYY-MM-DD
     final String hoy = DateTime.now().toIso8601String().substring(0, 10);
-    
+
     final list = await AppDatabase().ventaDao.getDelDia(hoy);
     final resumen = await AppDatabase().ventaDao.getResumenDelDia(hoy);
-    
+
     if (mounted) {
       setState(() {
         _ventas = list;
@@ -55,15 +55,14 @@ class _VentasListPageState extends State<VentasListPage> {
     }
   }
 
-
-
   // ---------------------------------------------------------------------------
   // Traducción de Errores para el Usuario Final
   // ---------------------------------------------------------------------------
   String _getFriendlyErrorMessage(String technicalError) {
     if (technicalError.contains('API ERROR [401]')) {
       return 'Tu sesión ha caducado. Inicia sesión de nuevo.';
-    } else if (technicalError.contains('NETWORK ERROR') || technicalError.contains('Sin conexión')) {
+    } else if (technicalError.contains('NETWORK ERROR') ||
+        technicalError.contains('Sin conexión')) {
       return 'Venta guardada localmente. Se enviará automáticamente cuando recuperes la conexión.';
     } else if (technicalError.contains('API ERROR')) {
       // Mostrar el error real del backend para diagnóstico
@@ -81,9 +80,7 @@ class _VentasListPageState extends State<VentasListPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: const RutxAppBar(
-        title: 'Historial de Ventas',
-      ),
+      appBar: const RutxAppBar(title: 'Historial de Ventas'),
       body: Column(
         children: [
           // Resumen card
@@ -101,15 +98,41 @@ class _VentasListPageState extends State<VentasListPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Total Ventas', style: TextStyle(color: AppTheme.lightGrey, fontSize: 13)),
-                      Text('$_totalVentas', style: const TextStyle(color: AppTheme.textWhite, fontSize: 22, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Total Ventas',
+                        style: TextStyle(
+                          color: AppTheme.lightGrey,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        '$_totalVentas',
+                        style: const TextStyle(
+                          color: AppTheme.textWhite,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text('Monto Total', style: TextStyle(color: AppTheme.lightGrey, fontSize: 13)),
-                      Text('\$${calcularTotalVentasConIVA(_ventas).toStringAsFixed(2)}', style: const TextStyle(color: AppTheme.textWhite, fontSize: 22, fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Monto Total',
+                        style: TextStyle(
+                          color: AppTheme.lightGrey,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        '\$${calcularTotalVentasConIVA(_ventas).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: AppTheme.textWhite,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -117,49 +140,61 @@ class _VentasListPageState extends State<VentasListPage> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
-                : _ventas.isEmpty
+            child:
+                _isLoading
+                    ? Center(
+                      child: CircularProgressIndicator(
+                        color: colorScheme.primary,
+                      ),
+                    )
+                    : _ventas.isEmpty
                     ? const Center(
-                        child: Text('No hay ventas registradas hoy.', style: TextStyle(color: AppTheme.textSecondary)),
-                      )
+                      child: Text(
+                        'No hay ventas registradas hoy.',
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    )
                     : RefreshIndicator(
-                        onRefresh: _loadVentas,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _ventas.length,
-                          addRepaintBoundaries: true,
-                          addAutomaticKeepAlives: false,
-                          itemBuilder: (context, index) {
-                            final venta = _ventas[index];
-                            // Las NO VENTAS se muestran como resumen (sin ticket)
-                            if (venta.esNoVenta) {
-                              return NoVentaCard(
-                                venta: venta,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => NoVentaDetallePage(venta: venta),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                            return SaleCard(
+                      onRefresh: _loadVentas,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _ventas.length,
+                        addRepaintBoundaries: true,
+                        addAutomaticKeepAlives: false,
+                        itemBuilder: (context, index) {
+                          final venta = _ventas[index];
+                          // Las NO VENTAS se muestran como resumen (sin ticket)
+                          if (venta.esNoVenta) {
+                            return NoVentaCard(
                               venta: venta,
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => VentaDetallePage(venta: venta),
+                                    builder:
+                                        (context) =>
+                                            NoVentaDetallePage(venta: venta),
                                   ),
                                 );
                               },
                             );
-                          },
-                        ),
+                          }
+                          return SaleCard(
+                            venta: venta,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          VentaDetallePage(venta: venta),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
+                    ),
           ),
         ],
       ),

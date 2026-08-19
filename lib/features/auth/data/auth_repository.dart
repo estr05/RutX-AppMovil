@@ -8,20 +8,29 @@ class AuthRepository {
   final Dio _dio = DioClient().dio;
   final LocalStorage _localStorage = LocalStorage();
 
-  Future<AppError?> login(String username, String password, bool rememberMe) async {
+  Future<AppError?> login(
+    String username,
+    String password,
+    bool rememberMe,
+  ) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
-      return AppError(mensajeUsuario: 'Sin conexion al servidor. Conectate e intenta de nuevo.', esRecuperable: true);
+      return AppError(
+        mensajeUsuario:
+            'Sin conexion al servidor. Conectate e intenta de nuevo.',
+        esRecuperable: true,
+      );
     }
     try {
-      final response = await _dio.post('/api/auth/login', data: {
-        'usuario': username,
-        'password': password,
-      });
+      final response = await _dio.post(
+        '/api/auth/login',
+        data: {'usuario': username, 'password': password},
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         final token = response.data['token'] as String;
         final vendedorId = response.data['vendedor_id'] as int? ?? 0;
-        final vendedorNombre = response.data['vendedor_nombre'] as String? ?? '';
+        final vendedorNombre =
+            response.data['vendedor_nombre'] as String? ?? '';
         final usuario = response.data['usuario'] as String? ?? username;
         final cajeroId = response.data['cajero_id'] as int? ?? 0;
         final cajaId = response.data['caja_id'] as int? ?? 0;
@@ -40,35 +49,59 @@ class AuthRepository {
         );
         return null;
       }
-      return AppError(mensajeUsuario: 'Credenciales incorrectas.', esRecuperable: false);
+      return AppError(
+        mensajeUsuario: 'Credenciales incorrectas.',
+        esRecuperable: false,
+      );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
-        return AppError(mensajeUsuario: 'El servidor no responde. Verifica tu conexión.', esRecuperable: true);
+        return AppError(
+          mensajeUsuario: 'El servidor no responde. Verifica tu conexión.',
+          esRecuperable: true,
+        );
       }
       if (e.type == DioExceptionType.connectionError) {
-        return AppError(mensajeUsuario: 'Sin conexión al servidor. Asegúrate de que el Sincronizador esté encendido.', esRecuperable: true);
+        return AppError(
+          mensajeUsuario:
+              'Sin conexión al servidor. Asegúrate de que el Sincronizador esté encendido.',
+          esRecuperable: true,
+        );
       }
       if (e.response?.statusCode == 401) {
-        return AppError(mensajeUsuario: 'Usuario o contraseña incorrectos.', esRecuperable: false);
+        return AppError(
+          mensajeUsuario: 'Usuario o contraseña incorrectos.',
+          esRecuperable: false,
+        );
       }
       if (e.response?.statusCode == 403) {
-        final detalle = e.response?.data is Map
-            ? (e.response!.data['mensaje'] as String? ?? '')
-            : '';
+        final detalle =
+            e.response?.data is Map
+                ? (e.response!.data['mensaje'] as String? ?? '')
+                : '';
         return AppError(
-          mensajeUsuario: detalle.isNotEmpty
-              ? detalle
-              : 'Tu usuario no tiene permisos de vendedor en ruta.',
+          mensajeUsuario:
+              detalle.isNotEmpty
+                  ? detalle
+                  : 'Tu usuario no tiene permisos de vendedor en ruta.',
           esRecuperable: false,
         );
       }
       if (e.response?.statusCode == 503 || e.response?.statusCode == 500) {
-        return AppError(mensajeUsuario: 'El servidor está temporalmente fuera de servicio.', esRecuperable: true);
+        return AppError(
+          mensajeUsuario: 'El servidor está temporalmente fuera de servicio.',
+          esRecuperable: true,
+        );
       }
-      return AppError(mensajeUsuario: 'Error al iniciar sesión. Intenta de nuevo.', esRecuperable: true);
+      return AppError(
+        mensajeUsuario: 'Error al iniciar sesión. Intenta de nuevo.',
+        esRecuperable: true,
+      );
     } catch (_) {
-      return AppError(mensajeUsuario: 'Error inesperado. Intenta de nuevo.', esRecuperable: true);
+      return AppError(
+        mensajeUsuario: 'Error inesperado. Intenta de nuevo.',
+        esRecuperable: true,
+      );
     }
   }
 
@@ -79,7 +112,8 @@ class AuthRepository {
       final token = await _localStorage.getToken();
       if (token == null || token.isEmpty) return null;
 
-      final response = await _dio.get('/api/auth/me',
+      final response = await _dio.get(
+        '/api/auth/me',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 

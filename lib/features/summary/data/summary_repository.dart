@@ -20,9 +20,7 @@ class SummaryRepository {
           '${fecha.year.toString().padLeft(4, '0')}-${fecha.month.toString().padLeft(2, '0')}-${fecha.day.toString().padLeft(2, '0')}';
       final response = await _dio.get(
         '/api/v1/routes/summary',
-        queryParameters: {
-          'fecha': fechaStr,
-        },
+        queryParameters: {'fecha': fechaStr},
       );
 
       if (response.statusCode == 200 && response.data != null) {
@@ -50,7 +48,11 @@ class SummaryRepository {
     String? observaciones,
   }) async {
     if (_isOffline) {
-      return {'mensaje': 'Sin conexion. El cierre se guardara localmente y se enviara al recuperar conexion.', 'hay_diferencia': false};
+      return {
+        'mensaje':
+            'Sin conexion. El cierre se guardara localmente y se enviara al recuperar conexion.',
+        'hay_diferencia': false,
+      };
     }
     try {
       final response = await _dio.post(
@@ -58,7 +60,10 @@ class SummaryRepository {
         data: {
           'fecha': fecha.toIso8601String().substring(0, 10),
           'ventas_realizadas':
-              ventas.where((v) => v.doctoPvId != null).map((v) => v.doctoPvId!).toList(),
+              ventas
+                  .where((v) => v.doctoPvId != null)
+                  .map((v) => v.doctoPvId!)
+                  .toList(),
           'total_efectivo': totalEfectivo,
           'total_tarjeta': totalTarjeta,
           'total_credito': totalCredito,
@@ -71,16 +76,10 @@ class SummaryRepository {
       if (response.statusCode == 200 && response.data != null) {
         return Map<String, dynamic>.from(response.data);
       }
-      return {
-        'mensaje': 'Error en cierre de ruta',
-        'hay_diferencia': true,
-      };
+      return {'mensaje': 'Error en cierre de ruta', 'hay_diferencia': true};
     } catch (e) {
       print('Error en cierre de ruta: $e');
-      return {
-        'mensaje': 'Error en cierre de ruta: $e',
-        'hay_diferencia': true,
-      };
+      return {'mensaje': 'Error en cierre de ruta: $e', 'hay_diferencia': true};
     }
   }
 

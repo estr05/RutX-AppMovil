@@ -47,14 +47,11 @@ double _factorImpuestos(Map<String, dynamic> d) {
 ///
 /// Retorna la suma de (precio_unitario * unidades * (factor - 1))
 double calcularIVA(List<dynamic> detalles) {
-  return detalles.fold<double>(
-    0.0,
-    (sum, d) {
-      final precio = (d['precio_unitario'] as num?)?.toDouble() ?? 0.0;
-      final qty = (d['unidades'] as int?) ?? 0;
-      return sum + (precio * qty * (_factorImpuestos(d) - 1));
-    },
-  );
+  return detalles.fold<double>(0.0, (sum, d) {
+    final precio = (d['precio_unitario'] as num?)?.toDouble() ?? 0.0;
+    final qty = (d['unidades'] as int?) ?? 0;
+    return sum + (precio * qty * (_factorImpuestos(d) - 1));
+  });
 }
 
 /// Calcula el total con impuestos a partir de los detalles de una venta.
@@ -128,5 +125,7 @@ bool puedeAgregarUnidad({required Producto producto, required int enCarrito}) =>
 
 /// ¿La cantidad [cantidad] del carrito excede la existencia del almacén?
 /// Validación final antes de confirmar la venta.
-bool ventaExcedeExistencia({required Producto producto, required int cantidad}) =>
-    cantidad > unidadesDisponibles(producto);
+bool ventaExcedeExistencia({
+  required Producto producto,
+  required int cantidad,
+}) => cantidad > unidadesDisponibles(producto);

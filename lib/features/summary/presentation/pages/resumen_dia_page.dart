@@ -1,3 +1,4 @@
+// ignore_for_file: unused_field, unused_local_variable
 import 'package:flutter/material.dart';
 import '../../../../core/errors/app_error.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -466,3 +467,4 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
     );
   }
 }
+

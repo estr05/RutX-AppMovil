@@ -9,16 +9,18 @@ class VentaPendiente {
   final String estado;
   final double total;
   final List<Map<String, dynamic>> detalles;
-  final int formaCobroId;     // FK -> FORMAS_COBRO: 67=Efectivo, 71=Credito, 2845=Tarjeta
-  final int? cajaId;           // FK -> CAJAS (resuelta en el login nativo)
-  final int? cajeroId;         // FK -> CAJEROS (resuelta en el login nativo)
-  final int? almacenId;        // FK -> ALMACENES (resuelta en el login nativo)
-  final int? sucursalId;       // FK -> SUCURSALES (resuelta en el login nativo)
+  final int
+  formaCobroId; // FK -> FORMAS_COBRO: 67=Efectivo, 71=Credito, 2845=Tarjeta
+  final int? cajaId; // FK -> CAJAS (resuelta en el login nativo)
+  final int? cajeroId; // FK -> CAJEROS (resuelta en el login nativo)
+  final int? almacenId; // FK -> ALMACENES (resuelta en el login nativo)
+  final int? sucursalId; // FK -> SUCURSALES (resuelta en el login nativo)
   final String? usuarioCreador; // Usuario nativo de Microsip (USUARIO_CREADOR)
-  final int? doctoPvId;        // ID del ticket en Microsip (DOCTOS_PV.DOCTO_PV_ID)
-  final String? folio;          // Folio del ticket en Microsip (ej: V000000123)
-  final String? folioLocal;     // Folio provisional offline (ej: PRV-0000001)
-  final List<Map<String, dynamic>>? pagos; // [{forma_cobro_id, importe}, ...] para pagos mixtos
+  final int? doctoPvId; // ID del ticket en Microsip (DOCTOS_PV.DOCTO_PV_ID)
+  final String? folio; // Folio del ticket en Microsip (ej: V000000123)
+  final String? folioLocal; // Folio provisional offline (ej: PRV-0000001)
+  final List<Map<String, dynamic>>?
+  pagos; // [{forma_cobro_id, importe}, ...] para pagos mixtos
 
   VentaPendiente({
     required this.ventaMovilId,
@@ -29,7 +31,7 @@ class VentaPendiente {
     this.estado = 'pendiente',
     this.total = 0.0,
     this.detalles = const [],
-    this.formaCobroId = 67,   // Default: Efectivo
+    this.formaCobroId = 67, // Default: Efectivo
     this.cajaId,
     this.cajeroId,
     this.almacenId,
@@ -65,14 +67,21 @@ class VentaPendiente {
       'fecha_hora': fechaHora,
       'forma_cobro_id': formaCobroId,
       'notas': 'Pedido Movil - ID: $ventaMovilId',
-      'detalles': detalles.map((d) => {
-        'articulo_id': d['articulo_id'] as int,
-        'unidades': (d['unidades'] as num).toDouble(),
-        'precio_unitario': (d['precio_unitario'] as num).toDouble(),
-        'impuesto_id': d['impuesto_id'] as int? ?? 622, // Default: IVA 16%
-        if (d['impuestos'] is List && (d['impuestos'] as List).isNotEmpty)
-          'impuestos': d['impuestos'] as List,
-      }).toList(),
+      'detalles':
+          detalles
+              .map(
+                (d) => {
+                  'articulo_id': d['articulo_id'] as int,
+                  'unidades': (d['unidades'] as num).toDouble(),
+                  'precio_unitario': (d['precio_unitario'] as num).toDouble(),
+                  'impuesto_id':
+                      d['impuesto_id'] as int? ?? 622, // Default: IVA 16%
+                  if (d['impuestos'] is List &&
+                      (d['impuestos'] as List).isNotEmpty)
+                    'impuestos': d['impuestos'] as List,
+                },
+              )
+              .toList(),
     };
     if (cajaId != null) result['caja_id'] = cajaId;
     if (cajeroId != null) result['cajero_id'] = cajeroId;
@@ -136,17 +145,22 @@ class VentaPendiente {
 
   /// Convierte a JSON para enviar al endpoint /api/v1/ventas (original)
   Map<String, dynamic> toVentaJson() => {
-        'venta_movil_id': ventaMovilId,
-        'vendedor_id': vendedorId,
-        'cliente_id': clienteId,
-        'fecha_hora': fechaHora,
-        'notas': 'Pedido Movil - ID: $ventaMovilId',
-        'detalles': detalles.map((d) => {
-          'articulo_id': d['articulo_id'] as int,
-          'unidades': (d['unidades'] as num).toDouble(),
-          'precio_unitario': (d['precio_unitario'] as num).toDouble(),
-        }).toList(),
-      };
+    'venta_movil_id': ventaMovilId,
+    'vendedor_id': vendedorId,
+    'cliente_id': clienteId,
+    'fecha_hora': fechaHora,
+    'notas': 'Pedido Movil - ID: $ventaMovilId',
+    'detalles':
+        detalles
+            .map(
+              (d) => {
+                'articulo_id': d['articulo_id'] as int,
+                'unidades': (d['unidades'] as num).toDouble(),
+                'precio_unitario': (d['precio_unitario'] as num).toDouble(),
+              },
+            )
+            .toList(),
+  };
 
   VentaPendiente copyWith({
     String? estado,
@@ -154,69 +168,68 @@ class VentaPendiente {
     String? folio,
     String? folioLocal,
     List<Map<String, dynamic>>? pagos,
-  }) =>
-      VentaPendiente(
-        ventaMovilId: ventaMovilId,
-        vendedorId: vendedorId,
-        clienteId: clienteId,
-        clienteNombre: clienteNombre,
-        fechaHora: fechaHora,
-        estado: estado ?? this.estado,
-        total: total,
-        detalles: detalles,
-        formaCobroId: formaCobroId,
-        cajaId: cajaId,
-        cajeroId: cajeroId,
-        almacenId: almacenId,
-        sucursalId: sucursalId,
-        usuarioCreador: usuarioCreador,
-        doctoPvId: doctoPvId ?? this.doctoPvId,
-        folio: folio ?? this.folio,
-        folioLocal: folioLocal ?? this.folioLocal,
-        pagos: pagos ?? this.pagos,
-      );
+  }) => VentaPendiente(
+    ventaMovilId: ventaMovilId,
+    vendedorId: vendedorId,
+    clienteId: clienteId,
+    clienteNombre: clienteNombre,
+    fechaHora: fechaHora,
+    estado: estado ?? this.estado,
+    total: total,
+    detalles: detalles,
+    formaCobroId: formaCobroId,
+    cajaId: cajaId,
+    cajeroId: cajeroId,
+    almacenId: almacenId,
+    sucursalId: sucursalId,
+    usuarioCreador: usuarioCreador,
+    doctoPvId: doctoPvId ?? this.doctoPvId,
+    folio: folio ?? this.folio,
+    folioLocal: folioLocal ?? this.folioLocal,
+    pagos: pagos ?? this.pagos,
+  );
 
   Map<String, dynamic> toMap() => {
-        'venta_movil_id': ventaMovilId,
-        'vendedor_id': vendedorId,
-        'cliente_id': clienteId,
-        'cliente_nombre': clienteNombre,
-        'fecha_hora': fechaHora,
-        'estado': estado,
-        'total': total,
-        'detalles_json': jsonEncode(detalles),
-        'forma_cobro_id': formaCobroId,
-        'caja_id': cajaId,
-        'cajero_id': cajeroId,
-        'almacen_id': almacenId,
-        'sucursal_id': sucursalId,
-        'usuario_creador': usuarioCreador,
-        'docto_pv_id': doctoPvId,
-        'folio': folio,
-        'folio_local': folioLocal,
-        'pagos_json': pagos != null ? jsonEncode(pagos) : null,
-      };
+    'venta_movil_id': ventaMovilId,
+    'vendedor_id': vendedorId,
+    'cliente_id': clienteId,
+    'cliente_nombre': clienteNombre,
+    'fecha_hora': fechaHora,
+    'estado': estado,
+    'total': total,
+    'detalles_json': jsonEncode(detalles),
+    'forma_cobro_id': formaCobroId,
+    'caja_id': cajaId,
+    'cajero_id': cajeroId,
+    'almacen_id': almacenId,
+    'sucursal_id': sucursalId,
+    'usuario_creador': usuarioCreador,
+    'docto_pv_id': doctoPvId,
+    'folio': folio,
+    'folio_local': folioLocal,
+    'pagos_json': pagos != null ? jsonEncode(pagos) : null,
+  };
 
   factory VentaPendiente.fromMap(Map<String, dynamic> map) => VentaPendiente(
-        ventaMovilId: map['venta_movil_id'] as String,
-        vendedorId: map['vendedor_id'] as int,
-        clienteId: map['cliente_id'] as int,
-        clienteNombre: map['cliente_nombre'] as String,
-        fechaHora: map['fecha_hora'] as String,
-        estado: map['estado'] as String? ?? 'pendiente',
-        total: (map['total'] as num?)?.toDouble() ?? 0.0,
-        detalles: _parseDetalles(map['detalles_json'] as String?),
-        formaCobroId: map['forma_cobro_id'] as int? ?? 67,
-        cajaId: map['caja_id'] as int?,
-        cajeroId: map['cajero_id'] as int?,
-        almacenId: map['almacen_id'] as int?,
-        sucursalId: map['sucursal_id'] as int?,
-        usuarioCreador: map['usuario_creador'] as String?,
-        doctoPvId: map['docto_pv_id'] as int?,
-        folio: map['folio'] as String?,
-        folioLocal: map['folio_local'] as String?,
-        pagos: _parseDetalles(map['pagos_json'] as String?),
-      );
+    ventaMovilId: map['venta_movil_id'] as String,
+    vendedorId: map['vendedor_id'] as int,
+    clienteId: map['cliente_id'] as int,
+    clienteNombre: map['cliente_nombre'] as String,
+    fechaHora: map['fecha_hora'] as String,
+    estado: map['estado'] as String? ?? 'pendiente',
+    total: (map['total'] as num?)?.toDouble() ?? 0.0,
+    detalles: _parseDetalles(map['detalles_json'] as String?),
+    formaCobroId: map['forma_cobro_id'] as int? ?? 67,
+    cajaId: map['caja_id'] as int?,
+    cajeroId: map['cajero_id'] as int?,
+    almacenId: map['almacen_id'] as int?,
+    sucursalId: map['sucursal_id'] as int?,
+    usuarioCreador: map['usuario_creador'] as String?,
+    doctoPvId: map['docto_pv_id'] as int?,
+    folio: map['folio'] as String?,
+    folioLocal: map['folio_local'] as String?,
+    pagos: _parseDetalles(map['pagos_json'] as String?),
+  );
 
   static List<Map<String, dynamic>> _parseDetalles(String? json) {
     if (json == null || json.isEmpty) return [];

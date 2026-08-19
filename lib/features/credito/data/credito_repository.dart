@@ -7,8 +7,7 @@ import '../../../core/database/app_database.dart';
 class CreditoRepository {
   final Dio _dio;
 
-  CreditoRepository({Dio? dio})
-      : _dio = dio ?? DioClient().dio;
+  CreditoRepository({Dio? dio}) : _dio = dio ?? DioClient().dio;
 
   bool get _isOffline =>
       ConnectionStateService().currentState == RutxConnectionState.offline;
@@ -27,7 +26,8 @@ class CreditoRepository {
     int? vendedorId,
     bool forceRefresh = false,
   }) async {
-    final cacheValid = !forceRefresh &&
+    final cacheValid =
+        !forceRefresh &&
         _cache != null &&
         _cacheTimestamp != null &&
         DateTime.now().difference(_cacheTimestamp!) < _cacheDuration;
@@ -92,20 +92,24 @@ class CreditoRepository {
       final db = AppDatabase();
       await db.initialize();
       final clientes = await db.clienteDao.getAll();
-      final creditos = clientes
-          .where((c) => c.tipoVenta > 1 && c.saldo > 0)
-          .map((c) => {
-                'cliente_id': c.clienteId,
-                'nombre': c.nombreCliente,
-                'limite_credito': c.limiteCredito,
-                'saldo_pendiente': c.saldo,
-                'porcentaje_usado': c.limiteCredito > 0
-                    ? (c.saldo / c.limiteCredito) * 100
-                    : 0.0,
-                'documentos_pendientes': 0,
-                'dias_atraso': 0,
-              })
-          .toList();
+      final creditos =
+          clientes
+              .where((c) => c.tipoVenta > 1 && c.saldo > 0)
+              .map(
+                (c) => {
+                  'cliente_id': c.clienteId,
+                  'nombre': c.nombreCliente,
+                  'limite_credito': c.limiteCredito,
+                  'saldo_pendiente': c.saldo,
+                  'porcentaje_usado':
+                      c.limiteCredito > 0
+                          ? (c.saldo / c.limiteCredito) * 100
+                          : 0.0,
+                  'documentos_pendientes': 0,
+                  'dias_atraso': 0,
+                },
+              )
+              .toList();
       return creditos;
     } catch (_) {
       return [];

@@ -14,8 +14,8 @@ class SyncRepository {
   final AppDatabase _db;
 
   SyncRepository({Dio? dio, AppDatabase? db})
-      : _dio = dio ?? DioClient().dio,
-        _db = db ?? AppDatabase();
+    : _dio = dio ?? DioClient().dio,
+      _db = db ?? AppDatabase();
 
   Future<SyncResult> downloadMorningData(int vendedorId) async {
     if (ConnectionStateService().isOffline) {
@@ -25,7 +25,8 @@ class SyncRepository {
       );
     }
     const maxIntentos = 3;
-    String lastErrorMsg = 'No se pudo completar la sincronizacion. Verifica tu conexion.';
+    String lastErrorMsg =
+        'No se pudo completar la sincronizacion. Verifica tu conexion.';
 
     for (int intento = 1; intento <= maxIntentos; intento++) {
       try {
@@ -47,10 +48,7 @@ class SyncRepository {
       }
     }
 
-    return SyncFailure(
-      mensaje: lastErrorMsg,
-      intentos: maxIntentos,
-    );
+    return SyncFailure(mensaje: lastErrorMsg, intentos: maxIntentos);
   }
 
   int _contarCreditos(List<Cliente> clientes) =>
@@ -64,56 +62,73 @@ class SyncRepository {
     final List<dynamic> clientesJson = data['clientes'] ?? [];
     final List<dynamic> productosJson = data['productos'] ?? [];
 
-    final clientes = clientesJson.map((json) => Cliente(
-          clienteId: json['cliente_id'] as int,
-          clave: json['clave'] as String? ?? '',
-          nombreCliente: json['nombre_cliente'] as String,
-          telefono: json['telefono'] as String? ?? '',
-          calle: json['calle'] as String?,
-          colonia: json['colonia'] as String?,
-          poblacion: json['poblacion'] as String? ?? '',
-          codigoPostal: json['codigo_postal'] as String?,
-          limiteCredito: (json['limite_credito'] as num?)?.toDouble() ?? 0.0,
-          saldo: (json['saldo'] as num?)?.toDouble() ?? 0.0,
-          tipoVenta: json['cond_pago_id'] as int? ?? 1,
-          rfc: json['rfc'] as String?,
-        )).toList();
+    final clientes =
+        clientesJson
+            .map(
+              (json) => Cliente(
+                clienteId: json['cliente_id'] as int,
+                clave: json['clave'] as String? ?? '',
+                nombreCliente: json['nombre_cliente'] as String,
+                telefono: json['telefono'] as String? ?? '',
+                calle: json['calle'] as String?,
+                colonia: json['colonia'] as String?,
+                poblacion: json['poblacion'] as String? ?? '',
+                codigoPostal: json['codigo_postal'] as String?,
+                limiteCredito:
+                    (json['limite_credito'] as num?)?.toDouble() ?? 0.0,
+                saldo: (json['saldo'] as num?)?.toDouble() ?? 0.0,
+                tipoVenta: json['cond_pago_id'] as int? ?? 1,
+                rfc: json['rfc'] as String?,
+              ),
+            )
+            .toList();
 
-    final productos = productosJson.map((json) {
-      final id = json['articulo_id'] as int;
-      final clave = json['clave'] as String? ?? id.toString();
-      final precio = (json['precio'] as num?)?.toDouble();
-      if (precio == null) return null;
+    final productos =
+        productosJson
+            .map((json) {
+              final id = json['articulo_id'] as int;
+              final clave = json['clave'] as String? ?? id.toString();
+              final precio = (json['precio'] as num?)?.toDouble();
+              if (precio == null) return null;
 
-      final impuestosJson = json['impuestos'] as List<dynamic>? ?? const [];
-      final impuestos = impuestosJson.map((i) {
-        final m = i as Map<String, dynamic>;
-        return ImpuestoProducto(
-          impuestoId: m['impuesto_id'] as int,
-          pctjeImpuesto: (m['pctje_impuesto'] as num?)?.toDouble() ?? 0.0,
-        );
-      }).toList();
+              final impuestosJson =
+                  json['impuestos'] as List<dynamic>? ?? const [];
+              final impuestos =
+                  impuestosJson.map((i) {
+                    final m = i as Map<String, dynamic>;
+                    return ImpuestoProducto(
+                      impuestoId: m['impuesto_id'] as int,
+                      pctjeImpuesto:
+                          (m['pctje_impuesto'] as num?)?.toDouble() ?? 0.0,
+                    );
+                  }).toList();
 
-      final impuestoPrincipal = impuestos.isNotEmpty
-          ? impuestos.first
-          : ImpuestoProducto(
-              impuestoId: json['impuesto_id'] as int? ?? 622,
-              pctjeImpuesto: (json['porcentaje_impuesto'] as num?)?.toDouble() ?? 16.0,
-            );
+              final impuestoPrincipal =
+                  impuestos.isNotEmpty
+                      ? impuestos.first
+                      : ImpuestoProducto(
+                        impuestoId: json['impuesto_id'] as int? ?? 622,
+                        pctjeImpuesto:
+                            (json['porcentaje_impuesto'] as num?)?.toDouble() ??
+                            16.0,
+                      );
 
-      return Producto(
-        articuloId: id,
-        nombre: json['nombre'] as String,
-        estatus: json['estatus'] as String? ?? 'A',
-        clave: clave,
-        precio: precio,
-        precioConImpuesto: (json['precio_con_impuesto'] as num?)?.toDouble() ?? 0.0,
-        porcentajeImpuesto: impuestoPrincipal.pctjeImpuesto.round(),
-        impuestoId: impuestoPrincipal.impuestoId,
-        impuestos: impuestos,
-        existencias: (json['existencias'] as num?)?.toDouble() ?? 0.0,
-      );
-    }).whereType<Producto>().toList();
+              return Producto(
+                articuloId: id,
+                nombre: json['nombre'] as String,
+                estatus: json['estatus'] as String? ?? 'A',
+                clave: clave,
+                precio: precio,
+                precioConImpuesto:
+                    (json['precio_con_impuesto'] as num?)?.toDouble() ?? 0.0,
+                porcentajeImpuesto: impuestoPrincipal.pctjeImpuesto.round(),
+                impuestoId: impuestoPrincipal.impuestoId,
+                impuestos: impuestos,
+                existencias: (json['existencias'] as num?)?.toDouble() ?? 0.0,
+              );
+            })
+            .whereType<Producto>()
+            .toList();
 
     final emisorJson = data['emisor'] as Map<String, dynamic>?;
     final sucursalJson = data['sucursal'] as Map<String, dynamic>?;
@@ -131,7 +146,9 @@ class SyncRepository {
   /// incremental (solo los datos faltantes).
   Future<AnalisisDescarga> analizarDescarga() async {
     if (ConnectionStateService().isOffline) {
-      throw StateError('Sin conexión al servidor. Conéctate a una red e intenta nuevamente.');
+      throw StateError(
+        'Sin conexión al servidor. Conéctate a una red e intenta nuevamente.',
+      );
     }
     const maxIntentos = 2;
     Object lastError = StateError('No se pudo completar el análisis.');
@@ -144,22 +161,28 @@ class SyncRepository {
           final idsClientesLocales = await _db.clienteDao.getAllIds();
           final idsProductosLocales = await _db.productDao.getAllIds();
 
-          final idsClientesServidor = datos.clientes.map((c) => c.clienteId).toSet();
-          final idsProductosServidor = datos.productos.map((p) => p.articuloId).toSet();
+          final idsClientesServidor =
+              datos.clientes.map((c) => c.clienteId).toSet();
+          final idsProductosServidor =
+              datos.productos.map((p) => p.articuloId).toSet();
 
-          final clientesNuevos = datos.clientes
-              .where((c) => !idsClientesLocales.contains(c.clienteId))
-              .toList();
-          final productosNuevos = datos.productos
-              .where((p) => !idsProductosLocales.contains(p.articuloId))
-              .toList();
+          final clientesNuevos =
+              datos.clientes
+                  .where((c) => !idsClientesLocales.contains(c.clienteId))
+                  .toList();
+          final productosNuevos =
+              datos.productos
+                  .where((p) => !idsProductosLocales.contains(p.articuloId))
+                  .toList();
 
-          final clientesRemovidos = idsClientesLocales
-              .where((id) => !idsClientesServidor.contains(id))
-              .toList();
-          final productosRemovidos = idsProductosLocales
-              .where((id) => !idsProductosServidor.contains(id))
-              .toList();
+          final clientesRemovidos =
+              idsClientesLocales
+                  .where((id) => !idsClientesServidor.contains(id))
+                  .toList();
+          final productosRemovidos =
+              idsProductosLocales
+                  .where((id) => !idsProductosServidor.contains(id))
+                  .toList();
 
           return AnalisisDescarga(
             clientesServidor: datos.clientes,
@@ -191,7 +214,9 @@ class SyncRepository {
   /// Etapa 2: actualiza catálogos con los datos vigentes del servidor y elimina
   /// aquellos clientes o productos que hayan sido desasignados o removidos.
   /// No limpia ventas ni duplica registros.
-  Future<SyncResult> aplicarDescargaIncremental(AnalisisDescarga analisis) async {
+  Future<SyncResult> aplicarDescargaIncremental(
+    AnalisisDescarga analisis,
+  ) async {
     try {
       // 1. Insertar / Actualizar catálogos del servidor (con últimos precios, saldos, límites)
       await _db.clienteDao.insertAll(analisis.clientesServidor);
@@ -232,14 +257,21 @@ class SyncRepository {
     }
   }
 
-  Future<SyncResult> _procesarClientesYProductos(dynamic data, String origen) async {
+  Future<SyncResult> _procesarClientesYProductos(
+    dynamic data,
+    String origen,
+  ) async {
     try {
       final datos = _parsearDatosServidor(data);
       final clientes = datos.clientes;
       final productos = datos.productos;
       final creditos = _contarCreditos(clientes);
 
-      try { await _db.limpiarDatosDelDia(); } catch (e) { debugPrint('[Sync] Error al limpiar: $e'); }
+      try {
+        await _db.limpiarDatosDelDia();
+      } catch (e) {
+        debugPrint('[Sync] Error al limpiar: $e');
+      }
 
       try {
         await _db.clienteDao.insertAll(clientes);
@@ -263,11 +295,15 @@ class SyncRepository {
       }
 
       if (datos.emisor != null) {
-        try { await _db.emisorDao.insert(datos.emisor!); } catch (e) {}
+        try {
+          await _db.emisorDao.insert(datos.emisor!);
+        } catch (e) {}
       }
 
       if (datos.sucursal != null) {
-        try { await _db.sucursalDao.insert(datos.sucursal!); } catch (e) {}
+        try {
+          await _db.sucursalDao.insert(datos.sucursal!);
+        } catch (e) {}
       }
 
       return SyncSuccess(
@@ -276,10 +312,7 @@ class SyncRepository {
         credito: creditos,
       );
     } catch (e) {
-      return SyncFailure(
-        mensaje: 'Error de parseo: $e',
-        intentos: 3,
-      );
+      return SyncFailure(mensaje: 'Error de parseo: $e', intentos: 3);
     }
   }
 
@@ -294,7 +327,8 @@ class SyncRepository {
       if (codigo == 404) return 'Ruta no encontrada para este vendedor.';
       return 'Error del servidor ($codigo).';
     }
-    if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
       return 'El servidor no respondió a tiempo.';
     }
     if (e.type == DioExceptionType.connectionError) {
@@ -367,4 +401,3 @@ class AnalisisDescarga {
 
   bool get estaAlDia => totalCambios == 0;
 }
-

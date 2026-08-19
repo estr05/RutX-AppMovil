@@ -151,9 +151,7 @@ void main() {
       });
 
       test('retorna el cliente correcto', () async {
-        await dao.insertAll([
-          _c(5, 'Encontrado', clave: 'C005'),
-        ]);
+        await dao.insertAll([_c(5, 'Encontrado', clave: 'C005')]);
 
         final c = await dao.getById(5);
         expect(c, isNotNull);
@@ -173,9 +171,7 @@ void main() {
       });
 
       test('retorna todos cuando query es vacío', () async {
-        await dao.insertAll([
-          _c(1, 'Uno', clave: 'C001'),
-        ]);
+        await dao.insertAll([_c(1, 'Uno', clave: 'C001')]);
 
         final result = await dao.search('');
         expect(result.length, 1);
@@ -224,9 +220,7 @@ void main() {
       });
 
       test('no hace nada si la lista está vacía', () async {
-        await dao.insertAll([
-          _c(1, 'A', clave: 'C001'),
-        ]);
+        await dao.insertAll([_c(1, 'A', clave: 'C001')]);
         await dao.deleteByIds([]);
 
         expect(await dao.count(), 1);
@@ -235,9 +229,7 @@ void main() {
 
     group('deleteAll', () {
       test('elimina todos los registros', () async {
-        await dao.insertAll([
-          _c(1, 'A', clave: 'C001'),
-        ]);
+        await dao.insertAll([_c(1, 'A', clave: 'C001')]);
         await dao.deleteAll();
 
         expect(await dao.count(), 0);
@@ -260,8 +252,18 @@ void main() {
     group('insertAll', () {
       test('inserta múltiples productos', () async {
         await dao.insertAll([
-          Producto(articuloId: 1, nombre: 'Producto A', clave: 'P001', precio: 10.0),
-          Producto(articuloId: 2, nombre: 'Producto B', clave: 'P002', precio: 20.0),
+          Producto(
+            articuloId: 1,
+            nombre: 'Producto A',
+            clave: 'P001',
+            precio: 10.0,
+          ),
+          Producto(
+            articuloId: 2,
+            nombre: 'Producto B',
+            clave: 'P002',
+            precio: 20.0,
+          ),
         ]);
 
         expect(await dao.count(), 2);
@@ -272,7 +274,12 @@ void main() {
       test('retorna solo el límite solicitado', () async {
         final productos = List.generate(
           10,
-          (i) => Producto(articuloId: i + 1, nombre: 'P$i', clave: 'P${i + 1}', precio: (i + 1) * 10.0),
+          (i) => Producto(
+            articuloId: i + 1,
+            nombre: 'P$i',
+            clave: 'P${i + 1}',
+            precio: (i + 1) * 10.0,
+          ),
         );
         await dao.insertAll(productos);
 
@@ -294,8 +301,18 @@ void main() {
 
       test('filtra por nombre', () async {
         await dao.insertAll([
-          Producto(articuloId: 1, nombre: 'Chocolate', clave: 'CHO001', precio: 25.0),
-          Producto(articuloId: 2, nombre: 'Galleta', clave: 'GAL001', precio: 10.0),
+          Producto(
+            articuloId: 1,
+            nombre: 'Chocolate',
+            clave: 'CHO001',
+            precio: 25.0,
+          ),
+          Producto(
+            articuloId: 2,
+            nombre: 'Galleta',
+            clave: 'GAL001',
+            precio: 10.0,
+          ),
         ]);
 
         final result = await dao.search('Choco');
@@ -306,8 +323,19 @@ void main() {
     group('getAll', () {
       test('retorna solo productos activos', () async {
         await dao.insertAll([
-          Producto(articuloId: 1, nombre: 'Activo', clave: 'ACT001', precio: 10.0),
-          Producto(articuloId: 2, nombre: 'Inactivo', clave: 'INA001', precio: 20.0, estatus: 'B'),
+          Producto(
+            articuloId: 1,
+            nombre: 'Activo',
+            clave: 'ACT001',
+            precio: 10.0,
+          ),
+          Producto(
+            articuloId: 2,
+            nombre: 'Inactivo',
+            clave: 'INA001',
+            precio: 20.0,
+            estatus: 'B',
+          ),
         ]);
 
         final all = await dao.getAll();
@@ -344,26 +372,27 @@ void main() {
 
     tearDown(() => db.close());
 
-    VentaPendiente _venta({
+    VentaPendiente venta({
       String id = 'VTA-001',
       int vendedorId = 1,
       double total = 100.0,
       String estado = 'pendiente',
       String fecha = '2026-07-28',
-    }) =>
-        VentaPendiente(
-          ventaMovilId: id,
-          vendedorId: vendedorId,
-          clienteId: 1,
-          clienteNombre: 'Test',
-          fechaHora: '${fecha}T10:00:00.000',
-          total: total,
-          estado: estado,
-          detalles: [{'articulo_id': 1, 'unidades': 1, 'precio_unitario': total}],
-        );
+    }) => VentaPendiente(
+      ventaMovilId: id,
+      vendedorId: vendedorId,
+      clienteId: 1,
+      clienteNombre: 'Test',
+      fechaHora: '${fecha}T10:00:00.000',
+      total: total,
+      estado: estado,
+      detalles: [
+        {'articulo_id': 1, 'unidades': 1, 'precio_unitario': total},
+      ],
+    );
 
     test('insert y getById', () async {
-      final v = _venta();
+      final v = venta();
       await dao.insert(v);
 
       final found = await dao.getById('VTA-001');
@@ -372,8 +401,8 @@ void main() {
     });
 
     test('getPendientes retorna solo pendientes', () async {
-      await dao.insert(_venta(id: 'VTA-001', estado: 'pendiente'));
-      await dao.insert(_venta(id: 'VTA-002', estado: 'enviada'));
+      await dao.insert(venta(id: 'VTA-001', estado: 'pendiente'));
+      await dao.insert(venta(id: 'VTA-002', estado: 'enviada'));
 
       final pendientes = await dao.getPendientes();
       expect(pendientes.length, 1);
@@ -381,23 +410,23 @@ void main() {
     });
 
     test('getByEstado con null retorna todos', () async {
-      await dao.insert(_venta(id: 'VTA-001'));
-      await dao.insert(_venta(id: 'VTA-002'));
+      await dao.insert(venta(id: 'VTA-001'));
+      await dao.insert(venta(id: 'VTA-002'));
 
       final all = await dao.getByEstado(null);
       expect(all.length, 2);
     });
 
     test('getByEstado con string vacío retorna todos', () async {
-      await dao.insert(_venta(id: 'VTA-001'));
+      await dao.insert(venta(id: 'VTA-001'));
 
       final all = await dao.getByEstado('');
       expect(all.length, 1);
     });
 
     test('getByEstado filtra correctamente', () async {
-      await dao.insert(_venta(id: 'VTA-001', estado: 'pendiente'));
-      await dao.insert(_venta(id: 'VTA-002', estado: 'enviada'));
+      await dao.insert(venta(id: 'VTA-001', estado: 'pendiente'));
+      await dao.insert(venta(id: 'VTA-002', estado: 'enviada'));
 
       final enviadas = await dao.getByEstado('enviada');
       expect(enviadas.length, 1);
@@ -405,7 +434,7 @@ void main() {
     });
 
     test('updateEstado con null no modifica nada', () async {
-      await dao.insert(_venta(id: 'VTA-001', estado: 'pendiente'));
+      await dao.insert(venta(id: 'VTA-001', estado: 'pendiente'));
 
       await dao.updateEstado('VTA-001', null);
 
@@ -414,7 +443,7 @@ void main() {
     });
 
     test('updateEstado cambia el estado', () async {
-      await dao.insert(_venta(id: 'VTA-001', estado: 'pendiente'));
+      await dao.insert(venta(id: 'VTA-001', estado: 'pendiente'));
 
       await dao.updateEstado('VTA-001', 'enviada');
 
@@ -423,7 +452,7 @@ void main() {
     });
 
     test('updateAfterSync actualiza doctoPvId y folio', () async {
-      await dao.insert(_venta(id: 'VTA-001'));
+      await dao.insert(venta(id: 'VTA-001'));
 
       await dao.updateAfterSync(
         ventaMovilId: 'VTA-001',
@@ -439,24 +468,24 @@ void main() {
     });
 
     test('getDelDia con null retorna todos', () async {
-      await dao.insert(_venta(id: 'VTA-001'));
-      await dao.insert(_venta(id: 'VTA-002'));
+      await dao.insert(venta(id: 'VTA-001'));
+      await dao.insert(venta(id: 'VTA-002'));
 
       final result = await dao.getDelDia(null);
       expect(result.length, 2);
     });
 
     test('getDelDia filtra por fecha', () async {
-      await dao.insert(_venta(id: 'VTA-001', fecha: '2026-07-28'));
-      await dao.insert(_venta(id: 'VTA-002', fecha: '2026-07-29'));
+      await dao.insert(venta(id: 'VTA-001', fecha: '2026-07-28'));
+      await dao.insert(venta(id: 'VTA-002', fecha: '2026-07-29'));
 
       final result = await dao.getDelDia('2026-07-28');
       expect(result.length, 1);
     });
 
     test('getResumenDelDia retorna resumen correcto', () async {
-      await dao.insert(_venta(id: 'VTA-001', total: 100.0, estado: 'pendiente'));
-      await dao.insert(_venta(id: 'VTA-002', total: 200.0, estado: 'enviada'));
+      await dao.insert(venta(id: 'VTA-001', total: 100.0, estado: 'pendiente'));
+      await dao.insert(venta(id: 'VTA-002', total: 200.0, estado: 'enviada'));
 
       final resumen = await dao.getResumenDelDia('2026-07-28');
 
@@ -467,7 +496,7 @@ void main() {
     });
 
     test('deleteAll elimina todas las ventas', () async {
-      await dao.insert(_venta(id: 'VTA-001'));
+      await dao.insert(venta(id: 'VTA-001'));
       await dao.deleteAll();
 
       expect(await dao.getPendientes(), isEmpty);
@@ -487,16 +516,22 @@ void main() {
     tearDown(() => db.close());
 
     test('insert y getById', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T10:00:00',
-        totalCobrado: 500.0,
-        pagos: [{'forma_cobro_id': 67, 'importe': 500.0}],
-        documentos: [{'docto_pv_original_id': 100, 'importe_pagado': 500.0}],
-      ));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T10:00:00',
+          totalCobrado: 500.0,
+          pagos: [
+            {'forma_cobro_id': 67, 'importe': 500.0},
+          ],
+          documentos: [
+            {'docto_pv_original_id': 100, 'importe_pagado': 500.0},
+          ],
+        ),
+      );
 
       final found = await dao.getById('COB-001');
       expect(found, isNotNull);
@@ -504,21 +539,25 @@ void main() {
     });
 
     test('getPendientes retorna solo pendientes', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T10:00:00',
-      ));
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-002',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T11:00:00',
-        totalCobrado: 0,
-      ).copyWith(estado: 'enviada'));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T10:00:00',
+        ),
+      );
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-002',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T11:00:00',
+          totalCobrado: 0,
+        ).copyWith(estado: 'enviada'),
+      );
 
       final pendientes = await dao.getPendientes();
       expect(pendientes.length, 1);
@@ -526,13 +565,15 @@ void main() {
     });
 
     test('updateEstado cambia estado', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T10:00:00',
-      ));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T10:00:00',
+        ),
+      );
 
       await dao.updateEstado('COB-001', 'enviada');
 
@@ -541,13 +582,15 @@ void main() {
     });
 
     test('updateEstado con null no modifica', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T10:00:00',
-      ));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T10:00:00',
+        ),
+      );
 
       await dao.updateEstado('COB-001', null);
 
@@ -556,33 +599,39 @@ void main() {
     });
 
     test('getDelDia con null retorna todos', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'A',
-        fechaHora: '2026-07-28T10:00:00',
-      ));
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-002',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'B',
-        fechaHora: '2026-07-29T10:00:00',
-      ));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'A',
+          fechaHora: '2026-07-28T10:00:00',
+        ),
+      );
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-002',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'B',
+          fechaHora: '2026-07-29T10:00:00',
+        ),
+      );
 
       final result = await dao.getDelDia(null);
       expect(result.length, 2);
     });
 
     test('deleteAll elimina todo', () async {
-      await dao.insert(CobranzaPendiente(
-        cobranzaMovilId: 'COB-001',
-        vendedorId: 1,
-        clienteId: 1,
-        clienteNombre: 'Test',
-        fechaHora: '2026-07-28T10:00:00',
-      ));
+      await dao.insert(
+        CobranzaPendiente(
+          cobranzaMovilId: 'COB-001',
+          vendedorId: 1,
+          clienteId: 1,
+          clienteNombre: 'Test',
+          fechaHora: '2026-07-28T10:00:00',
+        ),
+      );
       await dao.deleteAll();
 
       expect(await dao.getPendientes(), isEmpty);

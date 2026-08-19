@@ -71,17 +71,15 @@ class _VentaDetallePageState extends State<VentaDetallePage> {
     final double totalConIva = subtotal + iva;
     final String dateTimeStr = _formatDateTime(widget.venta.fechaHora);
 
-    final folioDisplay = widget.venta.folio ??
+    final folioDisplay =
+        widget.venta.folio ??
         widget.venta.folioLocal ??
         'REF-${widget.venta.ventaMovilId.length > 6 ? widget.venta.ventaMovilId.substring(widget.venta.ventaMovilId.length - 6).toUpperCase() : widget.venta.ventaMovilId.toUpperCase()}';
     final esFolioReal = widget.venta.folio != null;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: const RutxAppBar(
-        title: 'Detalle de Venta',
-        showBackButton: true,
-      ),
+      appBar: const RutxAppBar(title: 'Detalle de Venta', showBackButton: true),
       body: Column(
         children: [
           Container(
@@ -106,7 +104,10 @@ class _VentaDetallePageState extends State<VentaDetallePage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),

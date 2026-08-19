@@ -3,7 +3,8 @@ import '../../../../core/database/entities/notificacion_entity.dart';
 import '../datasources/notification_remote_datasource.dart';
 
 class NotificationRepository {
-  final NotificationRemoteDataSource _remoteDataSource = NotificationRemoteDataSource();
+  final NotificationRemoteDataSource _remoteDataSource =
+      NotificationRemoteDataSource();
 
   Future<String?> fetchAndPersist(int vendedorId) async {
     try {
@@ -19,10 +20,7 @@ class NotificationRepository {
       for (final r in remotos) {
         final key = r.contenido;
         if (!existingKeys.contains(key)) {
-          nuevas.add(Notificacion(
-            mensaje: key,
-            fechaCreacion: r.fechaEnvio,
-          ));
+          nuevas.add(Notificacion(mensaje: key, fechaCreacion: r.fechaEnvio));
         }
       }
 

@@ -23,8 +23,9 @@ class SalesRepository {
     try {
       final db = AppDatabase();
       await db.initialize();
-      final folioLocal = await db.folioLocalDao
-          .siguienteFolioProvisional(venta.cajeroId ?? 0);
+      final folioLocal = await db.folioLocalDao.siguienteFolioProvisional(
+        venta.cajeroId ?? 0,
+      );
       return venta.copyWith(folioLocal: folioLocal);
     } catch (_) {
       return venta;
@@ -63,11 +64,9 @@ class SalesRepository {
       final queue = SyncQueueProcessor(db: db);
       await queue.enqueue('venta', conFolio.ventaMovilId);
 
-      if (ConnectionStateService().currentState == RutxConnectionState.offline) {
-        return {
-          'success': false,
-          'folio_local': conFolio.folioLocal,
-        };
+      if (ConnectionStateService().currentState ==
+          RutxConnectionState.offline) {
+        return {'success': false, 'folio_local': conFolio.folioLocal};
       }
 
       final result = await uploadOne(conFolio.ventaMovilId);
@@ -80,10 +79,7 @@ class SalesRepository {
           'folio_local': conFolio.folioLocal,
         };
       }
-      return {
-        'success': false,
-        'folio_local': conFolio.folioLocal,
-      };
+      return {'success': false, 'folio_local': conFolio.folioLocal};
     } catch (e) {
       return null;
     }
@@ -97,7 +93,9 @@ class SalesRepository {
       final db = AppDatabase();
       await db.initialize();
       final venta = await db.ventaDao.getById(ventaMovilId);
-      if (venta == null) return {'success': false, 'error': 'venta_no_encontrada'};
+      if (venta == null) {
+        return {'success': false, 'error': 'venta_no_encontrada'};
+      }
 
       final result = await _uploadSale(venta);
       if (result != null && result['success'] == true) {
@@ -109,7 +107,8 @@ class SalesRepository {
         );
         return result;
       }
-      if (result != null && _esSesionCaducada(result['error']?.toString() ?? '')) {
+      if (result != null &&
+          _esSesionCaducada(result['error']?.toString() ?? '')) {
         await _dioClient.cerrarSesionPorCaducidad();
       }
       return result ?? {'success': false, 'error': 'respuesta_vacia'};
@@ -119,7 +118,8 @@ class SalesRepository {
   }
 
   Future<SyncResult> syncPendingSales() async {
-    if (ConnectionStateService().currentState != RutxConnectionState.connected) {
+    if (ConnectionStateService().currentState !=
+        RutxConnectionState.connected) {
       return SyncFailure(mensaje: 'Sin conexión');
     }
 
@@ -174,13 +174,18 @@ class SalesRepository {
       if (sesionCaducada) {
         await _dioClient.cerrarSesionPorCaducidad();
         return SyncFailure(
-            mensaje: 'Tu sesión ha caducado. Inicia sesión de nuevo para sincronizar.');
+          mensaje:
+              'Tu sesión ha caducado. Inicia sesión de nuevo para sincronizar.',
+        );
       }
 
       if (ultimoError != null && enviadas == 0) {
-        return SyncFailure(mensaje: _esReintentable(ultimoError)
-            ? 'Sin conexión al servidor (Network Error)'
-            : ultimoError);
+        return SyncFailure(
+          mensaje:
+              _esReintentable(ultimoError)
+                  ? 'Sin conexión al servidor (Network Error)'
+                  : ultimoError,
+        );
       }
       return SyncSuccess(clientes: 0, productos: enviadas);
     } catch (e) {
@@ -191,7 +196,10 @@ class SalesRepository {
   /// Indica si el error proviene de un token JWT rechazado por el servidor
   /// (401). No es un error de la venta: es una sesión caducada o inválida.
   bool _esSesionCaducada(String error) {
-    final match = RegExp(r'api error \[(\d{3})\]', caseSensitive: false).firstMatch(error);
+    final match = RegExp(
+      r'api error \[(\d{3})\]',
+      caseSensitive: false,
+    ).firstMatch(error);
     return match != null && match.group(1) == '401';
   }
 
@@ -210,7 +218,10 @@ class SalesRepository {
         error == 'Error desconocido') {
       return true;
     }
-    final match = RegExp(r'api error \[(\d{3})\]', caseSensitive: false).firstMatch(error);
+    final match = RegExp(
+      r'api error \[(\d{3})\]',
+      caseSensitive: false,
+    ).firstMatch(error);
     if (match != null) {
       final code = int.tryParse(match.group(1) ?? '') ?? 0;
       if (code >= 500 || code == 409) return true;
@@ -286,22 +297,29 @@ class SalesRepository {
           'folio': data['folio'],
         };
       }
-      final msg = response.data is Map
-          ? (response.data['message'] ?? response.data['error'] ?? '')
-          : '';
+      final msg =
+          response.data is Map
+              ? (response.data['message'] ?? response.data['error'] ?? '')
+              : '';
       return {
         'success': false,
-        'error': 'API ERROR [${response.statusCode}]: ${msg.isNotEmpty ? msg : 'Error ${response.statusCode}'}',
+        'error':
+            'API ERROR [${response.statusCode}]: ${msg.isNotEmpty ? msg : 'Error ${response.statusCode}'}',
       };
     } on DioException catch (e) {
       String serverMsg = '';
       if (e.response?.data is Map) {
-        serverMsg = e.response?.data['message'] ?? e.response?.data['error'] ?? '';
+        serverMsg =
+            e.response?.data['message'] ?? e.response?.data['error'] ?? '';
       } else if (e.response?.data is String) {
         serverMsg = e.response?.data;
       }
       final code = e.response?.statusCode ?? 0;
-      return {'success': false, 'error': 'API ERROR [$code]: ${serverMsg.isNotEmpty ? serverMsg : e.message}'};
+      return {
+        'success': false,
+        'error':
+            'API ERROR [$code]: ${serverMsg.isNotEmpty ? serverMsg : e.message}',
+      };
     }
   }
 
@@ -324,7 +342,8 @@ class SalesRepository {
     } on DioException catch (e) {
       String serverMsg = '';
       if (e.response?.data is Map) {
-        serverMsg = e.response?.data['message'] ?? e.response?.data['error'] ?? '';
+        serverMsg =
+            e.response?.data['message'] ?? e.response?.data['error'] ?? '';
       } else if (e.response?.data is String) {
         serverMsg = e.response?.data;
       }
@@ -332,7 +351,11 @@ class SalesRepository {
       if (code == 0) {
         return {'success': false, 'error': e.message ?? e.toString()};
       }
-      return {'success': false, 'error': 'API ERROR [$code]: ${serverMsg.isNotEmpty ? serverMsg : e.message}'};
+      return {
+        'success': false,
+        'error':
+            'API ERROR [$code]: ${serverMsg.isNotEmpty ? serverMsg : e.message}',
+      };
     } catch (e) {
       return {'success': false, 'error': e.toString()};
     }

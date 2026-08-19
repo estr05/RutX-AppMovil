@@ -33,7 +33,8 @@ class CausaNoVentaDao {
 
   Future<int> count() async {
     return Sqflite.firstIntValue(
-            await db.rawQuery('SELECT COUNT(*) FROM causas_no_venta')) ??
+          await db.rawQuery('SELECT COUNT(*) FROM causas_no_venta'),
+        ) ??
         0;
   }
 

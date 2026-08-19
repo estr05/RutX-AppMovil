@@ -34,19 +34,18 @@ class RutxAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool showBell;
 
   const RutxAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.showBackButton = false,
     this.onBack,
     this.actions,
     this.bottom,
     this.showBell = true,
-  }) : super(key: key);
+  });
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 
   @override
   State<RutxAppBar> createState() => _RutxAppBarState();
@@ -82,11 +81,11 @@ class RutxSliverAppBar extends StatelessWidget {
   final bool floating;
 
   const RutxSliverAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.pinned = true,
     this.floating = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +144,10 @@ class _RutxAppBarContent extends StatelessWidget {
                     IconButton(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.arrow_back, color: AppTheme.textWhite),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppTheme.textWhite,
+                      ),
                       onPressed: onBack ?? () => Navigator.maybePop(context),
                     ),
                     const SizedBox(width: 12),

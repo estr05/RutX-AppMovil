@@ -4,7 +4,11 @@ class SyncSuccess extends SyncResult {
   final int clientes;
   final int productos;
   final int credito;
-  SyncSuccess({required this.clientes, required this.productos, this.credito = 0});
+  SyncSuccess({
+    required this.clientes,
+    required this.productos,
+    this.credito = 0,
+  });
 }
 
 class SyncFailure extends SyncResult {

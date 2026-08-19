@@ -3,12 +3,12 @@ import 'package:rutx_movil/core/database/entities/producto_entity.dart';
 import 'package:rutx_movil/shared/widgets/sale_utils.dart';
 
 Producto _producto(double existencias) => Producto(
-      articuloId: 1,
-      nombre: 'Producto de prueba',
-      clave: 'PRB001',
-      precio: 10.0,
-      existencias: existencias,
-    );
+  articuloId: 1,
+  nombre: 'Producto de prueba',
+  clave: 'PRB001',
+  precio: 10.0,
+  existencias: existencias,
+);
 
 void main() {
   group('unidadesDisponibles', () {

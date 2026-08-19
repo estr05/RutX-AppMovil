@@ -8,27 +8,28 @@ class ClienteDetalleModal extends StatelessWidget {
   final VoidCallback onNoVenta;
 
   const ClienteDetalleModal({
-    Key? key,
+    super.key,
     required this.cliente,
     required this.onVender,
     required this.onNoVenta,
-  }) : super(key: key);
+  });
 
   static void show(
-      BuildContext context, {
-        required Cliente cliente,
-        required VoidCallback onVender,
-        required VoidCallback onNoVenta,
-      }) {
+    BuildContext context, {
+    required Cliente cliente,
+    required VoidCallback onVender,
+    required VoidCallback onNoVenta,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ClienteDetalleModal(
-        cliente: cliente,
-        onVender: onVender,
-        onNoVenta: onNoVenta,
-      ),
+      builder:
+          (context) => ClienteDetalleModal(
+            cliente: cliente,
+            onVender: onVender,
+            onNoVenta: onNoVenta,
+          ),
     );
   }
 
@@ -36,11 +37,12 @@ class ClienteDetalleModal extends StatelessWidget {
   Widget build(BuildContext context) {
     // Calculamos si tiene crédito para mostrar sus campos
     final hasCredito = cliente.limiteCredito > 0;
-    
+
     // Obtenemos la dirección concatenando los campos disponibles
     final String direccionCompleta = [
       if (cliente.calle != null && cliente.calle!.isNotEmpty) cliente.calle!,
-      if (cliente.codigoPostal != null && cliente.codigoPostal!.isNotEmpty) 'CP: ${cliente.codigoPostal}',
+      if (cliente.codigoPostal != null && cliente.codigoPostal!.isNotEmpty)
+        'CP: ${cliente.codigoPostal}',
     ].join(', ');
 
     return Container(
@@ -74,7 +76,7 @@ class ClienteDetalleModal extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Header: Clave and Type of sale
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -88,7 +90,10 @@ class ClienteDetalleModal extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryLightBg,
                     borderRadius: BorderRadius.circular(12),
@@ -105,7 +110,7 @@ class ClienteDetalleModal extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Nombre del cliente
             Text(
               cliente.nombreCliente,
@@ -118,26 +123,52 @@ class ClienteDetalleModal extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Campos de detalles
-            _buildDetailRow('Teléfono', cliente.telefono.isNotEmpty ? cliente.telefono : 'N/A'),
-            _buildDetailRow('Dirección', direccionCompleta.isNotEmpty ? direccionCompleta : 'N/A'),
-            _buildDetailRow('Población', cliente.poblacion.isNotEmpty ? cliente.poblacion : 'N/A'),
-            _buildDetailRow('Colonia', (cliente.colonia != null && cliente.colonia!.isNotEmpty) ? cliente.colonia! : 'N/A'),
-            
+            _buildDetailRow(
+              'Teléfono',
+              cliente.telefono.isNotEmpty ? cliente.telefono : 'N/A',
+            ),
+            _buildDetailRow(
+              'Dirección',
+              direccionCompleta.isNotEmpty ? direccionCompleta : 'N/A',
+            ),
+            _buildDetailRow(
+              'Población',
+              cliente.poblacion.isNotEmpty ? cliente.poblacion : 'N/A',
+            ),
+            _buildDetailRow(
+              'Colonia',
+              (cliente.colonia != null && cliente.colonia!.isNotEmpty)
+                  ? cliente.colonia!
+                  : 'N/A',
+            ),
+
             // Crédito (condicional)
             if (hasCredito) ...[
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Divider(color: AppTheme.borderLight),
               ),
-              _buildDetailRow('Límite de crédito', '\$${cliente.limiteCredito.toStringAsFixed(2)}', isMoney: true),
-              _buildDetailRow('Saldo', '\$${cliente.saldo.toStringAsFixed(2)}', isMoney: true),
+              _buildDetailRow(
+                'Límite de crédito',
+                '\$${cliente.limiteCredito.toStringAsFixed(2)}',
+                isMoney: true,
+              ),
+              _buildDetailRow(
+                'Saldo',
+                '\$${cliente.saldo.toStringAsFixed(2)}',
+                isMoney: true,
+              ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: cliente.puedeCredito
-                      ? AppTheme.statusGreen.withOpacity(0.12)
-                      : AppTheme.statusRed.withOpacity(0.10),
+                  color:
+                      cliente.puedeCredito
+                          ? AppTheme.statusGreen.withOpacity(0.12)
+                          : AppTheme.statusRed.withOpacity(0.10),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
@@ -146,9 +177,10 @@ class ClienteDetalleModal extends StatelessWidget {
                       cliente.puedeCredito
                           ? Icons.check_circle_outline
                           : Icons.block_outlined,
-                      color: cliente.puedeCredito
-                          ? AppTheme.statusGreen
-                          : AppTheme.statusRed,
+                      color:
+                          cliente.puedeCredito
+                              ? AppTheme.statusGreen
+                              : AppTheme.statusRed,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -158,9 +190,10 @@ class ClienteDetalleModal extends StatelessWidget {
                             ? 'Puede vender a crédito (disponible \$${(cliente.limiteCredito - cliente.saldo).toStringAsFixed(2)})'
                             : 'Sin crédito disponible: saldo \$${cliente.saldo.toStringAsFixed(2)} de límite \$${cliente.limiteCredito.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: cliente.puedeCredito
-                              ? AppTheme.statusGreen
-                              : AppTheme.statusRed,
+                          color:
+                              cliente.puedeCredito
+                                  ? AppTheme.statusGreen
+                                  : AppTheme.statusRed,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -170,14 +203,15 @@ class ClienteDetalleModal extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 32),
 
             // Action Buttons
             ElevatedButton.icon(
               onPressed: onVender,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.statusGreen, // El verde significa accionar
+                backgroundColor:
+                    AppTheme.statusGreen, // El verde significa accionar
                 foregroundColor: AppTheme.textWhite,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
@@ -188,7 +222,11 @@ class ClienteDetalleModal extends StatelessWidget {
               icon: const Icon(Icons.shopping_cart_outlined, size: 22),
               label: const Text(
                 'VENDER',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -205,7 +243,11 @@ class ClienteDetalleModal extends StatelessWidget {
               icon: const Icon(Icons.remove_shopping_cart_outlined, size: 22),
               label: const Text(
                 'NO VENTA',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
           ],

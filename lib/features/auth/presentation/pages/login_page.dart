@@ -10,19 +10,20 @@ import '../../../home/presentation/pages/home_page.dart';
 import '../../../sync/presentation/pages/download_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  static const String _rutxConfigUrl = 'https://estr05.github.io/rutx/config.json';
+  static const String _rutxConfigUrl =
+      'https://estr05.github.io/rutx/config.json';
 
   final _authRepository = AuthRepository();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _obscurePassword = true;
   bool _rememberMe = true;
   bool _isLoading = false;
@@ -30,11 +31,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<bool> _isRutxEnabled() async {
     try {
-      final response = await Dio(BaseOptions(
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 15),
-        headers: {'Content-Type': 'application/json'},
-      )).get<Map<String, dynamic>>(_rutxConfigUrl);
+      final response = await Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 15),
+          headers: {'Content-Type': 'application/json'},
+        ),
+      ).get<Map<String, dynamic>>(_rutxConfigUrl);
 
       if (response.statusCode == 200 && response.data != null) {
         return response.data!['rutx_enabled'] != false;
@@ -90,9 +93,9 @@ class _LoginPageState extends State<LoginPage> {
         }
       } else {
         showError(
-          context, 
-          error, 
-          onRetry: error.esRecuperable ? _handleLogin : null
+          context,
+          error,
+          onRetry: error.esRecuperable ? _handleLogin : null,
         );
       }
     }
@@ -149,7 +152,8 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 40),
               const AppNotificationCard(
                 title: 'Plataforma suspendida',
-                message: 'La plataforma se encuentra suspendida. Contacta a administración para más información.',
+                message:
+                    'La plataforma se encuentra suspendida. Contacta a administración para más información.',
                 icon: Icons.warning_amber_rounded,
                 iconColor: AppTheme.statusOrange,
                 backgroundColor: AppTheme.alertWarningBg,
@@ -185,7 +189,12 @@ class _LoginPageState extends State<LoginPage> {
           // Encabezado Azul Oscuro
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 80, bottom: 40, left: 24, right: 24),
+            padding: const EdgeInsets.only(
+              top: 80,
+              bottom: 40,
+              left: 24,
+              right: 24,
+            ),
             color: AppTheme.primaryColor,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +211,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Center(
                         child: Text(
                           'RX',
-                          style: TextStyle(color: AppTheme.textWhite, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: AppTheme.textWhite,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -220,7 +232,10 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 16),
                 const Text(
                   'Accede con tu cuenta para comenzar tu jornada.',
-                  style: TextStyle(color: AppTheme.secondaryColor, fontSize: 16),
+                  style: TextStyle(
+                    color: AppTheme.secondaryColor,
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),
@@ -232,7 +247,13 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Usuario', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                  const Text(
+                    'Usuario',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _usernameController,
@@ -241,7 +262,13 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text('Contraseña', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                  const Text(
+                    'Contraseña',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _passwordController,
@@ -250,7 +277,9 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: '••••••••',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                          _obscurePassword
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                           color: AppTheme.textSecondary,
                         ),
                         onPressed: () {
@@ -273,15 +302,31 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         },
                       ),
-                      const Text('Recordar sesión', style: TextStyle(color: AppTheme.textPrimary)),
+                      const Text(
+                        'Recordar sesión',
+                        style: TextStyle(color: AppTheme.textPrimary),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
-                    child: _isLoading
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.textWhite))
-                        : const Text('Iniciar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    child:
+                        _isLoading
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: AppTheme.textWhite,
+                              ),
+                            )
+                            : const Text(
+                              'Iniciar sesión',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                   ),
                   const SizedBox(height: 32),
                   Center(
@@ -292,7 +337,10 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           TextSpan(
                             text: 'Contactar soporte',
-                            style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
