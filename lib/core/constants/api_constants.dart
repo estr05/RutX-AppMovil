@@ -9,10 +9,10 @@ class ApiConstants {
   static const String _tailscaleCasaIp = '100.71.116.89';
 
   /// URL para red local
-  static String get empresaUrl => 'http://$_empresaIp:$port';
+  static String get empresaUrl => 'https://$_empresaIp:$port';
 
   /// URL por Tailscale (cualquier red con VPN activa)
-  static String get tailscaleCasaUrl => 'http://$_tailscaleCasaIp:$port';
+  static String get tailscaleCasaUrl => 'https://$_tailscaleCasaIp:$port';
 
   /// URL por defecto: Tailscale (donde corre el sincronizador).
   /// Si no responde, DioClient intenta la LAN local y
