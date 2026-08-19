@@ -37,7 +37,7 @@ jobs:
       - name: Accept Android SDK licenses and install required NDK
         shell: bash
         run: |
-          yes | sdkmanager --licenses
+          yes | sdkmanager --licenses || true
           sdkmanager "ndk;29.0.14033849"
 
       # ── 3. Restaurar dependencias ─────────────────────────────────
