@@ -1,0 +1,83 @@
+# ============================================================
+# CI — RutX-AppMovil
+# Ejecuta en cada push y PR hacia dev y main.
+# Pasos: flutter pub get → analyze → dart format check → build APK (debug)
+# NO sube artefactos release a stores — solo valida compilación.
+# ============================================================
+name: "App Móvil CI"
+
+on:
+  push:
+    branches: ["main", "dev"]
+  pull_request:
+    branches: ["main", "dev"]
+
+jobs:
+  flutter-quality:
+    name: "Flutter Analyze & Build"
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Configurar Flutter (stable, Dart ≥ 3.7.2) ─────────────
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.32.x"   # coincide con sdk ^3.7.2 en pubspec
+          channel: "stable"
+          cache: true
+
+      # ── 3. Restaurar dependencias ─────────────────────────────────
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # ── 4. Verificar formato (Dart format) ───────────────────────
+      - name: Check Dart format
+        run: dart format --set-exit-if-changed .
+
+      # ── 5. Análisis estático (flutter analyze) ───────────────────
+      # Falla si hay errores o warnings de análisis en lib/
+      - name: Flutter analyze
+        run: flutter analyze --no-fatal-warnings
+
+      # ── 6. Escaneo de secretos hard-codeados ─────────────────────
+      - name: Check for hardcoded secrets in Dart sources
+        run: |
+          echo "Buscando IPs, contraseñas o tokens hardcodeados en lib/..."
+          # Advertir si hay http:// fuera del directorio de tests (en release debe ser https)
+          found_http=$(grep -rn "http://" lib/ \
+            --include="*.dart" | \
+            grep -v "//.*http://" | \
+            grep -v "https://" || true)
+          if [ -n "$found_http" ]; then
+            echo "AVISO: URLs http:// encontradas en lib/. En release solo se permite https://:"
+            echo "$found_http"
+            # No falla el build, solo avisa (puede ser un comentario o enlace)
+          fi
+
+          # Falla si hay IPs privadas hardcodeadas en archivos no de constantes
+          found_ip=$(grep -rn --include="*.dart" \
+            -E "(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|100\.)" lib/ | \
+            grep -v "api_constants.dart" | \
+            grep -v "//.*IP" || true)
+          if [ -n "$found_ip" ]; then
+            echo "FALLO: IPs privadas hardcodeadas encontradas fuera de api_constants.dart:"
+            echo "$found_ip"
+            exit 1
+          fi
+          echo "OK: No se encontraron secretos o IPs prohibidas."
+
+      # ── 7. Build APK debug (valida que compile sin errores) ──────
+      - name: Build APK (debug)
+        run: flutter build apk --debug --no-shrink
+
+      # ── 8. Publicar APK debug como artefacto ─────────────────────
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: appmovil-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
