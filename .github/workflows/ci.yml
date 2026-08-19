@@ -30,6 +30,16 @@ jobs:
           channel: "stable"
           cache: true
 
+      # ── 2b. Configurar Android SDK y aceptar licencias ──────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK licenses and install required NDK
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "ndk;29.0.14033849"
+
       # ── 3. Restaurar dependencias ─────────────────────────────────
       - name: Install Flutter dependencies
         run: flutter pub get
