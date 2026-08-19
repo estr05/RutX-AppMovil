@@ -26,7 +26,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.32.x"   # coincide con sdk ^3.7.2 en pubspec
+          flutter-version: "3.38.x"   # coincide con sdk ^3.7.2 en pubspec
           channel: "stable"
           cache: true
 
@@ -70,11 +70,15 @@ jobs:
           fi
           echo "OK: No se encontraron secretos o IPs prohibidas."
 
-      # ── 7. Build APK debug (valida que compile sin errores) ──────
+      # ── 7. Tests Unitarios (flutter test) ────────────────────────
+      - name: Flutter tests
+        run: flutter test
+
+      # ── 8. Build APK debug (valida que compile sin errores) ──────
       - name: Build APK (debug)
         run: flutter build apk --debug --no-shrink
 
-      # ── 8. Publicar APK debug como artefacto ─────────────────────
+      # ── 9. Publicar APK debug como artefacto ─────────────────────
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
