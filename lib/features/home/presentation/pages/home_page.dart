@@ -17,7 +17,7 @@ import '../../../../features/home/presentation/widgets/proximo_cliente_card.dart
 
 class HomePage extends StatefulWidget {
   final int initialIndex;
-  
+
   const HomePage({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
@@ -27,7 +27,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late int _selectedIndex;
 
-
   // ---------------------------------------------------------------------------
   // MODALES DEL RESUMEN DEL DÍA
   // ---------------------------------------------------------------------------
@@ -36,56 +35,85 @@ class _HomePageState extends State<HomePage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildBottomSheet(
-        title: 'Desglose de Ventas',
-        icon: Icons.attach_money,
-        child: FutureBuilder<List<dynamic>>(
-          future: _getVentasDelDia(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-            final ventas = snapshot.data!;
-            if (ventas.isEmpty) return const Center(child: Text('Aún no hay ventas registradas.'));
-            
-            double totalContado = 0;
-            double totalCredito = 0;
-            for (var v in ventas) {
-              if (v['condicion'] == 'Contado') {
-                totalContado += (v['total'] as num).toDouble();
-              } else {
-                totalCredito += (v['total'] as num).toDouble();
-              }
-            }
-            final total = totalContado + totalCredito;
+      builder:
+          (context) => _buildBottomSheet(
+            title: 'Desglose de Ventas',
+            icon: Icons.attach_money,
+            child: FutureBuilder<List<dynamic>>(
+              future: _getVentasDelDia(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final ventas = snapshot.data!;
+                if (ventas.isEmpty) {
+                  return const Center(
+                    child: Text('Aún no hay ventas registradas.'),
+                  );
+                }
 
-            return Column(
-              children: [
-                _buildSimpleBarChart('Contado', totalContado, total, AppTheme.statusGreen),
-                const SizedBox(height: 12),
-                _buildSimpleBarChart('Crédito', totalCredito, total, AppTheme.statusOrange),
-                const Divider(height: 32),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: ventas.length,
-                    itemBuilder: (context, index) {
-                      final v = ventas[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppTheme.primary10,
-                          child: Icon(v['condicion'] == 'Contado' ? Icons.money : Icons.credit_card, color: AppTheme.primaryColor),
-                        ),
-                        title: Text(v['cliente_nombre'] ?? 'Cliente'),
-                        subtitle: Text(v['condicion'] ?? ''),
-                        trailing: Text('\$${(v['total'] as num).toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-        ),
-      ),
+                double totalContado = 0;
+                double totalCredito = 0;
+                for (var v in ventas) {
+                  if (v['condicion'] == 'Contado') {
+                    totalContado += (v['total'] as num).toDouble();
+                  } else {
+                    totalCredito += (v['total'] as num).toDouble();
+                  }
+                }
+                final total = totalContado + totalCredito;
+
+                return Column(
+                  children: [
+                    _buildSimpleBarChart(
+                      'Contado',
+                      totalContado,
+                      total,
+                      AppTheme.statusGreen,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildSimpleBarChart(
+                      'Crédito',
+                      totalCredito,
+                      total,
+                      AppTheme.statusOrange,
+                    ),
+                    const Divider(height: 32),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: ventas.length,
+                        itemBuilder: (context, index) {
+                          final v = ventas[index];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: AppTheme.primary10,
+                              child: Icon(
+                                v['condicion'] == 'Contado'
+                                    ? Icons.money
+                                    : Icons.credit_card,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            title: Text(v['cliente_nombre'] ?? 'Cliente'),
+                            subtitle: Text(v['condicion'] ?? ''),
+                            trailing: Text(
+                              '\$${(v['total'] as num).toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
     );
   }
 
@@ -94,54 +122,76 @@ class _HomePageState extends State<HomePage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildBottomSheet(
-        title: 'Clientes Visitados',
-        icon: Icons.people_outline,
-        child: FutureBuilder<List<dynamic>>(
-          future: _getVentasDelDia(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-            final ventas = snapshot.data!;
-            if (ventas.isEmpty) return const Center(child: Text('Aún no hay clientes registrados.'));
+      builder:
+          (context) => _buildBottomSheet(
+            title: 'Clientes Visitados',
+            icon: Icons.people_outline,
+            child: FutureBuilder<List<dynamic>>(
+              future: _getVentasDelDia(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final ventas = snapshot.data!;
+                if (ventas.isEmpty) {
+                  return const Center(
+                    child: Text('Aún no hay clientes registrados.'),
+                  );
+                }
 
-            // Deduplicate clients
-            final Map<String, dynamic> clientes = {};
-            for (var v in ventas) {
-              clientes[v['cliente_nombre'] ?? 'Desconocido'] = true;
-            }
-            final lista = clientes.keys.toList();
+                // Deduplicate clients
+                final Map<String, dynamic> clientes = {};
+                for (var v in ventas) {
+                  clientes[v['cliente_nombre'] ?? 'Desconocido'] = true;
+                }
+                final lista = clientes.keys.toList();
 
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppTheme.infoBlueBg, borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.check_circle, color: AppTheme.statusGreen),
-                      const SizedBox(width: 8),
-                      Text('Has visitado a ${lista.length} clientes hoy', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: lista.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: const CircleAvatar(backgroundColor: AppTheme.primary10, child: Icon(Icons.person, color: AppTheme.primaryColor)),
-                        title: Text(lista[index]),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-        ),
-      ),
+                return Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.infoBlueBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.check_circle,
+                            color: AppTheme.statusGreen,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Has visitado a ${lista.length} clientes hoy',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: lista.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: const CircleAvatar(
+                              backgroundColor: AppTheme.primary10,
+                              child: Icon(
+                                Icons.person,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            title: Text(lista[index]),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
     );
   }
 
@@ -150,76 +200,111 @@ class _HomePageState extends State<HomePage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _buildBottomSheet(
-        title: 'Piezas Vendidas',
-        icon: Icons.inventory_2_outlined,
-        child: FutureBuilder<List<dynamic>>(
-          future: _getVentasDelDia(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-            final ventas = snapshot.data!;
-            if (ventas.isEmpty) return const Center(child: Text('Aún no hay piezas registradas.'));
+      builder:
+          (context) => _buildBottomSheet(
+            title: 'Piezas Vendidas',
+            icon: Icons.inventory_2_outlined,
+            child: FutureBuilder<List<dynamic>>(
+              future: _getVentasDelDia(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final ventas = snapshot.data!;
+                if (ventas.isEmpty) {
+                  return const Center(
+                    child: Text('Aún no hay piezas registradas.'),
+                  );
+                }
 
-            final Map<String, int> productos = {};
-            int totalPiezas = 0;
+                final Map<String, int> productos = {};
+                int totalPiezas = 0;
 
-            for (var v in ventas) {
-              final json = v['detalles_json'];
-              if (json != null) {
-                 try {
-                   final arr = jsonDecode(json) as List<dynamic>;
-                   for (var det in arr) {
-                     final nombre = det['nombre'] ?? 'Producto';
-                     final qty = (det['unidades'] as num?)?.toInt() ?? 0;
-                     productos[nombre] = (productos[nombre] ?? 0) + qty;
-                     totalPiezas += qty;
-                   }
-                 } catch (_) {}
-              }
-            }
-            
-            final sorted = productos.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+                for (var v in ventas) {
+                  final json = v['detalles_json'];
+                  if (json != null) {
+                    try {
+                      final arr = jsonDecode(json) as List<dynamic>;
+                      for (var det in arr) {
+                        final nombre = det['nombre'] ?? 'Producto';
+                        final qty = (det['unidades'] as num?)?.toInt() ?? 0;
+                        productos[nombre] = (productos[nombre] ?? 0) + qty;
+                        totalPiezas += qty;
+                      }
+                    } catch (_) {}
+                  }
+                }
 
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: AppTheme.alertWarningBg, borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.star, color: AppTheme.statusOrange),
-                      const SizedBox(width: 8),
-                      Text('Top Ventas (${totalPiezas} piezas en total)', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.statusOrange)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: sorted.length,
-                    itemBuilder: (context, index) {
-                      final item = sorted[index];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                final sorted =
+                    productos.entries.toList()
+                      ..sort((a, b) => b.value.compareTo(a.value));
+
+                return Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.alertWarningBg,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(item.key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            trailing: Text('${item.value} unds', style: const TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.bold)),
+                          const Icon(Icons.star, color: AppTheme.statusOrange),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Top Ventas (${totalPiezas} piezas en total)',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.statusOrange,
+                            ),
                           ),
-                          _buildSimpleBarChart('', item.value.toDouble(), sorted.first.value.toDouble(), AppTheme.accentColor, showLabels: false),
-                          const SizedBox(height: 8),
                         ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          }
-        ),
-      ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: sorted.length,
+                        itemBuilder: (context, index) {
+                          final item = sorted[index];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(
+                                  item.key,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                trailing: Text(
+                                  '${item.value} unds',
+                                  style: const TextStyle(
+                                    color: AppTheme.textSecondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              _buildSimpleBarChart(
+                                '',
+                                item.value.toDouble(),
+                                sorted.first.value.toDouble(),
+                                AppTheme.accentColor,
+                                showLabels: false,
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
     );
   }
 
@@ -227,17 +312,24 @@ class _HomePageState extends State<HomePage> {
     final db = AppDatabase();
     final rawDb = await db.database;
     final today = DateTime.now().toIso8601String().substring(0, 10);
-    return await rawDb.rawQuery('''
+    return await rawDb.rawQuery(
+      '''
       SELECT total, 
              CASE WHEN forma_cobro_id = 67 THEN 'Contado' ELSE 'Crédito' END as condicion, 
              detalles_json, 
              cliente_nombre
       FROM ventas_pendientes
       WHERE fecha_hora LIKE ?
-    ''', ['$today%']);
+    ''',
+      ['$today%'],
+    );
   }
 
-  Widget _buildBottomSheet({required String title, required IconData icon, required Widget child}) {
+  Widget _buildBottomSheet({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.65,
       decoration: const BoxDecoration(
@@ -247,7 +339,14 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: [
           const SizedBox(height: 12),
-          Container(width: 40, height: 5, decoration: BoxDecoration(color: AppTheme.borderLight, borderRadius: BorderRadius.circular(10))),
+          Container(
+            width: 40,
+            height: 5,
+            decoration: BoxDecoration(
+              color: AppTheme.borderLight,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -255,25 +354,38 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Icon(icon, color: AppTheme.primaryColor),
                 const SizedBox(width: 12),
-                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 const Spacer(),
-                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ],
             ),
           ),
           const Divider(),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: child,
-            ),
+            child: Padding(padding: const EdgeInsets.all(20.0), child: child),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSimpleBarChart(String label, double value, double max, Color color, {bool showLabels = true}) {
+  Widget _buildSimpleBarChart(
+    String label,
+    double value,
+    double max,
+    Color color, {
+    bool showLabels = true,
+  }) {
     final pct = max > 0 ? (value / max).clamp(0.0, 1.0) : 0.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +395,13 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-              Text('\$${value.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary)),
+              Text(
+                '\$${value.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
             ],
           ),
         if (showLabels) const SizedBox(height: 6),
@@ -337,19 +455,28 @@ class _HomePageState extends State<HomePage> {
 
       final resumen = await db.ventaDao.getResumenDelDia(today);
       final totalClientes = await db.clienteDao.count();
-      final prodCountResult = await rawDb.rawQuery("SELECT COUNT(*) as total FROM productos WHERE estatus = 'A'");
+      final prodCountResult = await rawDb.rawQuery(
+        "SELECT COUNT(*) as total FROM productos WHERE estatus = 'A'",
+      );
       final totalProductos = Sqflite.firstIntValue(prodCountResult) ?? 0;
-      
+
       final nombre = await LocalStorage().getVendedorNombre() ?? 'Usuario';
-      
-      final saldoResult = await rawDb.rawQuery("SELECT SUM(saldo) as total_saldo, COUNT(*) as clientes_atraso FROM clientes WHERE saldo > 0");
-      final invResult = await rawDb.rawQuery("SELECT COUNT(*) as critico FROM productos WHERE existencias <= 5");
-      
-      final nextClienteList = await rawDb.rawQuery('''
+
+      final saldoResult = await rawDb.rawQuery(
+        "SELECT SUM(saldo) as total_saldo, COUNT(*) as clientes_atraso FROM clientes WHERE saldo > 0",
+      );
+      final invResult = await rawDb.rawQuery(
+        "SELECT COUNT(*) as critico FROM productos WHERE existencias <= 5",
+      );
+
+      final nextClienteList = await rawDb.rawQuery(
+        '''
         SELECT nombre_cliente, calle FROM clientes 
         WHERE cliente_id NOT IN (SELECT cliente_id FROM ventas_pendientes WHERE fecha_hora LIKE ?)
         LIMIT 1
-      ''', ['$today%']);
+      ''',
+        ['$today%'],
+      );
 
       if (mounted) {
         setState(() {
@@ -357,25 +484,32 @@ class _HomePageState extends State<HomePage> {
           _totalClientes = totalClientes;
           _totalProductos = totalProductos;
           _visitedCount = resumen['total_ventas'] as int? ?? 0;
-          _ventasTotalAmount = (resumen['monto_total'] as num? ?? 0.0).toDouble();
+          _ventasTotalAmount =
+              (resumen['monto_total'] as num? ?? 0.0).toDouble();
           _piezasVendidas = resumen['piezas_vendidas'] as int? ?? 0;
           _pendingSalesCount = resumen['pendientes'] as int? ?? 0;
-          
+
           if (saldoResult.isNotEmpty) {
-             _saldoPendiente = (saldoResult.first['total_saldo'] as num?)?.toDouble() ?? 0.0;
-             _clientesAtraso = (saldoResult.first['clientes_atraso'] as int?) ?? 0;
+            _saldoPendiente =
+                (saldoResult.first['total_saldo'] as num?)?.toDouble() ?? 0.0;
+            _clientesAtraso =
+                (saldoResult.first['clientes_atraso'] as int?) ?? 0;
           }
           if (invResult.isNotEmpty) {
-             _inventarioCritico = (invResult.first['critico'] as int?) ?? 0;
+            _inventarioCritico = (invResult.first['critico'] as int?) ?? 0;
           }
-          
-          _nextCliente = nextClienteList.isNotEmpty ? nextClienteList.first : null;
+
+          _nextCliente =
+              nextClienteList.isNotEmpty ? nextClienteList.first : null;
         });
       }
     } catch (e, st) {
       debugPrint('[Home] Error al cargar dashboard: $e\\n$st');
       if (mounted) {
-        showInfo(context, 'Error al cargar indicadores. Desliza para refrescar.');
+        showInfo(
+          context,
+          'Error al cargar indicadores. Desliza para refrescar.',
+        );
       }
     }
   }
@@ -435,16 +569,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomeDashboard() {
-    final progress = _metaDelDia > 0 ? (_ventasTotalAmount / _metaDelDia).clamp(0.0, 1.0) : 0.0;
+    final progress =
+        _metaDelDia > 0
+            ? (_ventasTotalAmount / _metaDelDia).clamp(0.0, 1.0)
+            : 0.0;
 
     return RefreshIndicator(
       onRefresh: _loadDashboardStats,
       color: AppTheme.accentColor,
       child: CustomScrollView(
         slivers: [
-          const RutxSliverAppBar(
-            title: 'Inicio',
-          ),
+          const RutxSliverAppBar(title: 'Inicio'),
           SliverToBoxAdapter(
             child: SummaryMetricsCard(
               totalVentas: _ventasTotalAmount,
@@ -461,7 +596,6 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   if (_pendingSalesCount > 0) ...[
                     GestureDetector(
                       onTap: () => setState(() => _selectedIndex = 4),
@@ -474,7 +608,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.warning_amber_rounded, color: AppTheme.categoryOrange),
+                            const Icon(
+                              Icons.warning_amber_rounded,
+                              color: AppTheme.categoryOrange,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -489,12 +626,18 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const Text(
                                     'Se enviarán cuando haya señal',
-                                    style: TextStyle(color: AppTheme.statusOrange, fontSize: 13),
+                                    style: TextStyle(
+                                      color: AppTheme.statusOrange,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.chevron_right, color: AppTheme.categoryOrange),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppTheme.categoryOrange,
+                            ),
                           ],
                         ),
                       ),
@@ -513,28 +656,34 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildQuickAction(
-                        title: 'Clientes',
-                        subtitle: '$_totalClientes en ruta',
-                        icon: Icons.people_outline,
-                        iconColor: AppTheme.avatarBlue,
-                        bgColor: AppTheme.infoBlueBg,
-                        onTap: () => setState(() => _selectedIndex = 1),
-                      )),
+                      Expanded(
+                        child: _buildQuickAction(
+                          title: 'Clientes',
+                          subtitle: '$_totalClientes en ruta',
+                          icon: Icons.people_outline,
+                          iconColor: AppTheme.avatarBlue,
+                          bgColor: AppTheme.infoBlueBg,
+                          onTap: () => setState(() => _selectedIndex = 1),
+                        ),
+                      ),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildQuickAction(
-                        title: 'Catálogos',
-                        subtitle: '$_totalProductos productos',
-                        icon: Icons.inventory_2_outlined,
-                        iconColor: AppTheme.categoryOrange,
-                        bgColor: AppTheme.alertWarningBg,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const CatalogoPage()),
-                          ).then((_) => _loadDashboardStats());
-                        },
-                      )),
+                      Expanded(
+                        child: _buildQuickAction(
+                          title: 'Catálogos',
+                          subtitle: '$_totalProductos productos',
+                          icon: Icons.inventory_2_outlined,
+                          iconColor: AppTheme.categoryOrange,
+                          bgColor: AppTheme.alertWarningBg,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CatalogoPage(),
+                              ),
+                            ).then((_) => _loadDashboardStats());
+                          },
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -544,7 +693,9 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const CreditoPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const CreditoPage(),
+                        ),
                       );
                     },
                     child: Container(
@@ -568,17 +719,36 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(10),
-                                decoration: const BoxDecoration(color: AppTheme.alertWarningBg, shape: BoxShape.circle),
-                                child: const Icon(Icons.credit_card, color: AppTheme.categoryOrange),
+                                decoration: const BoxDecoration(
+                                  color: AppTheme.alertWarningBg,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.credit_card,
+                                  color: AppTheme.categoryOrange,
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Crédito y Cobranza', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                                    const Text(
+                                      'Crédito y Cobranza',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: AppTheme.textPrimary,
+                                      ),
+                                    ),
                                     const SizedBox(height: 4),
-                                    Text('Por cobrar: \$${_saldoPendiente.toStringAsFixed(0)}', style: const TextStyle(color: AppTheme.statusOrange, fontWeight: FontWeight.bold)),
+                                    Text(
+                                      'Por cobrar: \$${_saldoPendiente.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        color: AppTheme.statusOrange,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -588,8 +758,14 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 12),
                             const Divider(height: 1, color: AppTheme.lightGrey),
                             const SizedBox(height: 12),
-                            Text('$_clientesAtraso clientes con saldo pendiente', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-                          ]
+                            Text(
+                              '$_clientesAtraso clientes con saldo pendiente',
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -606,7 +782,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 16),
                   ProximoClienteCard(clienteMap: _nextCliente),
-
                 ],
               ),
             ),
@@ -619,9 +794,16 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      _buildHomeDashboard(),  // 0: Inicio
-      ClientesPage(key: const ValueKey('clientes'), initialFilter: 'Todos'),      // 1: Clientes
-      ClientesPage(key: const ValueKey('vender'),   initialFilter: 'Pendientes', directToSale: true),  // 2: Vender
+      _buildHomeDashboard(), // 0: Inicio
+      ClientesPage(
+        key: const ValueKey('clientes'),
+        initialFilter: 'Todos',
+      ), // 1: Clientes
+      ClientesPage(
+        key: const ValueKey('vender'),
+        initialFilter: 'Pendientes',
+        directToSale: true,
+      ), // 2: Vender
       const VentasListPage(), // 3: Ventas
       const ResumenDiaPage(), // 4: Más
     ];
@@ -681,4 +863,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-

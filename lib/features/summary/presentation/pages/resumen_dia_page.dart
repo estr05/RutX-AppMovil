@@ -45,8 +45,6 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
     _loadVentas();
   }
 
-
-
   Future<void> _loadVentas() async {
     setState(() => _isLoading = true);
     try {
@@ -92,8 +90,10 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
         final detalle = result is SyncFailure ? result.mensaje : null;
         showWarning(
           context,
-          detalle ?? 'Haz la sincronización final antes de cerrar para no perder datos.',
-          title: 'Tienes $_pendientesCount ${_pendientesCount == 1 ? "venta pendiente" : "ventas pendientes"}',
+          detalle ??
+              'Haz la sincronización final antes de cerrar para no perder datos.',
+          title:
+              'Tienes $_pendientesCount ${_pendientesCount == 1 ? "venta pendiente" : "ventas pendientes"}',
           actionLabel: 'REINTENTAR',
           onAction: _handleSync,
         );
@@ -143,23 +143,26 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
       if (mounted) {
         final entrar = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Jornada ya cerrada'),
-            content: const Text('La jornada de hoy ya fue cerrada. Si es una prueba, puedes borrar el registro y entrar.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancelar'),
+          builder:
+              (ctx) => AlertDialog(
+                title: const Text('Jornada ya cerrada'),
+                content: const Text(
+                  'La jornada de hoy ya fue cerrada. Si es una prueba, puedes borrar el registro y entrar.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: const Text('Cancelar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await LocalStorage().clearDiaCerrado();
+                      if (ctx.mounted) Navigator.pop(ctx, true);
+                    },
+                    child: const Text('Entrar de todas formas'),
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  await LocalStorage().clearDiaCerrado();
-                  if (ctx.mounted) Navigator.pop(ctx, true);
-                },
-                child: const Text('Entrar de todas formas'),
-              ),
-            ],
-          ),
         );
         if (entrar != true) return;
       } else {
@@ -172,10 +175,11 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CierreJornadaPage(
-            vendedorId: vendedorId,
-            onConfirmar: _executeCerrarJornada,
-          ),
+          builder:
+              (context) => CierreJornadaPage(
+                vendedorId: vendedorId,
+                onConfirmar: _executeCerrarJornada,
+              ),
         ),
       );
     }
@@ -199,8 +203,10 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
           final detalle = resultado is SyncFailure ? resultado.mensaje : null;
           showWarning(
             context,
-            detalle ?? 'No puedes cerrar la jornada. Haz la sincronización final antes de cerrar para no perder datos.',
-            title: 'Tienes $_pendientesCount ${_pendientesCount == 1 ? "venta pendiente" : "ventas pendientes"}',
+            detalle ??
+                'No puedes cerrar la jornada. Haz la sincronización final antes de cerrar para no perder datos.',
+            title:
+                'Tienes $_pendientesCount ${_pendientesCount == 1 ? "venta pendiente" : "ventas pendientes"}',
             actionLabel: 'REINTENTAR',
             onAction: _handleSync,
           );
@@ -219,7 +225,11 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
         totalEfectivo: calcularTotalVentasConIVA(_ventas),
       );
       if (result['hay_diferencia'] == true && mounted) {
-        showInfo(context, result['mensaje'] as String? ?? 'Cierre local completado (servidor no disponible)');
+        showInfo(
+          context,
+          result['mensaje'] as String? ??
+              'Cierre local completado (servidor no disponible)',
+        );
       }
 
       // 3. Marcar el día como cerrado ANTES de limpiar datos
@@ -235,10 +245,20 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
           context,
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 700),
-            pageBuilder: (context, animation, secondaryAnimation) => const EndOfDaySplashPage(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            pageBuilder:
+                (context, animation, secondaryAnimation) =>
+                    const EndOfDaySplashPage(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
               // Transición que "se despliega" expandiendo desde el centro (Scale + Fade)
-              var curve = CurvedAnimation(parent: animation, curve: Curves.easeOutCirc);
+              var curve = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCirc,
+              );
               return ScaleTransition(
                 scale: Tween<double>(begin: 0.0, end: 1.0).animate(curve),
                 child: FadeTransition(
@@ -254,10 +274,13 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isClosing = false);
-        showError(context, AppError(
-          mensajeUsuario: 'Error al cerrar jornada. Intenta de nuevo.',
-          esRecuperable: false,
-        ));
+        showError(
+          context,
+          AppError(
+            mensajeUsuario: 'Error al cerrar jornada. Intenta de nuevo.',
+            esRecuperable: false,
+          ),
+        );
       }
     }
   }
@@ -292,7 +315,10 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, color: iconColor, size: 24),
               ),
               const SizedBox(width: 16),
@@ -331,43 +357,51 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: const RutxAppBar(
-        title: 'Ajustes y Cierre',
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentColor))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Card: Descargar nuevamente
-                  _buildActionCard(
-                    icon: Icons.refresh,
-                    iconColor: AppTheme.accentColor,
-                    iconBg: AppTheme.accent10,
-                    title: 'Descargar nuevamente',
-                    subtitle: 'Vuelve a descargar clientes, productos y configuración desde el servidor.',
-                    onTap: (_isSyncing || _isClosing) ? null : _handleDescargarNuevamente,
-                  ),
-                  const SizedBox(height: 16),
-                  // Card: Acerca de
-                  _buildActionCard(
-                    icon: Icons.info_outline,
-                    iconColor: AppTheme.primaryColor,
-                    iconBg: AppTheme.infoBlueBg,
-                    title: 'Acerca de',
-                    subtitle: 'Versión de la aplicación, información de licencia y datos del desarrollador.',
-                    onTap: () => showAcercaDeDialog(context),
-                  ),
-
-                ],
+      appBar: const RutxAppBar(title: 'Ajustes y Cierre'),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: AppTheme.accentColor),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Card: Descargar nuevamente
+                    _buildActionCard(
+                      icon: Icons.refresh,
+                      iconColor: AppTheme.accentColor,
+                      iconBg: AppTheme.accent10,
+                      title: 'Descargar nuevamente',
+                      subtitle:
+                          'Vuelve a descargar clientes, productos y configuración desde el servidor.',
+                      onTap:
+                          (_isSyncing || _isClosing)
+                              ? null
+                              : _handleDescargarNuevamente,
+                    ),
+                    const SizedBox(height: 16),
+                    // Card: Acerca de
+                    _buildActionCard(
+                      icon: Icons.info_outline,
+                      iconColor: AppTheme.primaryColor,
+                      iconBg: AppTheme.infoBlueBg,
+                      title: 'Acerca de',
+                      subtitle:
+                          'Versión de la aplicación, información de licencia y datos del desarrollador.',
+                      onTap: () => showAcercaDeDialog(context),
+                    ),
+                  ],
+                ),
               ),
-            ),
       // Bottom Sticky Area: Sincronización y Cierre
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20).copyWith(
-          bottom: MediaQuery.of(context).padding.bottom > 0 ? MediaQuery.of(context).padding.bottom : 20,
+          bottom:
+              MediaQuery.of(context).padding.bottom > 0
+                  ? MediaQuery.of(context).padding.bottom
+                  : 20,
         ),
         decoration: BoxDecoration(
           color: AppTheme.surfaceColor,
@@ -392,23 +426,39 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
                 child: OutlinedButton.icon(
                   onPressed: _pendientesCount > 0 ? _handleSync : null,
                   icon: Icon(
-                    _pendientesCount > 0 ? Icons.sync : Icons.check_circle_outline,
-                    color: _pendientesCount > 0 ? AppTheme.accentColor : AppTheme.textSecondary,
+                    _pendientesCount > 0
+                        ? Icons.sync
+                        : Icons.check_circle_outline,
+                    color:
+                        _pendientesCount > 0
+                            ? AppTheme.accentColor
+                            : AppTheme.textSecondary,
                   ),
                   label: Text(
-                    _pendientesCount > 0 ? 'Sincronización final' : 'Todo sincronizado',
+                    _pendientesCount > 0
+                        ? 'Sincronización final'
+                        : 'Todo sincronizado',
                     style: TextStyle(
-                      color: _pendientesCount > 0 ? AppTheme.accentColor : AppTheme.textSecondary,
+                      color:
+                          _pendientesCount > 0
+                              ? AppTheme.accentColor
+                              : AppTheme.textSecondary,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(
-                      color: _pendientesCount > 0 ? AppTheme.accent50 : AppTheme.lightGrey,
+                      color:
+                          _pendientesCount > 0
+                              ? AppTheme.accent50
+                              : AppTheme.lightGrey,
                       width: 1.5,
                     ),
-                    backgroundColor: _pendientesCount > 0 ? AppTheme.accent10 : AppTheme.backgroundColor,
+                    backgroundColor:
+                        _pendientesCount > 0
+                            ? AppTheme.accent10
+                            : AppTheme.backgroundColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -421,19 +471,20 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _isClosing ? null : _handleCerrarJornada,
-                icon: _isClosing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
+                icon:
+                    _isClosing
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppTheme.surfaceColor,
+                          ),
+                        )
+                        : const Icon(
+                          Icons.exit_to_app,
                           color: AppTheme.surfaceColor,
                         ),
-                      )
-                    : const Icon(
-                        Icons.exit_to_app,
-                        color: AppTheme.surfaceColor,
-                      ),
                 label: Text(
                   _isClosing ? 'Cerrando...' : 'Cerrar jornada',
                   style: const TextStyle(
@@ -467,4 +518,3 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
     );
   }
 }
-
