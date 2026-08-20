@@ -1169,6 +1169,7 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                       ),
                                     ),
                                   ),
+/*
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: GestureDetector(
@@ -1224,8 +1225,10 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                       ),
                                     ),
                                   ),
+*/
                                 ],
                               ),
+/*
                               if (_formaCobroId == 71 &&
                                   !widget.cliente.puedeCredito)
                                 Padding(
@@ -1277,6 +1280,7 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                     ),
                                   ),
                                 ),
+*/
                             ],
                           ),
                         ),

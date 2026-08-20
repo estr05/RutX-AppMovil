@@ -15,6 +15,12 @@ class DioClient {
   final LocalStorage _storage = LocalStorage();
   Dio? _dio;
 
+  static bool _isCerrandoSesion = false;
+
+  void resetearSesion() {
+    _isCerrandoSesion = false;
+  }
+
   Dio get dio {
     if (_dio == null) {
       _dio = Dio(_createOptions());
@@ -119,6 +125,9 @@ class DioClient {
   /// sincronización de ventas, para que un 401 durante un sync forzado
   /// también deje claro que hay que volver a iniciar sesión.
   Future<void> cerrarSesionPorCaducidad() async {
+    if (_isCerrandoSesion) return;
+    _isCerrandoSesion = true;
+
     await _storage.clearSession();
 
     final navigator = navigatorKey.currentState;

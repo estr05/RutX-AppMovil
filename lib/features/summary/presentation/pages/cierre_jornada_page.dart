@@ -211,7 +211,7 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
 
     final num dineroCaja = resumen['total_cierre'] ?? 0;
     final num cobros = resumen['cobrado'] ?? 0;
-    final num totalCredito = resumen['credito'] ?? 0;
+    // final num totalCredito = resumen['credito'] ?? 0;
     final num totalEfectivo =
         (resumen['contado'] ?? 0) + (resumen['cobrado_efectivo'] ?? 0);
 
@@ -280,11 +280,13 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
                 formatter.format(cobros),
                 Icons.monetization_on,
               ),
+/*
               _buildRowItem(
                 'Total Credito',
                 formatter.format(totalCredito),
                 Icons.credit_card,
               ),
+*/
               _buildRowItem(
                 'Total Efectivo',
                 formatter.format(totalEfectivo),

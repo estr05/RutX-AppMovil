@@ -6,7 +6,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../features/catalog/presentation/pages/clientes_page.dart';
 import '../../../../features/catalog/presentation/pages/catalogo_page.dart';
 import '../../../../features/sales/presentation/pages/ventas_list_page.dart';
-import '../../../../features/credito/presentation/pages/credito_page.dart';
+// import '../../../../features/credito/presentation/pages/credito_page.dart';
 import '../../../../features/summary/presentation/pages/resumen_dia_page.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
@@ -689,6 +689,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 16),
 
                   // Tarjeta Crédito y Cobranza
+                  /*
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -770,8 +771,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-
+                  
                   const SizedBox(height: 24),
+                  */
                   const Text(
                     'PRÓXIMO CLIENTE',
                     style: TextStyle(

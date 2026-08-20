@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../core/storage/local_storage.dart';
 import '../../../core/network/dio_client.dart';
@@ -11,7 +12,6 @@ class AuthRepository {
   Future<AppError?> login(
     String username,
     String password,
-    bool rememberMe,
   ) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
       return AppError(
@@ -20,6 +20,7 @@ class AuthRepository {
         esRecuperable: true,
       );
     }
+    DioClient().resetearSesion();
     try {
       final response = await _dio.post(
         '/api/auth/login',
@@ -109,13 +110,10 @@ class AuthRepository {
   /// usando el token JWT almacenado. Requiere tener un token valido.
   Future<Map<String, dynamic>?> getMe() async {
     try {
-      final token = await _localStorage.getToken();
-      if (token == null || token.isEmpty) return null;
+      final hasToken = await hasValidToken();
+      if (!hasToken) return null;
 
-      final response = await _dio.get(
-        '/api/auth/me',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      final response = await _dio.get('/api/auth/me');
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data as Map<String, dynamic>;
@@ -141,7 +139,25 @@ class AuthRepository {
 
   Future<bool> hasValidToken() async {
     final token = await _localStorage.getToken();
-    return token != null && token.isNotEmpty;
+    if (token == null || token.isEmpty) return false;
+    return !_isJwtExpired(token);
+  }
+
+  bool _isJwtExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      final payload = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+      final exp = payload['exp'] as int?;
+      if (exp == null) return true;
+      return DateTime.now().isAfter(
+        DateTime.fromMillisecondsSinceEpoch(exp * 1000),
+      );
+    } catch (_) {
+      return true;
+    }
   }
 
   Future<int?> getVendedorId() async {

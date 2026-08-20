@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _rememberMe = true;
   bool _isLoading = false;
   bool _suspended = false;
 
@@ -66,7 +65,6 @@ class _LoginPageState extends State<LoginPage> {
     final error = await _authRepository.login(
       _usernameController.text,
       _passwordController.text,
-      _rememberMe,
     );
 
     if (mounted) {
@@ -291,24 +289,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _rememberMe,
-                        activeColor: AppTheme.primaryColor,
-                        onChanged: (value) {
-                          setState(() {
-                            _rememberMe = value ?? false;
-                          });
-                        },
-                      ),
-                      const Text(
-                        'Recordar sesión',
-                        style: TextStyle(color: AppTheme.textPrimary),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     child:
