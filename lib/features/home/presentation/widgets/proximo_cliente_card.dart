@@ -3,7 +3,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/database/entities/cliente_entity.dart';
 import '../../../../features/catalog/presentation/widgets/cliente_detalle_modal.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
-
+import '../../../../features/sales/presentation/pages/nueva_venta_page.dart';
+import '../../../../features/sales/presentation/pages/no_venta_page.dart';
 class ProximoClienteCard extends StatelessWidget {
   final Map<String, dynamic>? clienteMap;
 
@@ -25,11 +26,21 @@ class ProximoClienteCard extends StatelessWidget {
           cliente: cliente,
           onVender: () {
             Navigator.pop(context);
-            showInfo(context, "Vender a ${cliente.nombreCliente}");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => NuevaVentaPage(cliente: cliente),
+              ),
+            );
           },
           onNoVenta: () {
             Navigator.pop(context);
-            showInfo(context, "No venta a ${cliente.nombreCliente}");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => NoVentaPage(cliente: cliente),
+              ),
+            );
           },
         );
       } catch (e) {
