@@ -471,7 +471,7 @@ class _HomePageState extends State<HomePage> {
 
       final nextClienteList = await rawDb.rawQuery(
         '''
-        SELECT nombre_cliente, calle FROM clientes 
+        SELECT * FROM clientes
         WHERE cliente_id NOT IN (SELECT cliente_id FROM ventas_pendientes WHERE fecha_hora LIKE ?)
         LIMIT 1
       ''',

@@ -181,24 +181,9 @@ class _NoVentaPageState extends State<NoVentaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: RutxAppBar(
+      appBar: const RutxAppBar(
         title: 'No Venta',
         showBackButton: true,
-        actions: [
-          _isSaving
-              ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppTheme.textWhite,
-                ),
-              )
-              : IconButton(
-                icon: const Icon(Icons.save, color: AppTheme.textWhite),
-                onPressed: _saveNoVenta,
-              ),
-        ],
       ),
       body:
           _isLoading
@@ -448,6 +433,39 @@ class _NoVentaPageState extends State<NoVentaPage> {
                                   fit: BoxFit.cover,
                                 ),
                               ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Botón Guardar Inferior
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isSaving ? null : _saveNoVenta,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accentColor,
+                          foregroundColor: AppTheme.textWhite,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isSaving
+                            ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppTheme.textWhite,
+                              ),
+                            )
+                            : const Text(
+                              'GUARDAR',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                      ),
                     ),
                     const SizedBox(height: 40),
                   ],
