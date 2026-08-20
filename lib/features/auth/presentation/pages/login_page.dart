@@ -308,25 +308,27 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                   ),
-                  const SizedBox(height: 32),
-                  Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        text: '¿Problemas para entrar? ',
-                        style: TextStyle(color: AppTheme.textSecondary),
-                        children: [
-                          TextSpan(
-                            text: 'Contactar soporte',
-                            style: TextStyle(
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0, top: 16.0),
+            child: Center(
+              child: RichText(
+                text: const TextSpan(
+                  text: '¿Problemas para entrar? ',
+                  style: TextStyle(color: AppTheme.textSecondary),
+                  children: [
+                    TextSpan(
+                      text: 'Contactar soporte',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

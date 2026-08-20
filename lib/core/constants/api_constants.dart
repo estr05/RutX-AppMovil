@@ -5,7 +5,7 @@ class ApiConstants {
   static const int port = 5047;
 
   /// IP del PC en la red WiFi local
-  static const String _empresaIp = '192.168.100.61';
+  static const String _empresaIp = '192.168.1.68';
 
   /// IP de Tailscale del PC donde corre el sincronizador
   static const String _tailscaleCasaIp = '100.71.116.89';
