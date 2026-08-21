@@ -127,14 +127,6 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
     });
   }
 
-  void _clearOldSales() async {
-    if (_isClosing) return;
-    final db = AppDatabase();
-    await db.initialize();
-    await db.ventaDao.deleteAll();
-    await _loadVentas();
-  }
-
   void _handleCerrarJornada() async {
     if (_isClosing) return;
     final today = DateTime.now().toIso8601String().substring(0, 10);
@@ -499,16 +491,6 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: _clearOldSales,
-              child: Text(
-                'Borrar ventas viejas',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 12,
                 ),
               ),
             ),
