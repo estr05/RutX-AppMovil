@@ -213,8 +213,8 @@ void main() {
       expect(json['causa_id'], 3);
       expect(json['causa_desc'], 'Cliente ausente');
       expect(json['comentario'], 'No estaba');
-      // La ruta local no viaja como campo (va como archivo adjunto).
-      expect(json.containsKey('foto_path'), isFalse);
+      // La ruta local sí viaja en el JSON.
+      expect(json['foto_path'], '/tmp/foto.jpg');
     });
 
     test('omite campos opcionales cuando son null', () {
