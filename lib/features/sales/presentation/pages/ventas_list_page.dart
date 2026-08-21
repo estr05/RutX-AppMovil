@@ -12,6 +12,7 @@ import 'no_venta_detalle_page.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
 import '../../../../core/network/connection_state_service.dart';
+import '../../../../core/utils/error_utils.dart';
 
 class VentasListPage extends StatefulWidget {
   const VentasListPage({super.key});
@@ -56,7 +57,7 @@ class _VentasListPageState extends State<VentasListPage> {
         if (result is SyncSuccess) {
           showSuccess(context, 'Sincronización completada');
         } else if (result is SyncFailure) {
-          final friendlyMessage = _getFriendlyErrorMessage(result.mensaje);
+          final friendlyMessage = ErrorUtils.getFriendlyErrorMessage(result.mensaje);
           showErrorMessage(context, friendlyMessage);
         }
       }
@@ -64,24 +65,6 @@ class _VentasListPageState extends State<VentasListPage> {
     await _loadVentas();
   }
 
-  // ---------------------------------------------------------------------------
-  // Traducción de Errores para el Usuario Final
-  // ---------------------------------------------------------------------------
-  String _getFriendlyErrorMessage(String technicalError) {
-    if (technicalError.contains('API ERROR [401]')) {
-      return 'Tu sesión ha caducado. Inicia sesión de nuevo.';
-    } else if (technicalError.contains('NETWORK ERROR') ||
-        technicalError.contains('Sin conexión')) {
-      return 'Venta guardada localmente. Se enviará automáticamente cuando recuperes la conexión.';
-    } else if (technicalError.contains('API ERROR')) {
-      // Mostrar el error real del backend para diagnóstico
-      final backendDetail = technicalError.replaceFirst('API ERROR', '').trim();
-      return 'Error del servidor: ${backendDetail.isNotEmpty ? backendDetail : "revise el backend"}';
-    } else if (technicalError.contains('APP ERROR')) {
-      return 'Algo salió mal en la aplicación. Intenta cerrarla y volverla a abrir.';
-    }
-    return 'No se pudo sincronizar la venta. Se seguirá intentando en segundo plano.';
-  }
 
   @override
   Widget build(BuildContext context) {

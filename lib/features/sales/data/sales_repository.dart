@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/entities/venta_pendiente_entity.dart';
@@ -28,7 +29,8 @@ class SalesRepository {
         venta.cajeroId ?? 0,
       );
       return venta.copyWith(folioLocal: folioLocal);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[FolioLocal] Error al generar folio provisional: $e');
       return venta;
     }
   }
@@ -82,7 +84,8 @@ class SalesRepository {
       }
       return {'success': false, 'folio_local': conFolio.folioLocal};
     } catch (e) {
-      return null;
+      debugPrint('[saveAndSyncSale] Error crítico: $e');
+      return {'success': false, 'error': 'save_failed', 'mensaje': e.toString()};
     }
   }
 
@@ -214,7 +217,7 @@ class SalesRepository {
     final lower = error.toLowerCase();
     if (lower.contains('connection') ||
         lower.contains('timeout') ||
-        lower.contains('sockete') ||
+        lower.contains('socket') ||
         lower.contains('network is unreachable') ||
         error == 'Error desconocido') {
       return true;
@@ -276,10 +279,11 @@ class SalesRepository {
       final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
       final fotoPath = detalle['foto_path'] as String?;
       final formData = FormData.fromMap({
-        'payload': jsonEncode(v.toNoVentaFields()),
+        'payload': jsonEncode(v.toNoVentaJson()),
         if (fotoPath != null &&
             fotoPath.isNotEmpty &&
-            File(fotoPath).existsSync())
+            File(fotoPath).existsSync() &&
+            File(fotoPath).lengthSync() > 100)
           'foto': await MultipartFile.fromFile(
             fotoPath,
             filename: '${v.ventaMovilId}.jpg',
@@ -339,7 +343,10 @@ class SalesRepository {
           'folio': data['folio'],
         };
       }
-      return null;
+      return {
+        'success': false,
+        'error': 'API ERROR [${response.statusCode}]: Respuesta inesperada del servidor',
+      };
     } on DioException catch (e) {
       String serverMsg = '';
       if (e.response?.data is Map) {

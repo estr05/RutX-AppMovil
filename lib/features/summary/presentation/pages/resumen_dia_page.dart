@@ -72,10 +72,12 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
         });
       }
     } catch (e) {
+      debugPrint('[ResumenDia] Error al cargar ventas: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+        showErrorMessage(context, 'No se pudieron cargar los datos. Intenta de nuevo.');
       }
     }
   }
@@ -139,8 +141,8 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
               (ctx) => AlertDialog(
                 title: const Text('Jornada ya cerrada'),
                 content: const Text(
-                  'La jornada de hoy ya fue cerrada. Si es una prueba, puedes borrar el registro y entrar.',
-                ),
+                'Ocurrió un problema al iniciar la jornada. Contacta a soporte.',
+              ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),

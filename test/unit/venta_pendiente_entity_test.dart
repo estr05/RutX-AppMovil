@@ -187,8 +187,8 @@ void main() {
     });
   });
 
-  group('VentaPendiente.toNoVentaFields', () {
-    test('incluye todos los campos como strings', () {
+  group('VentaPendiente.toNoVentaJson', () {
+    test('incluye todos los campos correctamente', () {
       final v = VentaPendiente(
         ventaMovilId: 'VTA-NV1',
         vendedorId: 7,
@@ -205,16 +205,16 @@ void main() {
         ],
       );
 
-      final fields = v.toNoVentaFields();
+      final json = v.toNoVentaJson();
 
-      expect(fields['venta_movil_id'], 'VTA-NV1');
-      expect(fields['vendedor_id'], '7');
-      expect(fields['cliente_id'], '100');
-      expect(fields['causa_id'], '3');
-      expect(fields['causa_desc'], 'Cliente ausente');
-      expect(fields['comentario'], 'No estaba');
+      expect(json['venta_movil_id'], 'VTA-NV1');
+      expect(json['vendedor_id'], 7);
+      expect(json['cliente_id'], 100);
+      expect(json['causa_id'], 3);
+      expect(json['causa_desc'], 'Cliente ausente');
+      expect(json['comentario'], 'No estaba');
       // La ruta local no viaja como campo (va como archivo adjunto).
-      expect(fields.containsKey('foto_path'), isFalse);
+      expect(json.containsKey('foto_path'), isFalse);
     });
 
     test('omite campos opcionales cuando son null', () {
@@ -226,13 +226,13 @@ void main() {
         fechaHora: '2026-08-12T10:00:00',
       );
 
-      final fields = v.toNoVentaFields();
+      final json = v.toNoVentaJson();
 
-      expect(fields.containsKey('caja_id'), isFalse);
-      expect(fields.containsKey('cajero_id'), isFalse);
-      expect(fields.containsKey('almacen_id'), isFalse);
-      expect(fields.containsKey('sucursal_id'), isFalse);
-      expect(fields.containsKey('usuario_creador'), isFalse);
+      expect(json.containsKey('caja_id'), isFalse);
+      expect(json.containsKey('cajero_id'), isFalse);
+      expect(json.containsKey('almacen_id'), isFalse);
+      expect(json.containsKey('sucursal_id'), isFalse);
+      expect(json.containsKey('usuario_creador'), isFalse);
     });
 
     test('incluye identidad completa cuando está disponible', () {
@@ -249,13 +249,13 @@ void main() {
         usuarioCreador: 'RUTXVENDEDOR01',
       );
 
-      final fields = v.toNoVentaFields();
+      final json = v.toNoVentaJson();
 
-      expect(fields['caja_id'], '5');
-      expect(fields['cajero_id'], '9');
-      expect(fields['almacen_id'], '11206');
-      expect(fields['sucursal_id'], '2');
-      expect(fields['usuario_creador'], 'RUTXVENDEDOR01');
+      expect(json['caja_id'], 5);
+      expect(json['cajero_id'], 9);
+      expect(json['almacen_id'], 11206);
+      expect(json['sucursal_id'], 2);
+      expect(json['usuario_creador'], 'RUTXVENDEDOR01');
     });
 
     test('usa valores por defecto para causa cuando no hay detalle', () {
@@ -267,10 +267,10 @@ void main() {
         fechaHora: '2026-08-12T10:00:00',
       );
 
-      final fields = v.toNoVentaFields();
+      final json = v.toNoVentaJson();
 
-      expect(fields['causa_id'], '0');
-      expect(fields['causa_desc'], 'Sin causa');
+      expect(json['causa_id'], 0);
+      expect(json['causa_desc'], 'Sin causa');
     });
   });
 
