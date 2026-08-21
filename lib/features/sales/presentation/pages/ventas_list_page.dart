@@ -54,7 +54,7 @@ class _VentasListPageState extends State<VentasListPage> {
       final result = await SalesRepository().syncPendingSales();
       if (mounted) {
         if (result is SyncSuccess) {
-          showSuccessMessage(context, 'Sincronización completada');
+          showSuccess(context, 'Sincronización completada');
         } else if (result is SyncFailure) {
           final friendlyMessage = _getFriendlyErrorMessage(result.mensaje);
           showErrorMessage(context, friendlyMessage);

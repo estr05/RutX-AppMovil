@@ -461,9 +461,9 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
       final folio = syncResult['folio'] as String?;
       final folioLocal = syncResult['folio_local'] as String?;
       if (isOnline) {
-        showSuccessMessage(context, 'Venta registrada y enviada a Microsip');
+        showSuccess(context, 'Venta registrada y enviada a Microsip');
       } else {
-        showSuccessMessage(context, 'Venta guardada localmente. Lista para sincronizar.');
+        showSuccess(context, 'Venta guardada localmente. Lista para sincronizar.');
       }
 
       // Cargar datos fiscales del emisor para mostrar en el ticket

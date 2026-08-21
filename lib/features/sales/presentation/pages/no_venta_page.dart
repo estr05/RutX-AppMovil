@@ -168,7 +168,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final syncResult = await salesRepository.saveAndSyncSale(noVenta);
 
     if (mounted) {
-      showSuccessMessage(context, 'Visita y evidencia registradas con éxito');
+      showSuccess(context, 'Visita y evidencia registradas con éxito');
       Navigator.of(context).pop();
     }
   }
