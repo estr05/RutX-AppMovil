@@ -192,16 +192,42 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
       // 2. Si TODAVÍA quedan pendientes, BLOQUEAR el cierre
       if (_pendientesCount > 0) {
         if (mounted) {
-          final detalle = resultado is SyncFailure ? resultado.mensaje : null;
-          showWarning(
-            context,
-            detalle ??
-                'No puedes cerrar la jornada. Haz la sincronización final antes de cerrar para no perder datos.',
-            title:
-                'Tienes $_pendientesCount ${_pendientesCount == 1 ? "venta pendiente" : "ventas pendientes"}',
-            actionLabel: 'REINTENTAR',
-            onAction: _handleSync,
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Row(
+                children: [
+                  Icon(Icons.wifi_off, color: AppTheme.statusRed, size: 28),
+                  SizedBox(width: 8),
+                  Flexible(child: Text('Cierre de Jornada Requerido', style: TextStyle(fontSize: 18))),
+                ],
+              ),
+              content: Text(
+                'Tienes $_pendientesCount ${_pendientesCount == 1 ? "operación guardada" : "operaciones guardadas"} en el teléfono. Conéctate a la red del negocio o activa tus datos para enviarlas a Microsip y cerrar tu día de forma segura.',
+                style: const TextStyle(fontSize: 15),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('CANCELAR', style: TextStyle(color: AppTheme.textSecondary)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _handleSync();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accentColor,
+                    foregroundColor: AppTheme.textWhite,
+                  ),
+                  child: const Text('VERIFICAR RED Y REINTENTAR'),
+                ),
+              ],
+            ),
           );
+          setState(() => _isClosing = false);
         }
         return;
       }

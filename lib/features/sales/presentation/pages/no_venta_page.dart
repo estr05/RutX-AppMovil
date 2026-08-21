@@ -168,11 +168,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final syncResult = await salesRepository.saveAndSyncSale(noVenta);
 
     if (mounted) {
-      if (syncResult?['success'] == true) {
-        showSuccess(context, 'No Venta registrada y sincronizada con éxito');
-      } else {
-        showInfo(context, 'No Venta guardada localmente');
-      }
+      showSuccessMessage(context, 'Visita y evidencia registradas con éxito');
       Navigator.of(context).pop();
     }
   }

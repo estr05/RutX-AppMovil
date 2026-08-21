@@ -165,9 +165,6 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
     try {
       final result = await _cobranzaRepo.insertCobranza(cobranza);
       if (mounted) {
-        if (result['error'] == true) {
-          showWarning(context, result['message'] as String);
-        }
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

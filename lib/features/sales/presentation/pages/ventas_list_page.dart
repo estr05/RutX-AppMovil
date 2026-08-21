@@ -11,6 +11,7 @@ import 'venta_detalle_page.dart';
 import 'no_venta_detalle_page.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
+import '../../../../core/network/connection_state_service.dart';
 
 class VentasListPage extends StatefulWidget {
   const VentasListPage({super.key});
@@ -33,13 +34,6 @@ class _VentasListPageState extends State<VentasListPage> {
   Future<void> _loadVentas() async {
     await AppDatabase().initialize();
 
-    // Intentar sincronizar primero para ver los errores
-    final result = await SalesRepository().syncPendingSales();
-    if (result is SyncFailure && mounted) {
-      final friendlyMessage = _getFriendlyErrorMessage(result.mensaje);
-      showErrorMessage(context, friendlyMessage);
-    }
-
     // Obtenemos la fecha de hoy en formato YYYY-MM-DD
     final String hoy = DateTime.now().toIso8601String().substring(0, 10);
 
@@ -53,6 +47,21 @@ class _VentasListPageState extends State<VentasListPage> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _handleRefresh() async {
+    if (ConnectionStateService().currentState == RutxConnectionState.connected) {
+      final result = await SalesRepository().syncPendingSales();
+      if (mounted) {
+        if (result is SyncSuccess) {
+          showSuccessMessage(context, 'Sincronización completada');
+        } else if (result is SyncFailure) {
+          final friendlyMessage = _getFriendlyErrorMessage(result.mensaje);
+          showErrorMessage(context, friendlyMessage);
+        }
+      }
+    }
+    await _loadVentas();
   }
 
   // ---------------------------------------------------------------------------
@@ -155,7 +164,7 @@ class _VentasListPageState extends State<VentasListPage> {
                       ),
                     )
                     : RefreshIndicator(
-                      onRefresh: _loadVentas,
+                      onRefresh: _handleRefresh,
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
                         itemCount: _ventas.length,
