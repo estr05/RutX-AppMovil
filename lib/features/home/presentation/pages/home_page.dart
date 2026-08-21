@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field, unused_local_variable
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../features/catalog/presentation/pages/clientes_page.dart';
@@ -26,6 +27,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late int _selectedIndex;
+  
+  // Historial de pestañas visitadas para navegar hacia atrás
+  final List<int> _tabHistory = [0];
+
+  // Marca de tiempo de la última pulsación del botón Atrás (para doble toque)
+  DateTime? _lastBackPressTime;
 
   // ---------------------------------------------------------------------------
   // MODALES DEL RESUMEN DEL DÍA
@@ -437,6 +444,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    if (_selectedIndex != 0) {
+      _tabHistory.add(_selectedIndex);
+    }
     _loadDashboardStats();
   }
 
@@ -810,15 +820,50 @@ class _HomePageState extends State<HomePage> {
       const ResumenDiaPage(), // 4: Más
     ];
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
+    return PopScope(
+      canPop: false, // Siempre interceptamos el botón Atrás
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        // 1. Si hay historial de pestañas → regresar a la pestaña previa
+        if (_tabHistory.length > 1) {
           setState(() {
-            _selectedIndex = index;
+            _tabHistory.removeLast();
+            _selectedIndex = _tabHistory.last;
           });
+          return;
+        }
+
+        // 2. Estamos en Inicio con historial vacío → lógica de doble toque
+        final ahora = DateTime.now();
+        if (_lastBackPressTime == null ||
+            ahora.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+          _lastBackPressTime = ahora;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Presiona de nuevo para salir'),
+              duration: Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          // Segunda pulsación dentro de 2 segundos → salir
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppTheme.backgroundColor,
+        body: pages[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              if (index != _selectedIndex) {
+                _tabHistory.removeWhere((i) => i == index);
+                _tabHistory.add(index);
+                _selectedIndex = index;
+              }
+            });
           _loadDashboardStats();
         },
         type: BottomNavigationBarType.fixed,
@@ -862,6 +907,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
+    ));
   }
 }
