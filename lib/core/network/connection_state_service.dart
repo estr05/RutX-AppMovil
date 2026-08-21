@@ -15,6 +15,7 @@ class ConnectionStateService {
   final StreamController<RutxConnectionState> _stateController =
       StreamController<RutxConnectionState>.broadcast();
   StreamSubscription? _connectivitySubscription;
+  Timer? _periodicTimer;
 
   RutxConnectionState _currentState = RutxConnectionState.offline;
   bool _started = false;
@@ -45,6 +46,11 @@ class ConnectionStateService {
       } else {
         _updateState(RutxConnectionState.offline);
       }
+    });
+
+    _periodicTimer?.cancel();
+    _periodicTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      _checkActualConnection();
     });
   }
 
@@ -111,6 +117,7 @@ class ConnectionStateService {
   }
 
   void stop() {
+    _periodicTimer?.cancel();
     _connectivitySubscription?.cancel();
     _stateController.close();
   }

@@ -10,7 +10,7 @@ class ApiConstants {
   /// IP de Tailscale del PC donde corre el sincronizador
   static const String _tailscaleCasaIp = '100.71.116.89';
 
-  static String get scheme => kReleaseMode ? 'https' : 'http';
+  static String get scheme => 'http';
 
   /// URL para red local
   static String get empresaUrl => '$scheme://$_empresaIp:$port';

@@ -69,7 +69,11 @@ class SalesRepository {
 
       if (ConnectionStateService().currentState ==
           RutxConnectionState.offline) {
-        return {'success': false, 'folio_local': conFolio.folioLocal};
+        await ConnectionStateService().forceCheck();
+        if (ConnectionStateService().currentState ==
+            RutxConnectionState.offline) {
+          return {'success': false, 'folio_local': conFolio.folioLocal};
+        }
       }
 
       final result = await uploadOne(conFolio.ventaMovilId);
@@ -91,7 +95,10 @@ class SalesRepository {
 
   Future<Map<String, dynamic>> uploadOne(String ventaMovilId) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
-      return {'success': false, 'error': 'offline'};
+      await ConnectionStateService().forceCheck();
+      if (ConnectionStateService().currentState == RutxConnectionState.offline) {
+        return {'success': false, 'error': 'offline'};
+      }
     }
     try {
       final db = AppDatabase();
