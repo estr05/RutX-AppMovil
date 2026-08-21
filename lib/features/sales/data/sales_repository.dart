@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../core/database/app_database.dart';
@@ -275,7 +276,7 @@ class SalesRepository {
       final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
       final fotoPath = detalle['foto_path'] as String?;
       final formData = FormData.fromMap({
-        ...v.toNoVentaFields(),
+        'payload': jsonEncode(v.toNoVentaFields()),
         if (fotoPath != null &&
             fotoPath.isNotEmpty &&
             File(fotoPath).existsSync())
