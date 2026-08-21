@@ -287,6 +287,7 @@ class SalesRepository {
           'foto': await MultipartFile.fromFile(
             fotoPath,
             filename: '${v.ventaMovilId}.jpg',
+            contentType: DioMediaType('image', 'jpeg'),
           ),
       });
 
