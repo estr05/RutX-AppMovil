@@ -5,6 +5,7 @@ import '../../../core/database/entities/cliente_entity.dart';
 import '../../../core/database/entities/producto_entity.dart';
 import '../../../core/database/entities/emisor_entity.dart';
 import '../../../core/database/entities/sucursal_entity.dart';
+import '../../../core/database/entities/forma_cobro_entity.dart';
 import '../../../core/network/sync_result.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/connection_state_service.dart';
@@ -61,6 +62,7 @@ class SyncRepository {
   DatosServidor _parsearDatosServidor(dynamic data) {
     final List<dynamic> clientesJson = data['clientes'] ?? [];
     final List<dynamic> productosJson = data['productos'] ?? [];
+    final List<dynamic> formasCobroJson = data['formas_cobro'] ?? [];
 
     final clientes =
         clientesJson
@@ -130,14 +132,28 @@ class SyncRepository {
             .whereType<Producto>()
             .toList();
 
-    final emisorJson = data['emisor'] as Map<String, dynamic>?;
-    final sucursalJson = data['sucursal'] as Map<String, dynamic>?;
+    final formasCobro =
+        formasCobroJson.isNotEmpty
+            ? formasCobroJson
+                .map((j) => FormaCobro.fromMap(j as Map<String, dynamic>))
+                .toList()
+            : const [
+              FormaCobro(formaCobroId: 67, nombre: 'EFECTIVO', tipo: 'C'),
+              FormaCobro(formaCobroId: 71, nombre: 'CREDITO 15 DIAS', tipo: 'R'),
+            ];
 
     return DatosServidor(
       clientes: clientes,
       productos: productos,
-      emisor: emisorJson != null ? Emisor.fromJson(emisorJson) : null,
-      sucursal: sucursalJson != null ? Sucursal.fromJson(sucursalJson) : null,
+      formasCobro: formasCobro,
+      emisor:
+          data['emisor'] != null
+              ? Emisor.fromMap(data['emisor'] as Map<String, dynamic>)
+              : null,
+      sucursal:
+          data['sucursal'] != null
+              ? Sucursal.fromMap(data['sucursal'] as Map<String, dynamic>)
+              : null,
     );
   }
 
@@ -187,6 +203,7 @@ class SyncRepository {
           return AnalisisDescarga(
             clientesServidor: datos.clientes,
             productosServidor: datos.productos,
+            formasCobro: datos.formasCobro,
             emisor: datos.emisor,
             sucursal: datos.sucursal,
             clientesLocales: idsClientesLocales.length,
@@ -221,6 +238,7 @@ class SyncRepository {
       // 1. Insertar / Actualizar catálogos del servidor (con últimos precios, saldos, límites)
       await _db.clienteDao.insertAll(analisis.clientesServidor);
       await _db.productDao.insertAll(analisis.productosServidor);
+      await _db.formaCobroDao.insertAll(analisis.formasCobro);
 
       // 2. Eliminar registros locales que ya no están asignados en el servidor
       if (analisis.clientesRemovidos.isNotEmpty) {
@@ -285,6 +303,12 @@ class SyncRepository {
         return SyncFailure(mensaje: 'Error SQLite productos: $e', intentos: 3);
       }
 
+      try {
+        await _db.formaCobroDao.insertAll(datos.formasCobro);
+      } catch (e) {
+        debugPrint('[Sync] Error SQLite formas_cobro: $e');
+      }
+
       // Re-aplicar el descuento de ventas pendientes (defensivo: en el sync
       // completo se limpian las ventas, pero si alguna quedó pendiente el
       // stock local no debe "regresar").
@@ -347,12 +371,14 @@ class SyncRepository {
 class DatosServidor {
   final List<Cliente> clientes;
   final List<Producto> productos;
+  final List<FormaCobro> formasCobro;
   final Emisor? emisor;
   final Sucursal? sucursal;
 
   DatosServidor({
     required this.clientes,
     required this.productos,
+    required this.formasCobro,
     this.emisor,
     this.sucursal,
   });
@@ -363,6 +389,7 @@ class DatosServidor {
 class AnalisisDescarga {
   final List<Cliente> clientesServidor;
   final List<Producto> productosServidor;
+  final List<FormaCobro> formasCobro;
   final Emisor? emisor;
   final Sucursal? sucursal;
 
@@ -376,6 +403,7 @@ class AnalisisDescarga {
   AnalisisDescarga({
     required this.clientesServidor,
     required this.productosServidor,
+    required this.formasCobro,
     this.emisor,
     this.sucursal,
     required this.clientesLocales,

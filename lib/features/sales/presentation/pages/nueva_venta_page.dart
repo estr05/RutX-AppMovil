@@ -10,6 +10,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/entities/cliente_entity.dart';
 import '../../../../core/database/entities/producto_entity.dart';
 import '../../../../core/database/entities/venta_pendiente_entity.dart';
+import '../../../../core/database/entities/forma_cobro_entity.dart';
 import '../../data/sales_repository.dart';
 import '../../../../shared/widgets/sale_utils.dart';
 import '../../../../shared/widgets/stock_label.dart';
@@ -32,7 +33,11 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   List<Producto> _productos = [];
   final Map<int, int> _cart = {};
   bool _isLoading = true;
-  final int _formaCobroId = 67; // Default: Efectivo
+
+  // Resolución dinámica de Forma de Cobro: evita IDs harcodeadas (67, 71, etc.)
+  // Si _formaCobroId es 0, el Sincronizador Backend le asigna automáticamente la DefaultFormaCobroId configurada en el servidor.
+  int _formaCobroId = 0;
+  List<FormaCobro> _formasCobroDisponibles = [];
 
   @override
   void initState() {
@@ -50,9 +55,22 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     await db.initialize();
     // Carga perezosa: primeros 100 productos
     final list = await db.productDao.getFirst(100);
+
+    // Cargar catálogo dinámico de Formas de Cobro desde SQLite
+    final formas = await db.formaCobroDao.getAll();
+    final formaContado = formas.cast<FormaCobro?>().firstWhere(
+      (f) => f != null && f.esContado,
+      orElse: () => null,
+    );
+
+    // Determinar ID dinámico de contado o fallback a 0 (Servidor Backend)
+    final idDinamico = formaContado?.formaCobroId ?? (formas.isNotEmpty ? formas.first.formaCobroId : 0);
+
     if (mounted) {
       setState(() {
         _productos = list;
+        _formasCobroDisponibles = formas;
+        _formaCobroId = idDinamico;
         _isLoading = false;
       });
     }

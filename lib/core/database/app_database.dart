@@ -15,6 +15,8 @@ import 'daos/emisor_dao.dart';
 import 'daos/sucursal_dao.dart';
 import 'daos/cola_sincronizacion_dao.dart';
 import 'daos/folio_local_dao.dart';
+import 'entities/forma_cobro_entity.dart';
+import 'daos/forma_cobro_dao.dart';
 
 class AppDatabase {
   static final AppDatabase _instance = AppDatabase._();
@@ -32,6 +34,7 @@ class AppDatabase {
   SucursalDao? _sucursalDao;
   ColaSincronizacionDao? _colaDao;
   FolioLocalDao? _folioLocalDao;
+  FormaCobroDao? _formaCobroDao;
 
   ClienteDao get clienteDao {
     if (_clienteDao == null) {
@@ -103,7 +106,14 @@ class AppDatabase {
     return _folioLocalDao!;
   }
 
-  static const int _version = 16;
+  FormaCobroDao get formaCobroDao {
+    if (_formaCobroDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
+    return _formaCobroDao!;
+  }
+
+  static const int _version = 17;
   static const String _dbName = 'rutx_movil.db';
 
   Future<Database> get database async {
@@ -345,6 +355,17 @@ class AppDatabase {
         'ALTER TABLE ventas_pendientes ADD COLUMN folio_local TEXT',
       );
     }
+    // Version 17: Catálogo dinámico de Formas de Cobro (formas_cobro)
+    if (oldVersion < 17) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS formas_cobro (
+          forma_cobro_id INTEGER PRIMARY KEY,
+          nombre TEXT NOT NULL,
+          tipo TEXT NOT NULL DEFAULT 'C',
+          estatus TEXT DEFAULT 'A'
+        )
+      ''');
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -420,6 +441,14 @@ class AppDatabase {
       CREATE TABLE causas_no_venta (
         causa_id INTEGER PRIMARY KEY,
         descripcion TEXT NOT NULL,
+        estatus TEXT DEFAULT 'A'
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE formas_cobro (
+        forma_cobro_id INTEGER PRIMARY KEY,
+        nombre TEXT NOT NULL,
+        tipo TEXT NOT NULL DEFAULT 'C',
         estatus TEXT DEFAULT 'A'
       )
     ''');
@@ -510,6 +539,7 @@ class AppDatabase {
     _sucursalDao = SucursalDao(db);
     _colaDao = ColaSincronizacionDao(db);
     _folioLocalDao = FolioLocalDao(db);
+    _formaCobroDao = FormaCobroDao(db);
 
     // Auto-seed ONLY if no clients exist (sync will provide real data)
     final clientesCount =
