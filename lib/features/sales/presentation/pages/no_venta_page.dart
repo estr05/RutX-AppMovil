@@ -77,7 +77,9 @@ class _NoVentaPageState extends State<NoVentaPage> {
     try {
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 70, // Compress slightly
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 70, // Reducir dimensiones y compresión para ~150KB por foto
       );
       if (photo != null) {
         // image_picker guarda en la caché del sistema (se puede borrar en
@@ -106,14 +108,6 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final destino = '${carpeta.path}/$nombre';
     await File(photo.path).copy(destino);
     return destino;
-  }
-
-  void _simulatePhoto() {
-    // Dummy simulation for development
-    setState(() {
-      _imagePath = 'simulated_photo_path_123.jpg';
-    });
-    showSuccess(context, 'Foto simulada agregada exitosamente');
   }
 
   Future<void> _saveNoVenta() async {
@@ -168,7 +162,11 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final syncResult = await salesRepository.saveAndSyncSale(noVenta);
 
     if (mounted) {
-      showSuccess(context, 'Visita y evidencia registradas con éxito');
+      if (syncResult?['success'] == true) {
+        showSuccess(context, 'Visita y evidencia registradas y sincronizadas con éxito');
+      } else {
+        showInfo(context, 'Visita y evidencia guardadas localmente');
+      }
       Navigator.of(context).pop();
     }
   }
@@ -330,44 +328,22 @@ class _NoVentaPageState extends State<NoVentaPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Foto Section
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: _takePhoto,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primaryColor,
-                              foregroundColor: AppTheme.textWhite,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.camera_alt),
-                            label: const Text('FOTO (Obligatorio)'),
+                    // Foto Section (Obligatoria para validación presencial)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _takePhoto,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: AppTheme.textWhite,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        // Botón algorítmico de prueba solicitado por el usuario
-                        OutlinedButton(
-                          onPressed: _simulatePhoto,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.statusOrange,
-                            side: const BorderSide(
-                              color: AppTheme.statusOrange,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 16,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Simular Prueba'),
-                        ),
-                      ],
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('TOMAR FOTO (Obligatorio)'),
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -399,25 +375,6 @@ class _NoVentaPageState extends State<NoVentaPage> {
                                     'No se ha tomado foto',
                                     style: TextStyle(
                                       color: AppTheme.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              )
-                              : _imagePath == 'simulated_photo_path_123.jpg'
-                              ? const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.check_circle_outline,
-                                    size: 64,
-                                    color: AppTheme.statusGreen,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Foto Simulada (Modo Pruebas)',
-                                    style: TextStyle(
-                                      color: AppTheme.statusGreen,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
