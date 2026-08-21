@@ -278,14 +278,20 @@ class SalesRepository {
       // no venta se registra igual.
       final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
       final fotoPath = detalle['foto_path'] as String?;
+      final tieneFotoValida = fotoPath != null &&
+          fotoPath.isNotEmpty &&
+          File(fotoPath).existsSync() &&
+          File(fotoPath).lengthSync() > 100;
+
+      if (fotoPath != null && fotoPath.isNotEmpty && !tieneFotoValida) {
+        debugPrint('[NoVenta] Advertencia: Archivo de foto no existe o está vacío en ruta: $fotoPath');
+      }
+
       final formData = FormData.fromMap({
         'payload': jsonEncode(v.toNoVentaJson()),
-        if (fotoPath != null &&
-            fotoPath.isNotEmpty &&
-            File(fotoPath).existsSync() &&
-            File(fotoPath).lengthSync() > 100)
+        if (tieneFotoValida)
           'foto': await MultipartFile.fromFile(
-            fotoPath,
+            fotoPath!,
             filename: '${v.ventaMovilId}.jpg',
             contentType: DioMediaType('image', 'jpeg'),
           ),
