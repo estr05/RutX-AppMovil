@@ -37,7 +37,6 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   // Resolución dinámica de Forma de Cobro: evita IDs harcodeadas (67, 71, etc.)
   // Si _formaCobroId es 0, el Sincronizador Backend le asigna automáticamente la DefaultFormaCobroId configurada en el servidor.
   int _formaCobroId = 0;
-  List<FormaCobro> _formasCobroDisponibles = [];
 
   @override
   void initState() {
@@ -69,7 +68,6 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     if (mounted) {
       setState(() {
         _productos = list;
-        _formasCobroDisponibles = formas;
         _formaCobroId = idDinamico;
         _isLoading = false;
       });

@@ -15,7 +15,6 @@ import 'daos/emisor_dao.dart';
 import 'daos/sucursal_dao.dart';
 import 'daos/cola_sincronizacion_dao.dart';
 import 'daos/folio_local_dao.dart';
-import 'entities/forma_cobro_entity.dart';
 import 'daos/forma_cobro_dao.dart';
 
 class AppDatabase {
