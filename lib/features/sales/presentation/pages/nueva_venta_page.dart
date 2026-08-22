@@ -1193,6 +1193,16 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                 ],
                                               ),
                                             ),
+                                            // Price
+                                            Text(
+                                              '\$${(_precioConImpuesto(prod) * qty).toStringAsFixed(2)}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: AppTheme.statusGreen,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
                                             // Quantity controls
                                             Row(
                                               children: [
@@ -1258,15 +1268,6 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   ),
                                                 ),
                                               ],
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Text(
-                                              '\$${(_precioConImpuesto(prod) * qty).toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: AppTheme.statusGreen,
-                                              ),
                                             ),
                                           ],
                                         ),
