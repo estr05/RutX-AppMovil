@@ -89,14 +89,19 @@ class SalesRepository {
       return {'success': false, 'folio_local': conFolio.folioLocal};
     } catch (e) {
       debugPrint('[saveAndSyncSale] Error crítico: $e');
-      return {'success': false, 'error': 'save_failed', 'mensaje': e.toString()};
+      return {
+        'success': false,
+        'error': 'save_failed',
+        'mensaje': e.toString(),
+      };
     }
   }
 
   Future<Map<String, dynamic>> uploadOne(String ventaMovilId) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
       await ConnectionStateService().forceCheck();
-      if (ConnectionStateService().currentState == RutxConnectionState.offline) {
+      if (ConnectionStateService().currentState ==
+          RutxConnectionState.offline) {
         return {'success': false, 'error': 'offline'};
       }
     }
@@ -285,13 +290,16 @@ class SalesRepository {
       // no venta se registra igual.
       final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
       final fotoPath = detalle['foto_path'] as String?;
-      final tieneFotoValida = fotoPath != null &&
+      final tieneFotoValida =
+          fotoPath != null &&
           fotoPath.isNotEmpty &&
           File(fotoPath).existsSync() &&
           File(fotoPath).lengthSync() > 100;
 
       if (fotoPath != null && fotoPath.isNotEmpty && !tieneFotoValida) {
-        debugPrint('[NoVenta] Advertencia: Archivo de foto no existe o está vacío en ruta: $fotoPath');
+        debugPrint(
+          '[NoVenta] Advertencia: Archivo de foto no existe o está vacío en ruta: $fotoPath',
+        );
       }
 
       final formData = FormData.fromMap({
@@ -359,7 +367,8 @@ class SalesRepository {
       }
       return {
         'success': false,
-        'error': 'API ERROR [${response.statusCode}]: Respuesta inesperada del servidor',
+        'error':
+            'API ERROR [${response.statusCode}]: Respuesta inesperada del servidor',
       };
     } on DioException catch (e) {
       String serverMsg = '';

@@ -70,7 +70,9 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     );
 
     // Determinar ID dinámico de contado o fallback a 0 (Servidor Backend)
-    final idDinamico = formaContado?.formaCobroId ?? (formas.isNotEmpty ? formas.first.formaCobroId : 0);
+    final idDinamico =
+        formaContado?.formaCobroId ??
+        (formas.isNotEmpty ? formas.first.formaCobroId : 0);
 
     if (mounted) {
       setState(() {
@@ -161,7 +163,8 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children:
                       _alphabet.map((letter) {
-                        bool isSelected = _isDragging && _currentLetter == letter;
+                        bool isSelected =
+                            _isDragging && _currentLetter == letter;
                         return Text(
                           letter,
                           style: TextStyle(
@@ -215,10 +218,11 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   }
 
   List<Producto> _getFilteredProducts() {
-    final list = _productos.where((p) {
-      return p.nombre.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          p.clave.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
+    final list =
+        _productos.where((p) {
+          return p.nombre.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              p.clave.toLowerCase().contains(_searchQuery.toLowerCase());
+        }).toList();
     _calculateLetterIndices(list);
     return list;
   }
@@ -614,7 +618,10 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
       if (isOnline) {
         showSuccess(context, 'Venta registrada y enviada a Microsip');
       } else {
-        showSuccess(context, 'Venta guardada localmente. Lista para sincronizar.');
+        showSuccess(
+          context,
+          'Venta guardada localmente. Lista para sincronizar.',
+        );
       }
 
       // Cargar datos fiscales del emisor para mostrar en el ticket
@@ -853,150 +860,97 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                     addRepaintBoundaries: true,
                                     addAutomaticKeepAlives: false,
                                     itemBuilder: (context, index) {
-                                  final p = filteredProducts[index];
-                                  final count = _cart[p.articuloId] ?? 0;
-                                  final hasQty = count > 0;
+                                      final p = filteredProducts[index];
+                                      final count = _cart[p.articuloId] ?? 0;
+                                      final hasQty = count > 0;
 
-                                  return RepaintBoundary(
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 12),
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            hasQty
-                                                ? AppTheme.accentBgLighter
-                                                : AppTheme.surfaceCard,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color:
-                                              hasQty
-                                                  ? const Color(0xFFFFE0B2)
-                                                  : AppTheme.lightGrey,
-                                          width: hasQty ? 1.5 : 1.0,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  p.nombre,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
-                                                    color: AppTheme.textPrimary,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  '${p.clave} · \$${_precioConImpuesto(p).toStringAsFixed(2)}',
-                                                  style: TextStyle(
-                                                    color: AppTheme.statusGreen,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                StockLabel(
-                                                  existencias:
-                                                      p.existencias - count,
-                                                ),
-                                              ],
+                                      return RepaintBoundary(
+                                        child: Container(
+                                          margin: const EdgeInsets.only(
+                                            bottom: 12,
+                                          ),
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                hasQty
+                                                    ? AppTheme.accentBgLighter
+                                                    : AppTheme.surfaceCard,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            border: Border.all(
+                                              color:
+                                                  hasQty
+                                                      ? const Color(0xFFFFE0B2)
+                                                      : AppTheme.lightGrey,
+                                              width: hasQty ? 1.5 : 1.0,
                                             ),
                                           ),
-
-                                          // Product controls
-                                          if (unidadesDisponibles(p) <= 0)
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: AppTheme.statusRedBg,
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              child: const Text(
-                                                'Agotado',
-                                                style: TextStyle(
-                                                  color: AppTheme.statusRed,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            )
-                                          else if (!hasQty)
-                                            GestureDetector(
-                                              onTap:
-                                                  () =>
-                                                      _addToCart(p.articuloId),
-                                              child: Container(
-                                                width: 36,
-                                                height: 36,
-                                                decoration: BoxDecoration(
-                                                  color: AppTheme.accentBgLight,
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: const Color(
-                                                      0xFFFFB74D,
-                                                    ),
-                                                    width: 1.0,
-                                                  ),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.add,
-                                                  color: AppTheme.accentColor,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                            )
-                                          else
-                                            Row(
-                                              children: [
-                                                GestureDetector(
-                                                  onTap:
-                                                      () => _removeFromCart(
-                                                        p.articuloId,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      p.nombre,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                        color:
+                                                            AppTheme
+                                                                .textPrimary,
                                                       ),
-                                                  child: Container(
-                                                    width: 36,
-                                                    height: 36,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                          color:
-                                                              AppTheme
-                                                                  .accentColor,
-                                                          shape:
-                                                              BoxShape.circle,
-                                                        ),
-                                                    child: const Icon(
-                                                      Icons.remove,
-                                                      color: AppTheme.textWhite,
-                                                      size: 20,
                                                     ),
-                                                  ),
+                                                    const SizedBox(height: 4),
+                                                    Text(
+                                                      '${p.clave} · \$${_precioConImpuesto(p).toStringAsFixed(2)}',
+                                                      style: TextStyle(
+                                                        color:
+                                                            AppTheme
+                                                                .statusGreen,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    StockLabel(
+                                                      existencias:
+                                                          p.existencias - count,
+                                                    ),
+                                                  ],
                                                 ),
+                                              ),
+
+                                              // Product controls
+                                              if (unidadesDisponibles(p) <= 0)
                                                 Container(
                                                   padding:
                                                       const EdgeInsets.symmetric(
-                                                        horizontal: 16,
+                                                        horizontal: 10,
+                                                        vertical: 6,
                                                       ),
-                                                  child: Text(
-                                                    '$count',
-                                                    style: const TextStyle(
+                                                  decoration: BoxDecoration(
+                                                    color: AppTheme.statusRedBg,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Agotado',
+                                                    style: TextStyle(
+                                                      color: AppTheme.statusRed,
                                                       fontWeight:
                                                           FontWeight.bold,
-                                                      fontSize: 16,
-                                                      color:
-                                                          AppTheme.textPrimary,
+                                                      fontSize: 12,
                                                     ),
                                                   ),
-                                                ),
+                                                )
+                                              else if (!hasQty)
                                                 GestureDetector(
                                                   onTap:
                                                       () => _addToCart(
@@ -1005,30 +959,110 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   child: Container(
                                                     width: 36,
                                                     height: 36,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                          color:
-                                                              AppTheme
-                                                                  .accentColor,
-                                                          shape:
-                                                              BoxShape.circle,
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          AppTheme
+                                                              .accentBgLight,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: const Color(
+                                                          0xFFFFB74D,
                                                         ),
+                                                        width: 1.0,
+                                                      ),
+                                                    ),
                                                     child: const Icon(
                                                       Icons.add,
-                                                      color: AppTheme.textWhite,
+                                                      color:
+                                                          AppTheme.accentColor,
                                                       size: 20,
                                                     ),
                                                   ),
+                                                )
+                                              else
+                                                Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap:
+                                                          () => _removeFromCart(
+                                                            p.articuloId,
+                                                          ),
+                                                      child: Container(
+                                                        width: 36,
+                                                        height: 36,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                              color:
+                                                                  AppTheme
+                                                                      .accentColor,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.remove,
+                                                          color:
+                                                              AppTheme
+                                                                  .textWhite,
+                                                          size: 20,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 16,
+                                                          ),
+                                                      child: Text(
+                                                        '$count',
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16,
+                                                          color:
+                                                              AppTheme
+                                                                  .textPrimary,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap:
+                                                          () => _addToCart(
+                                                            p.articuloId,
+                                                          ),
+                                                      child: Container(
+                                                        width: 36,
+                                                        height: 36,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                              color:
+                                                                  AppTheme
+                                                                      .accentColor,
+                                                              shape:
+                                                                  BoxShape
+                                                                      .circle,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.add,
+                                                          color:
+                                                              AppTheme
+                                                                  .textWhite,
+                                                          size: 20,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                                  if (MediaQuery.of(context).viewInsets.bottom == 0)
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  if (MediaQuery.of(
+                                        context,
+                                      ).viewInsets.bottom ==
+                                      0)
                                     _buildAlphabetSidebar(),
                                   if (_isDragging && _currentLetter.isNotEmpty)
                                     _buildLetterIndicatorOverlay(),
@@ -1152,10 +1186,10 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   ),
                                                   const SizedBox(height: 4),
                                                   StockLabel(
-                                                   existencias:
-                                                       prod.existencias - qty,
-                                                   showIcon: false,
-                                                 ),
+                                                    existencias:
+                                                        prod.existencias - qty,
+                                                    showIcon: false,
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -1245,7 +1279,6 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                             },
                           ),
                         ),
-
 
                         // Total Estimado Container Box
                         Container(

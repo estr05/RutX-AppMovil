@@ -77,7 +77,10 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
         setState(() {
           _isLoading = false;
         });
-        showErrorMessage(context, 'No se pudieron cargar los datos. Intenta de nuevo.');
+        showErrorMessage(
+          context,
+          'No se pudieron cargar los datos. Intenta de nuevo.',
+        );
       }
     }
   }
@@ -141,8 +144,8 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
               (ctx) => AlertDialog(
                 title: const Text('Jornada ya cerrada'),
                 content: const Text(
-                'Ocurrió un problema al iniciar la jornada. Contacta a soporte.',
-              ),
+                  'Ocurrió un problema al iniciar la jornada. Contacta a soporte.',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, false),
@@ -197,37 +200,48 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
-                children: [
-                  Icon(Icons.wifi_off, color: AppTheme.statusRed, size: 28),
-                  SizedBox(width: 8),
-                  Flexible(child: Text('Cierre de Jornada Requerido', style: TextStyle(fontSize: 18))),
-                ],
-              ),
-              content: Text(
-                'Tienes $_pendientesCount ${_pendientesCount == 1 ? "operación guardada" : "operaciones guardadas"} en el teléfono. Conéctate a la red del negocio o activa tus datos para enviarlas a Microsip y cerrar tu día de forma segura.',
-                style: const TextStyle(fontSize: 15),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('CANCELAR', style: TextStyle(color: AppTheme.textSecondary)),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    _handleSync();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accentColor,
-                    foregroundColor: AppTheme.textWhite,
+            builder:
+                (ctx) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Text('VERIFICAR RED Y REINTENTAR'),
+                  title: const Row(
+                    children: [
+                      Icon(Icons.wifi_off, color: AppTheme.statusRed, size: 28),
+                      SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          'Cierre de Jornada Requerido',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Text(
+                    'Tienes $_pendientesCount ${_pendientesCount == 1 ? "operación guardada" : "operaciones guardadas"} en el teléfono. Conéctate a la red del negocio o activa tus datos para enviarlas a Microsip y cerrar tu día de forma segura.',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text(
+                        'CANCELAR',
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _handleSync();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accentColor,
+                        foregroundColor: AppTheme.textWhite,
+                      ),
+                      child: const Text('VERIFICAR RED Y REINTENTAR'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
           setState(() => _isClosing = false);
         }

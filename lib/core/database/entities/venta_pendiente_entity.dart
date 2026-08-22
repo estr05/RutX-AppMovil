@@ -102,7 +102,6 @@ class VentaPendiente {
   /// (Storage:FotosPath), dejando la referencia en `DOCTOS_PV.DESCRIPCION`
   /// (segmento FOTO:).
 
-
   /// Convierte a JSON para enviar al endpoint /api/v1/pv/noventa
   Map<String, dynamic> toNoVentaJson() {
     final detalle = detalles.isNotEmpty ? detalles.first : {};

@@ -5,6 +5,7 @@ import '../../../../features/catalog/presentation/widgets/cliente_detalle_modal.
 import '../../../../shared/widgets/feedback_utils.dart';
 import '../../../../features/sales/presentation/pages/nueva_venta_page.dart';
 import '../../../../features/sales/presentation/pages/no_venta_page.dart';
+
 class ProximoClienteCard extends StatelessWidget {
   final Map<String, dynamic>? clienteMap;
 
@@ -37,9 +38,7 @@ class ProximoClienteCard extends StatelessWidget {
             Navigator.pop(context);
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => NoVentaPage(cliente: cliente),
-              ),
+              MaterialPageRoute(builder: (_) => NoVentaPage(cliente: cliente)),
             );
           },
         );

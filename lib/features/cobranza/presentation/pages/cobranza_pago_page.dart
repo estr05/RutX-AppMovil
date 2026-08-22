@@ -183,7 +183,10 @@ class _CobranzaPagoPageState extends State<CobranzaPagoPage> {
     } catch (e) {
       if (mounted) {
         debugPrint('[Cobranza] Error técnico: $e');
-        showErrorMessage(context, 'No se pudo registrar el cobro. Intenta de nuevo o guárdalo offline.');
+        showErrorMessage(
+          context,
+          'No se pudo registrar el cobro. Intenta de nuevo o guárdalo offline.',
+        );
         setState(() => _isSubmitting = false);
       }
     }

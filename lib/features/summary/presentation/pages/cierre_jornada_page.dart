@@ -280,7 +280,7 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
                 formatter.format(cobros),
                 Icons.monetization_on,
               ),
-/*
+              /*
               _buildRowItem(
                 'Total Credito',
                 formatter.format(totalCredito),
