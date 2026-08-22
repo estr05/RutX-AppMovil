@@ -51,20 +51,22 @@ class _VentasListPageState extends State<VentasListPage> {
   }
 
   Future<void> _handleRefresh() async {
-    if (ConnectionStateService().currentState == RutxConnectionState.connected) {
+    if (ConnectionStateService().currentState ==
+        RutxConnectionState.connected) {
       final result = await SalesRepository().syncPendingSales();
       if (mounted) {
         if (result is SyncSuccess) {
           showSuccess(context, 'Sincronización completada');
         } else if (result is SyncFailure) {
-          final friendlyMessage = ErrorUtils.getFriendlyErrorMessage(result.mensaje);
+          final friendlyMessage = ErrorUtils.getFriendlyErrorMessage(
+            result.mensaje,
+          );
           showErrorMessage(context, friendlyMessage);
         }
       }
     }
     await _loadVentas();
   }
-
 
   @override
   Widget build(BuildContext context) {

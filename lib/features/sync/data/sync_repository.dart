@@ -139,7 +139,11 @@ class SyncRepository {
                 .toList()
             : const [
               FormaCobro(formaCobroId: 67, nombre: 'EFECTIVO', tipo: 'C'),
-              FormaCobro(formaCobroId: 71, nombre: 'CREDITO 15 DIAS', tipo: 'R'),
+              FormaCobro(
+                formaCobroId: 71,
+                nombre: 'CREDITO 15 DIAS',
+                tipo: 'R',
+              ),
             ];
 
     return DatosServidor(

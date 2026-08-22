@@ -528,7 +528,8 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children:
                       _alphabet.map((letter) {
-                        bool isSelected = _isDragging && _currentLetter == letter;
+                        bool isSelected =
+                            _isDragging && _currentLetter == letter;
                         return Text(
                           letter,
                           style: TextStyle(

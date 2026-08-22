@@ -9,10 +9,7 @@ class AuthRepository {
   final Dio _dio = DioClient().dio;
   final LocalStorage _localStorage = LocalStorage();
 
-  Future<AppError?> login(
-    String username,
-    String password,
-  ) async {
+  Future<AppError?> login(String username, String password) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
       return AppError(
         mensajeUsuario:

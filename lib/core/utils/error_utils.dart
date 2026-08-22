@@ -1,9 +1,10 @@
-﻿class ErrorUtils {
+class ErrorUtils {
   static String getFriendlyErrorMessage(String technicalError) {
     if (technicalError.contains("API ERROR [401]")) {
       return "Tu sesión ha caducado. Inicia sesión de nuevo.";
     } else if (technicalError.contains("NETWORK ERROR") ||
-        technicalError.contains("Sin conexión") || technicalError.contains("network is unreachable")) {
+        technicalError.contains("Sin conexión") ||
+        technicalError.contains("network is unreachable")) {
       return "Guardado localmente. Se enviará automáticamente cuando recuperes la conexión.";
     } else if (technicalError.contains("API ERROR")) {
       final backendDetail = technicalError.replaceFirst("API ERROR", "").trim();

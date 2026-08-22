@@ -47,7 +47,6 @@ class _NoVentaPageState extends State<NoVentaPage> {
     _loadCausas();
   }
 
-
   Future<void> _loadCausas() async {
     final db = AppDatabase();
     await db.initialize();
@@ -72,7 +71,8 @@ class _NoVentaPageState extends State<NoVentaPage> {
         source: ImageSource.camera,
         maxWidth: 1024,
         maxHeight: 1024,
-        imageQuality: 70, // Reducir dimensiones y compresión para ~150KB por foto
+        imageQuality:
+            70, // Reducir dimensiones y compresión para ~150KB por foto
       );
       if (photo != null) {
         // image_picker guarda en la caché del sistema (se puede borrar en
@@ -114,9 +114,12 @@ class _NoVentaPageState extends State<NoVentaPage> {
       showErrorMessage(context, 'Es obligatorio adjuntar una fotografía');
       return;
     }
-    
+
     if (!File(_imagePath!).existsSync()) {
-      showErrorMessage(context, 'La foto ya no está disponible. Vuelve a tomarla.');
+      showErrorMessage(
+        context,
+        'La foto ya no está disponible. Vuelve a tomarla.',
+      );
       return;
     }
 
@@ -128,7 +131,10 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final vendedorId = await localStorage.getVendedorId();
     if (vendedorId == null) {
       if (mounted) {
-        showErrorMessage(context, 'Sesión inválida. Por favor reinicia la app.');
+        showErrorMessage(
+          context,
+          'Sesión inválida. Por favor reinicia la app.',
+        );
         setState(() => _isSaving = false);
       }
       return;
@@ -168,14 +174,23 @@ class _NoVentaPageState extends State<NoVentaPage> {
 
     if (mounted) {
       if (syncResult == null || syncResult['error'] == 'save_failed') {
-        showErrorMessage(context, 'No se pudo guardar la visita. Intenta de nuevo.');
+        showErrorMessage(
+          context,
+          'No se pudo guardar la visita. Intenta de nuevo.',
+        );
         setState(() => _isSaving = false);
         return;
       }
       if (syncResult['success'] == true) {
-        showSuccess(context, 'Visita y evidencia registradas y sincronizadas con éxito');
+        showSuccess(
+          context,
+          'Visita y evidencia registradas y sincronizadas con éxito',
+        );
       } else {
-        showSuccess(context, 'Visita guardada localmente. Se enviará al conectarse.');
+        showSuccess(
+          context,
+          'Visita guardada localmente. Se enviará al conectarse.',
+        );
       }
       Navigator.of(context).pop();
     }
@@ -185,10 +200,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: const RutxAppBar(
-        title: 'No Venta',
-        showBackButton: true,
-      ),
+      appBar: const RutxAppBar(title: 'No Venta', showBackButton: true),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -412,22 +424,23 @@ class _NoVentaPageState extends State<NoVentaPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: _isSaving
-                            ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppTheme.textWhite,
-                              ),
-                            )
-                            : const Text(
-                              'GUARDAR',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                        child:
+                            _isSaving
+                                ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.textWhite,
+                                  ),
+                                )
+                                : const Text(
+                                  'GUARDAR',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                       ),
                     ),
                     const SizedBox(height: 40),

@@ -27,7 +27,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late int _selectedIndex;
-  
+
   // Historial de pestañas visitadas para navegar hacia atrás
   final List<int> _tabHistory = [0];
 
@@ -837,7 +837,8 @@ class _HomePageState extends State<HomePage> {
         // 2. Estamos en Inicio con historial vacío → lógica de doble toque
         final ahora = DateTime.now();
         if (_lastBackPressTime == null ||
-            ahora.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+            ahora.difference(_lastBackPressTime!) >
+                const Duration(seconds: 2)) {
           _lastBackPressTime = ahora;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -864,49 +865,50 @@ class _HomePageState extends State<HomePage> {
                 _selectedIndex = index;
               }
             });
-          _loadDashboardStats();
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppTheme.primaryColor,
-        selectedItemColor: AppTheme.accentColor,
-        unselectedItemColor: AppTheme.secondaryColor,
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Inicio',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            label: 'Clientes',
-          ),
-          BottomNavigationBarItem(
-            icon: Container(
-              margin: const EdgeInsets.only(bottom: 4),
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: AppTheme.accentColor,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.shopping_cart_outlined,
-                color: AppTheme.textWhite,
-                size: 20,
-              ),
+            _loadDashboardStats();
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppTheme.primaryColor,
+          selectedItemColor: AppTheme.accentColor,
+          unselectedItemColor: AppTheme.secondaryColor,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              label: 'Inicio',
             ),
-            label: 'Vender',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Ventas',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'Más',
-          ),
-        ],
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.people_outline),
+              label: 'Clientes',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                margin: const EdgeInsets.only(bottom: 4),
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppTheme.accentColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppTheme.textWhite,
+                  size: 20,
+                ),
+              ),
+              label: 'Vender',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long_outlined),
+              label: 'Ventas',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.more_horiz),
+              label: 'Más',
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
