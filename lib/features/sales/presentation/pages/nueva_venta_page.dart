@@ -760,7 +760,8 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                 ),
                                                 const SizedBox(height: 4),
                                                 StockLabel(
-                                                  existencias: p.existencias,
+                                                  existencias:
+                                                      p.existencias - count,
                                                 ),
                                               ],
                                             ),
@@ -1004,10 +1005,10 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   ),
                                                   const SizedBox(height: 4),
                                                   StockLabel(
-                                                    existencias:
-                                                        prod.existencias,
-                                                    showIcon: false,
-                                                  ),
+                                                   existencias:
+                                                       prod.existencias - qty,
+                                                   showIcon: false,
+                                                 ),
                                                 ],
                                               ),
                                             ),
