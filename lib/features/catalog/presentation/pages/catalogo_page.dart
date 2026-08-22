@@ -422,6 +422,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
             const SizedBox(width: 16),
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -473,6 +474,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
             ),
             const SizedBox(width: 8),
             Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
