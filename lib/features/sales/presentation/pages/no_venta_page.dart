@@ -30,7 +30,6 @@ class _NoVentaPageState extends State<NoVentaPage> {
   List<CausaNoVenta> _causas = [];
   CausaNoVenta? _selectedCausa;
   String? _imagePath;
-  String _folio = '';
 
   /// Fecha y hora en que se registra la no venta (se muestra al usuario
   /// y es la que se guarda, para que coincida con el resumen).
@@ -45,15 +44,9 @@ class _NoVentaPageState extends State<NoVentaPage> {
   @override
   void initState() {
     super.initState();
-    _generateFolio();
     _loadCausas();
   }
 
-  void _generateFolio() {
-    // Generate a local folio format like PNB + Random 6 digits or timestamp
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    _folio = 'PNB${timestamp.substring(timestamp.length - 6)}';
-  }
 
   Future<void> _loadCausas() async {
     final db = AppDatabase();
@@ -121,13 +114,25 @@ class _NoVentaPageState extends State<NoVentaPage> {
       showErrorMessage(context, 'Es obligatorio adjuntar una fotografía');
       return;
     }
+    
+    if (!File(_imagePath!).existsSync()) {
+      showErrorMessage(context, 'La foto ya no está disponible. Vuelve a tomarla.');
+      return;
+    }
 
     setState(() => _isSaving = true);
 
     final now = _fechaHora.toIso8601String();
 
     final localStorage = LocalStorage();
-    final vendedorId = await localStorage.getVendedorId() ?? 1;
+    final vendedorId = await localStorage.getVendedorId();
+    if (vendedorId == null) {
+      if (mounted) {
+        showErrorMessage(context, 'Sesión inválida. Por favor reinicia la app.');
+        setState(() => _isSaving = false);
+      }
+      return;
+    }
     final cajeroId = await localStorage.getCajeroId();
     final cajaId = await localStorage.getCajaId();
     final almacenId = await localStorage.getAlmacenId();
@@ -142,7 +147,7 @@ class _NoVentaPageState extends State<NoVentaPage> {
       fechaHora: now,
       estado: 'no_venta',
       total: 0.0,
-      folio: _folio,
+      folio: '',
       cajaId: cajaId,
       cajeroId: cajeroId,
       almacenId: almacenId,
@@ -162,10 +167,15 @@ class _NoVentaPageState extends State<NoVentaPage> {
     final syncResult = await salesRepository.saveAndSyncSale(noVenta);
 
     if (mounted) {
-      if (syncResult?['success'] == true) {
+      if (syncResult == null || syncResult['error'] == 'save_failed') {
+        showErrorMessage(context, 'No se pudo guardar la visita. Intenta de nuevo.');
+        setState(() => _isSaving = false);
+        return;
+      }
+      if (syncResult['success'] == true) {
         showSuccess(context, 'Visita y evidencia registradas y sincronizadas con éxito');
       } else {
-        showInfo(context, 'Visita y evidencia guardadas localmente');
+        showSuccess(context, 'Visita guardada localmente. Se enviará al conectarse.');
       }
       Navigator.of(context).pop();
     }

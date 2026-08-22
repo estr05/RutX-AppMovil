@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/entities/venta_pendiente_entity.dart';
@@ -27,7 +29,8 @@ class SalesRepository {
         venta.cajeroId ?? 0,
       );
       return venta.copyWith(folioLocal: folioLocal);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[FolioLocal] Error al generar folio provisional: $e');
       return venta;
     }
   }
@@ -66,7 +69,11 @@ class SalesRepository {
 
       if (ConnectionStateService().currentState ==
           RutxConnectionState.offline) {
-        return {'success': false, 'folio_local': conFolio.folioLocal};
+        await ConnectionStateService().forceCheck();
+        if (ConnectionStateService().currentState ==
+            RutxConnectionState.offline) {
+          return {'success': false, 'folio_local': conFolio.folioLocal};
+        }
       }
 
       final result = await uploadOne(conFolio.ventaMovilId);
@@ -81,13 +88,17 @@ class SalesRepository {
       }
       return {'success': false, 'folio_local': conFolio.folioLocal};
     } catch (e) {
-      return null;
+      debugPrint('[saveAndSyncSale] Error crítico: $e');
+      return {'success': false, 'error': 'save_failed', 'mensaje': e.toString()};
     }
   }
 
   Future<Map<String, dynamic>> uploadOne(String ventaMovilId) async {
     if (ConnectionStateService().currentState == RutxConnectionState.offline) {
-      return {'success': false, 'error': 'offline'};
+      await ConnectionStateService().forceCheck();
+      if (ConnectionStateService().currentState == RutxConnectionState.offline) {
+        return {'success': false, 'error': 'offline'};
+      }
     }
     try {
       final db = AppDatabase();
@@ -213,7 +224,7 @@ class SalesRepository {
     final lower = error.toLowerCase();
     if (lower.contains('connection') ||
         lower.contains('timeout') ||
-        lower.contains('sockete') ||
+        lower.contains('socket') ||
         lower.contains('network is unreachable') ||
         error == 'Error desconocido') {
       return true;
@@ -274,14 +285,22 @@ class SalesRepository {
       // no venta se registra igual.
       final detalle = v.detalles.isNotEmpty ? v.detalles.first : {};
       final fotoPath = detalle['foto_path'] as String?;
+      final tieneFotoValida = fotoPath != null &&
+          fotoPath.isNotEmpty &&
+          File(fotoPath).existsSync() &&
+          File(fotoPath).lengthSync() > 100;
+
+      if (fotoPath != null && fotoPath.isNotEmpty && !tieneFotoValida) {
+        debugPrint('[NoVenta] Advertencia: Archivo de foto no existe o está vacío en ruta: $fotoPath');
+      }
+
       final formData = FormData.fromMap({
-        ...v.toNoVentaFields(),
-        if (fotoPath != null &&
-            fotoPath.isNotEmpty &&
-            File(fotoPath).existsSync())
+        'payload': jsonEncode(v.toNoVentaJson()),
+        if (tieneFotoValida)
           'foto': await MultipartFile.fromFile(
-            fotoPath,
+            fotoPath!,
             filename: '${v.ventaMovilId}.jpg',
+            contentType: DioMediaType('image', 'jpeg'),
           ),
       });
 
@@ -338,7 +357,10 @@ class SalesRepository {
           'folio': data['folio'],
         };
       }
-      return null;
+      return {
+        'success': false,
+        'error': 'API ERROR [${response.statusCode}]: Respuesta inesperada del servidor',
+      };
     } on DioException catch (e) {
       String serverMsg = '';
       if (e.response?.data is Map) {
