@@ -518,25 +518,29 @@ class _CatalogoPageState extends State<CatalogoPage> {
             onVerticalDragCancel: () => setState(() => _isDragging = false),
             child: Container(
               width: 32,
+              height: constraints.maxHeight,
               color: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:
-                    _alphabet.map((letter) {
-                      bool isSelected = _isDragging && _currentLetter == letter;
-                      return Text(
-                        letter,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.w500,
-                          color:
-                              isSelected
-                                  ? AppTheme.accentColor
-                                  : AppTheme.textSecondary,
-                        ),
-                      );
-                    }).toList(),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children:
+                      _alphabet.map((letter) {
+                        bool isSelected = _isDragging && _currentLetter == letter;
+                        return Text(
+                          letter,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight:
+                                isSelected ? FontWeight.bold : FontWeight.w500,
+                            color:
+                                isSelected
+                                    ? AppTheme.accentColor
+                                    : AppTheme.textSecondary,
+                          ),
+                        );
+                      }).toList(),
+                ),
               ),
             ),
           );
