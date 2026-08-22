@@ -187,11 +187,11 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   Widget _buildLetterIndicatorOverlay() {
     return Center(
       child: Container(
-        width: 70,
-        height: 70,
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
-          color: AppTheme.accentColor.withValues(alpha: 0.9),
-          shape: BoxShape.circle,
+          color: AppTheme.primaryColor.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
