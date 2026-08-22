@@ -29,6 +29,12 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     with SingleTickerProviderStateMixin, ConnectivityMixin {
   final SalesRepository _salesRepository = SalesRepository();
   late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
+  final List<String> _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  final Map<String, int> _letterIndices = {};
+  String _currentLetter = '';
+  bool _isDragging = false;
+
   String _searchQuery = '';
   List<Producto> _productos = [];
   final Map<int, int> _cart = {};
@@ -54,6 +60,7 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
     await db.initialize();
     // Carga perezosa: primeros 100 productos
     final list = await db.productDao.getFirst(100);
+    list.sort((a, b) => a.nombre.compareTo(b.nombre));
 
     // Cargar catálogo dinámico de Formas de Cobro desde SQLite
     final formas = await db.formaCobroDao.getAll();
@@ -76,16 +83,140 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     disposeConnectivity();
     _tabController.dispose();
     super.dispose();
   }
 
+  void _calculateLetterIndices(List<Producto> filteredList) {
+    _letterIndices.clear();
+    for (int i = 0; i < filteredList.length; i++) {
+      String firstLetter =
+          filteredList[i].nombre.isNotEmpty
+              ? filteredList[i].nombre[0].toUpperCase()
+              : '';
+      if (firstLetter.isNotEmpty && !_letterIndices.containsKey(firstLetter)) {
+        _letterIndices[firstLetter] = i;
+      }
+    }
+  }
+
+  void _scrollToLetter(String letter) {
+    if (_letterIndices.containsKey(letter)) {
+      int index = _letterIndices[letter]!;
+      double offset = index * 90.0;
+
+      if (_scrollController.hasClients) {
+        if (offset > _scrollController.position.maxScrollExtent) {
+          offset = _scrollController.position.maxScrollExtent;
+        }
+        _scrollController.jumpTo(offset);
+      }
+    }
+  }
+
+  void _handleSliderDrag(double dy, double maxHeight) {
+    if (maxHeight <= 0) return;
+    int index = ((dy / maxHeight) * _alphabet.length).floor();
+    index = index.clamp(0, _alphabet.length - 1);
+    String letter = _alphabet[index];
+
+    if (_currentLetter != letter || !_isDragging) {
+      setState(() {
+        _currentLetter = letter;
+        _isDragging = true;
+      });
+      _scrollToLetter(letter);
+    }
+  }
+
+  Widget _buildAlphabetSidebar() {
+    return Positioned(
+      right: 0,
+      top: 0,
+      bottom: 0,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return GestureDetector(
+            onVerticalDragDown:
+                (d) => _handleSliderDrag(
+                  d.localPosition.dy,
+                  constraints.maxHeight,
+                ),
+            onVerticalDragUpdate:
+                (d) => _handleSliderDrag(
+                  d.localPosition.dy,
+                  constraints.maxHeight,
+                ),
+            onVerticalDragEnd: (_) => setState(() => _isDragging = false),
+            onVerticalDragCancel: () => setState(() => _isDragging = false),
+            child: Container(
+              width: 32,
+              color: Colors.transparent,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children:
+                    _alphabet.map((letter) {
+                      bool isSelected = _isDragging && _currentLetter == letter;
+                      return Text(
+                        letter,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w500,
+                          color:
+                              isSelected
+                                  ? AppTheme.accentColor
+                                  : AppTheme.textSecondary,
+                        ),
+                      );
+                    }).toList(),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLetterIndicatorOverlay() {
+    return Center(
+      child: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          color: AppTheme.accentColor.withValues(alpha: 0.9),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text(
+            _currentLetter,
+            style: const TextStyle(
+              color: AppTheme.textWhite,
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Producto> _getFilteredProducts() {
-    return _productos.where((p) {
+    final list = _productos.where((p) {
       return p.nombre.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           p.clave.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
+    _calculateLetterIndices(list);
+    return list;
   }
 
   Producto? _findProduct(int id) {
@@ -704,14 +835,19 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                   ),
                                 ),
                               )
-                              : ListView.builder(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                itemCount: filteredProducts.length,
-                                addRepaintBoundaries: true,
-                                addAutomaticKeepAlives: false,
-                                itemBuilder: (context, index) {
+                              : Stack(
+                                children: [
+                                  ListView.builder(
+                                    controller: _scrollController,
+                                    padding: const EdgeInsets.only(
+                                      left: 16,
+                                      right: 40,
+                                      bottom: 16,
+                                    ),
+                                    itemCount: filteredProducts.length,
+                                    addRepaintBoundaries: true,
+                                    addAutomaticKeepAlives: false,
+                                    itemBuilder: (context, index) {
                                   final p = filteredProducts[index];
                                   final count = _cart[p.articuloId] ?? 0;
                                   final hasQty = count > 0;
@@ -760,7 +896,8 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                 ),
                                                 const SizedBox(height: 4),
                                                 StockLabel(
-                                                  existencias: p.existencias,
+                                                  existencias:
+                                                      p.existencias - count,
                                                 ),
                                               ],
                                             ),
@@ -886,6 +1023,12 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                   );
                                 },
                               ),
+                                  if (MediaQuery.of(context).viewInsets.bottom == 0)
+                                    _buildAlphabetSidebar(),
+                                  if (_isDragging && _currentLetter.isNotEmpty)
+                                    _buildLetterIndicatorOverlay(),
+                                ],
+                              ),
                     ),
                   ],
                 ),
@@ -1004,10 +1147,10 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
                                                   ),
                                                   const SizedBox(height: 4),
                                                   StockLabel(
-                                                    existencias:
-                                                        prod.existencias,
-                                                    showIcon: false,
-                                                  ),
+                                                   existencias:
+                                                       prod.existencias - qty,
+                                                   showIcon: false,
+                                                 ),
                                                 ],
                                               ),
                                             ),
