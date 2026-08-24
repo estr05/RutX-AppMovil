@@ -254,3 +254,29 @@ usa la carpeta `Integracion/` del repo del sincronizador
 
 ## Licencia
 Propietario â€” Teknologix / RUTX
+
+---
+
+## Build de producción (Cloudflare Tunnel)
+
+La app tiene dos modos, decididos en **tiempo de compilación**:
+
+| Compilación | URL efectiva | Fallback |
+|---|---|---|
+| `flutter run` / `flutter build apk --release` (sin define) | `http://100.71.116.89:5047` (Tailscale) con respaldo LAN | sí (dev) |
+| `flutter build apk --release --dart-define=API_BASE_URL=https://sync.<cliente>.com` | hostname público HTTPS del túnel | **ninguno** |
+
+Reglas del modo producción (`API_BASE_URL` presente):
+
+* Solo se acepta `https://` — la compilación falla al arrancar con otro valor.
+* ÚNICA URL: no hay reintento contra IPs privadas (LAN/Tailscale quedan fuera).
+* El estado de conexión se valida sondeando `/health` por HTTPS
+  (los sockets TCP crudos no distinguen edge caído de origen caído).
+
+El hostname se publica con Cloudflare Tunnel desde el sincronizador;
+procedimiento completo y delegación GoDaddy ? Cloudflare en el repo del
+sincronizador: `Deploy/Cloudflare/README.md`.
+
+> Nota de alcance: la URL se fija SOLO al compilar. El cambio dinámico de
+> servidor desde la app (Más ? Configuración) es una fase posterior y exige
+> rediseñar el reinicio de DioClient, ConnectionStateService, sesión y SQLite.

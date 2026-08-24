@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 
@@ -74,6 +75,14 @@ class ConnectionStateService {
   Future<void> _checkActualConnection() async {
     _updateState(RutxConnectionState.connecting);
 
+    // Producción (Cloudflare Tunnel): los sockets TCP crudos no validan el
+    // borde — cloudflared acepta la conexión aunque el origen esté caído.
+    // Se consulta /health con un Dio ligero, sin interceptores ni fallback.
+    if (ApiConstants.isProductionEndpoint) {
+      await _probeHealthProduccion();
+      return;
+    }
+
     try {
       final List<String> allUrls = [
         ApiConstants.empresaUrl,
@@ -104,6 +113,32 @@ class ConnectionStateService {
       } else {
         _updateState(RutxConnectionState.offline);
       }
+    } catch (_) {
+      _updateState(RutxConnectionState.offline);
+    }
+  }
+
+  /// Sondeo ligero contra /health cuando la app apunta al túnel público.
+  ///
+  /// Usa una instancia propia de Dio (sin interceptores ni fallback) con
+  /// timeouts cortos: cualquier fallo (DNS, TLS, edge u origen caído) se
+  /// interpreta como servidor no disponible, nunca como sesión inválida.
+  Future<void> _probeHealthProduccion() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+      final respuesta = await dio.get<dynamic>(
+        '${ApiConstants.baseUrl}/health',
+      );
+      _updateState(
+        respuesta.statusCode == 200
+            ? RutxConnectionState.connected
+            : RutxConnectionState.offline,
+      );
     } catch (_) {
       _updateState(RutxConnectionState.offline);
     }

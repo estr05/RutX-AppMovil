@@ -1,67 +1,73 @@
 import 'package:flutter/foundation.dart';
 
+/// Constantes de conexión al Sincronizador.
+///
+/// DOS MODOS EXCLUYENTES, decididos en TIEMPO DE COMPILACIÓN:
+///  - Sin `--dart-define=API_BASE_URL` => desarrollo: HTTP directo por
+///    LAN/Tailscale al :5047 (comportamiento histórico intacto).
+///  - Con `--dart-define=API_BASE_URL=https://sync.<cliente>.com`
+///    => producción vía Cloudflare Tunnel: HTTPS obligatorio y ÚNICA URL,
+///       sin fallback a IPs privadas (ver DioClient.fallbackCandidates y
+///       ConnectionStateService._probeHealthProduccion).
 class ApiConstants {
-  /// Puerto del sincronizador
+  ApiConstants._();
+
+  /// Puerto del sincronizador en modo desarrollo.
+  ///
+  /// En producción cloudflared apunta al listener loopback :5048 del
+  /// sincronizador; la app nunca conoce ese puerto: solo ve el hostname
+  /// público HTTPS resuelto por Cloudflare.
   static const int port = 5047;
 
-  /// IP del PC en la red WiFi local
+  /// IP del PC en la red WiFi local (modo desarrollo).
   static const String _empresaIp = '192.168.1.68';
 
-  /// IP de Tailscale del PC donde corre el sincronizador
+  /// IP de Tailscale del PC donde corre el sincronizador (modo desarrollo).
   static const String _tailscaleCasaIp = '100.71.116.89';
 
   static String get scheme => 'http';
 
-  /// URL para red local
+  /// Valor inyectado en compilación (--dart-define=API_BASE_URL=...).
+  static const String _envBaseUrl = String.fromEnvironment('API_BASE_URL');
+
+  /// true si esta APK fue compilada para el túnel público (producción).
+  static bool get isProductionEndpoint => _envBaseUrl.trim().isNotEmpty;
+
+  /// URL para red local (modo desarrollo)
   static String get empresaUrl => '$scheme://$_empresaIp:$port';
 
-  /// URL por Tailscale (cualquier red con VPN activa)
+  /// URL por Tailscale, cualquier red con VPN activa (modo desarrollo)
   static String get tailscaleCasaUrl => '$scheme://$_tailscaleCasaIp:$port';
 
-  /// URL por defecto: Tailscale (donde corre el sincronizador).
-  /// Si no responde, DioClient intenta la LAN local y
-  /// memoriza la primera que funcione.
-  static String get baseUrl => tailscaleCasaUrl;
-}
+  /// Resuelve la URL base efectiva a partir del valor compilado.
+  ///
+  /// - Vacío/ausente: comportamiento histórico (Tailscale por defecto;
+  ///   DioClient puede memorizar la LAN si Tailscale no responde).
+  /// - Con valor: debe iniciar con `https://` — el túnel es el único punto
+  ///   TLS; se recorta cualquier `/` final.
+  ///
+  /// Lanza [ArgumentError] si se compila con un valor que no sea HTTPS:
+  /// mejor fallar al arrancar que enviar credenciales JWT en claro.
+  @visibleForTesting
+  static String resolveBaseUrl(String envUrl) {
+    final url = envUrl.trim();
+    if (url.isEmpty) {
+      // Modo desarrollo: Tailscale primero; el fallback de DioClient
+      // prueba la LAN local y memoriza la que funcione.
+      return tailscaleCasaUrl;
+    }
+    final normalizada =
+        url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    if (!normalizada.toLowerCase().startsWith('https://')) {
+      throw ArgumentError.value(
+        url,
+        'API_BASE_URL',
+        'En producción la API solo se consume por HTTPS (Cloudflare Tunnel)',
+      );
+    }
+    return normalizada;
+  }
 
-// ============================================================================
-// PRODUCCION (Cloudflare Tunnel) - FEATURE FLAG COMENTADO
-// ----------------------------------------------------------------------------
-// Pendiente de investigación de Cloudflare Tunnel. Cuando se active, el
-// sincronizador se expone via `cloudflared` con un hostname público fijo
-// y HTTPS, por ejemplo: https://sync.rutx.com
-//
-// PARA ACTIVAR:
-//   1. Instalar/ejecutar cloudflared en la PC del sincronizador y crear el
-//      tunnel apuntando a http://localhost:5047
-//   2. En este archivo, descomentar el bloque PRODUCCION y comentar la
-//      URL por defecto de abajo.
-//   3. Compilar el APK de producción:
-//        flutter build apk --dart-define=API_BASE_URL=https://sync.rutx.com
-//
-// CONFIGURACION DE cloudflared (config.yml de ejemplo):
-//   tunnel: <TU_TUNNEL_ID>
-//   credentials-file: C:\Users\<user>\.cloudflared\<TU_TUNNEL_ID>.json
-//   ingress:
-//     - hostname: sync.rutx.com
-//       service: http://localhost:5047
-//     - service: http_status:404
-// ============================================================================
-// class ApiConstants {
-//   /// URL pública del sincronizador vía Cloudflare Tunnel (producción).
-//   /// Se define en tiempo de compilación con --dart-define.
-//   static const String baseUrl = String.fromEnvironment(
-//     'API_BASE_URL',
-//     defaultValue: 'https://sync.rutx.com',
-//   );
-// }
-// ============================================================================
-// // Nota: si se desea soportar fallback (producción -> Tailscale -> LAN),
-// // conservar los bloques anteriores y hacer que baseUrl lea primero el
-// // dart-define. Ejemplo con fallback por orden de preferencia:
-// static String get baseUrl {
-//   const String fromEnv = String.fromEnvironment('API_BASE_URL');
-//   if (fromEnv.isNotEmpty) return fromEnv;
-//   return tailscaleCasaUrl; // o empresaUrl como respaldo
-// }
-// ============================================================================
+  /// URL base efectiva de esta compilación.
+  static String get baseUrl => resolveBaseUrl(_envBaseUrl);
+}

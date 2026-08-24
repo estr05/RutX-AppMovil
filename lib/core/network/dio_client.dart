@@ -46,17 +46,38 @@ class DioClient {
         err.type == DioExceptionType.connectionError;
   }
 
+  /// Candidatos de respaldo SOLO para modo desarrollo (LAN/Tailscale).
+  ///
+  /// En producción (compilada con API_BASE_URL https) devuelve vacío:
+  /// el túnel es la única ruta; JAMÁS se reintenta contra IPs privadas.
+  @visibleForTesting
+  static List<String> fallbackCandidates({
+    bool esProduccion = false,
+    String? urlFallada,
+  }) {
+    if (esProduccion || (urlFallada?.startsWith('https') ?? false)) {
+      return const <String>[];
+    }
+    return <String>[
+      ApiConstants.empresaUrl,
+      ApiConstants.tailscaleCasaUrl,
+    ].where((url) => url != urlFallada).toList();
+  }
+
   InterceptorsWrapper _fallbackInterceptor() => InterceptorsWrapper(
     onError: (DioException error, ErrorInterceptorHandler handler) async {
-      if (_isNetworkError(error)) {
-        final List<String> allUrls = [
-          ApiConstants.empresaUrl,
-          ApiConstants.tailscaleCasaUrl,
-        ];
+      // Producción (Cloudflare Tunnel): sin fallback. El error se propaga
+      // tal cual para que la UI refleje el estado de conexión real.
+      if (ApiConstants.isProductionEndpoint ||
+          error.requestOptions.baseUrl.startsWith('https')) {
+        return handler.next(error);
+      }
 
-        // Intentar con todas las IPs excepto la que acaba de fallar
-        final failedUrl = error.requestOptions.baseUrl;
-        final urlsToTry = allUrls.where((url) => url != failedUrl).toList();
+      if (_isNetworkError(error)) {
+        // Candidatos ya sin la URL que acaba de fallar (y vacíos en producción)
+        final List<String> urlsToTry = fallbackCandidates(
+          urlFallada: error.requestOptions.baseUrl,
+        );
 
         for (int i = 0; i < urlsToTry.length; i++) {
           String nextUrl = urlsToTry[i];
