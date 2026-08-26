@@ -5,6 +5,7 @@ import '../../data/summary_repository.dart';
 import '../../../../shared/widgets/rutx_app_bar.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/storage/local_storage.dart';
+import '../../../../shared/widgets/feedback_utils.dart';
 
 class CierreJornadaPage extends StatefulWidget {
   final int vendedorId;
@@ -149,15 +150,22 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
               ),
             ),
             const SizedBox(height: 32),
-            // Solo mostrar el botón de cierre local si no hay conexión
             if (isSinConexion) ...[
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: widget.onConfirmar,
+                  onPressed: () {
+                    // TODO(PRE-PRODUCCION): Habilitar cierre offline cuando
+                    // el servidor de acepte transacciones offline pendientes.
+                    showWarning(
+                      context,
+                      'Sin conexión. Conéctate a la red del negocio para cerrar tu jornada.',
+                      title: 'Conexión requerida',
+                    );
+                  },
                   icon: const Icon(Icons.lock_rounded, color: Colors.white),
                   label: const Text(
-                    'Cerrar jornada sin conexion',
+                    'Cerrar jornada sin conexión',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -178,9 +186,6 @@ class _CierreJornadaPageState extends State<CierreJornadaPage> {
             // Botón Reintentar siempre visible
             TextButton.icon(
               onPressed: () async {
-                if (_errorMessage.contains('ya fue cerrada')) {
-                  await LocalStorage().clearDiaCerrado();
-                }
                 if (mounted) {
                   setState(() => _isLoading = true);
                   _fetchSummary();

@@ -64,6 +64,37 @@ class _EndOfDaySplashPageState extends State<EndOfDaySplashPage> {
                 color: AppTheme.surfaceColor.withOpacity(0.85),
               ),
             ),
+            const SizedBox(height: 40),
+            // TODO(PRE-PRODUCCION): ELIMINAR este botón de prueba antes de
+            // pasar a producción. Solo sirve para testing de cierre de jornada.
+            SizedBox(
+              width: 220,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (route) => false,
+                  );
+                },
+                icon: const Icon(Icons.login, color: Colors.white),
+                label: const Text(
+                  'PRUEBA: Iniciar sesión de nuevo',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white24,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

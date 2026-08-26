@@ -16,6 +16,7 @@ import '../../../../core/network/connection_state_service.dart';
 import '../../../../core/network/sync_result.dart';
 import '../../../sync/presentation/widgets/re_descarga_sheet.dart';
 import 'cierre_jornada_page.dart';
+import '../../../../core/helpers/jornada_helper.dart';
 
 class ResumenDiaPage extends StatefulWidget {
   const ResumenDiaPage({Key? key}) : super(key: key);
@@ -134,37 +135,18 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
 
   void _handleCerrarJornada() async {
     if (_isClosing) return;
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final diaCerrado = await LocalStorage().getDiaCerrado();
-    if (diaCerrado == today) {
+
+    // Guarda: si la jornada de hoy ya fue cerrada, bloquear el flujo
+    final jornadaCerradaHoy = await JornadaHelper.jornadaCerradaHoy();
+    if (jornadaCerradaHoy) {
       if (mounted) {
-        final entrar = await showDialog<bool>(
-          context: context,
-          builder:
-              (ctx) => AlertDialog(
-                title: const Text('Jornada ya cerrada'),
-                content: const Text(
-                  'Ocurrió un problema al iniciar la jornada. Contacta a soporte.',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: const Text('Cancelar'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await LocalStorage().clearDiaCerrado();
-                      if (ctx.mounted) Navigator.pop(ctx, true);
-                    },
-                    child: const Text('Entrar de todas formas'),
-                  ),
-                ],
-              ),
+        showWarning(
+          context,
+          'La jornada de hoy ya fue cerrada. Contacta a soporte.',
+          title: 'Jornada ya cerrada',
         );
-        if (entrar != true) return;
-      } else {
-        return;
       }
+      return;
     }
     final vendedorId = await LocalStorage().getVendedorId() ?? 0;
 
@@ -267,8 +249,7 @@ class _ResumenDiaPageState extends State<ResumenDiaPage> {
       }
 
       // 3. Marcar el día como cerrado ANTES de limpiar datos
-      final today = DateTime.now().toIso8601String().substring(0, 10);
-      await LocalStorage().setDiaCerrado(today);
+      await JornadaHelper.guardarCierreJornada(DateTime.now());
 
       // 4. Ahora sí, limpiar y desloguear
       await db.limpiarDatosDelDia();

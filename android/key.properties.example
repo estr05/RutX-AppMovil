@@ -1,0 +1,18 @@
+# Plantilla de firma release de RutX movil.
+# COPIAR a android/key.properties y rellenar con valores REALES.
+# android/key.properties NUNCA se versiona (ver .gitignore).
+#
+# storeFile: ruta al keystore .jks. Puede ser relativa a android/app/
+# o absoluta; se recomienda FUERA del repo, p.ej.:
+#   C:/Users/<usuario>/keystores/rutx-<cliente>-upload.jks
+# IMPORTANTE: usar "/" (no "\"): Java Properties interpreta "\" como escape.
+storePassword=CAMBIAR_CONTRASENA_STORE
+keyAlias=CAMBIAR_ALIAS
+keyPassword=CAMBIAR_CONTRASENA_KEY
+storeFile=CAMBIAR_RUTA\rutx-cliente-upload.jks
+
+# Generacion del keystore (una vez por cliente, guardar contrasenas en
+# el gestor de secretos de la empresa, JAMAS en este repo):
+# keytool -genkeypair -v ^
+#   -keystore C:\ruta\futura\rutx-cliente-upload.jks ^
+#   -alias rutx_upload -keyalg RSA -keysize 2048 -validity 10000

@@ -16,6 +16,7 @@ import '../../../../shared/widgets/sale_utils.dart';
 import '../../../../shared/widgets/stock_label.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'venta_exitosa_page.dart';
+import '../../../../core/helpers/jornada_helper.dart';
 
 class NuevaVentaPage extends StatefulWidget {
   final Cliente cliente;
@@ -506,6 +507,17 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
 
   void _confirmSale() async {
     if (_cart.isEmpty) return;
+
+    // Guarda: si la jornada de hoy ya fue cerrada, bloquear la venta
+    if (await JornadaHelper.jornadaCerradaHoy()) {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          'La jornada de hoy ya fue cerrada. No puedes registrar más ventas.',
+        );
+      }
+      return;
+    }
 
     // Validación final de existencias: ninguna línea puede superar lo que
     // tiene el almacén, aunque el stock haya cambiado desde que se agregó.
