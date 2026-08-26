@@ -136,7 +136,11 @@ class SalesRepository {
   Future<SyncResult> syncPendingSales() async {
     if (ConnectionStateService().currentState !=
         RutxConnectionState.connected) {
-      return SyncFailure(mensaje: 'Sin conexión');
+      await ConnectionStateService().forceCheck();
+      if (ConnectionStateService().currentState !=
+          RutxConnectionState.connected) {
+        return SyncFailure(mensaje: 'Sin conexión');
+      }
     }
 
     try {
