@@ -310,7 +310,7 @@ class SalesRepository {
         'payload': jsonEncode(v.toNoVentaJson()),
         if (tieneFotoValida)
           'foto': await MultipartFile.fromFile(
-            fotoPath!,
+            fotoPath,
             filename: '${v.ventaMovilId}.jpg',
             contentType: DioMediaType('image', 'jpeg'),
           ),
