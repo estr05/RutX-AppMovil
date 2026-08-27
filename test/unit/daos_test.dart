@@ -115,7 +115,7 @@ void main() {
     tearDown(() => db.close());
 
     group('insertAll', () {
-      test('inserta múltiples clientes', () async {
+      test('inserta mÃºltiples clientes', () async {
         await dao.insertAll([
           _c(1, 'Cliente A', clave: 'C001'),
           _c(2, 'Cliente B', clave: 'C002'),
@@ -127,7 +127,7 @@ void main() {
     });
 
     group('getAll', () {
-      test('retorna lista vacía cuando no hay datos', () async {
+      test('retorna lista vacÃ­a cuando no hay datos', () async {
         final all = await dao.getAll();
         expect(all, isEmpty);
       });
@@ -170,7 +170,7 @@ void main() {
         expect(result.length, 2);
       });
 
-      test('retorna todos cuando query es vacío', () async {
+      test('retorna todos cuando query es vacÃ­o', () async {
         await dao.insertAll([_c(1, 'Uno', clave: 'C001')]);
 
         final result = await dao.search('');
@@ -179,8 +179,8 @@ void main() {
 
       test('filtra por nombre', () async {
         await dao.insertAll([
-          _c(1, 'Juan Pérez', clave: 'C001'),
-          _c(2, 'María López', clave: 'C002'),
+          _c(1, 'Juan PÃ©rez', clave: 'C001'),
+          _c(2, 'MarÃ­a LÃ³pez', clave: 'C002'),
         ]);
 
         final result = await dao.search('Juan');
@@ -194,7 +194,7 @@ void main() {
         expect(await dao.count(), 0);
       });
 
-      test('retorna el número correcto', () async {
+      test('retorna el nÃºmero correcto', () async {
         await dao.insertAll([
           _c(1, 'A', clave: 'C001'),
           _c(2, 'B', clave: 'C002'),
@@ -219,7 +219,7 @@ void main() {
         expect(remaining.first.clienteId, 2);
       });
 
-      test('no hace nada si la lista está vacía', () async {
+      test('no hace nada si la lista estÃ¡ vacÃ­a', () async {
         await dao.insertAll([_c(1, 'A', clave: 'C001')]);
         await dao.deleteByIds([]);
 
@@ -250,7 +250,7 @@ void main() {
     tearDown(() => db.close());
 
     group('insertAll', () {
-      test('inserta múltiples productos', () async {
+      test('inserta mÃºltiples productos', () async {
         await dao.insertAll([
           Producto(
             articuloId: 1,
@@ -271,7 +271,7 @@ void main() {
     });
 
     group('getFirst', () {
-      test('retorna solo el límite solicitado', () async {
+      test('retorna solo el lÃ­mite solicitado', () async {
         final productos = List.generate(
           10,
           (i) => Producto(
@@ -417,7 +417,7 @@ void main() {
       expect(all.length, 2);
     });
 
-    test('getByEstado con string vacío retorna todos', () async {
+    test('getByEstado con string vacÃ­o retorna todos', () async {
       await dao.insert(venta(id: 'VTA-001'));
 
       final all = await dao.getByEstado('');
@@ -637,4 +637,121 @@ void main() {
       expect(await dao.getPendientes(), isEmpty);
     });
   });
+
+
+  // =========================================================================
+  // TESTS: Regresión para bug ""Solo 1 cliente visible con 90+ asignados""
+  // =========================================================================
+
+  group('ClienteDao - sin límite artificial', () {
+    late Database db;
+    late ClienteDao dao;
+
+    setUp(() async {
+      db = await _openDb();
+      await db.execute(_createClientes);
+      dao = ClienteDao(db);
+    });
+
+    tearDown(() async => db.close());
+
+    test('getAll() retorna TODOS los clientes sin límite', () async {
+      final clientes = List<Cliente>.generate(
+        110,
+        (i) => Cliente(
+          clienteId: i + 1,
+          nombreCliente: 'Cliente ${i + 1}',
+          clave: 'CL${i + 1}',
+          telefono: '1234567890', poblacion: 'Test', tipoVenta: 1,
+        ),
+      );
+      await dao.insertAll(clientes);
+
+      final result = await dao.getAll();
+      expect(result.length, equals(110));
+    });
+
+    test('getFirst(100) SÍ corta en 100 — confirmando que era el bug', () async {
+      final clientes = List<Cliente>.generate(
+        110,
+        (i) => Cliente(
+          clienteId: i + 1,
+          nombreCliente: 'Cliente ${i + 1}',
+          clave: 'CL${i + 1}',
+          telefono: '1234567890', poblacion: 'Test', tipoVenta: 1,
+        ),
+      );
+      await dao.insertAll(clientes);
+
+      final result = await dao.getFirst(100);
+      expect(result.length, equals(100));
+    });
+  });
+
+  group('VentaDao.getDelDia() - solo ventas del día actual', () {
+    late Database db;
+    late VentaDao dao;
+
+    setUp(() async {
+      db = await _openDb();
+      await db.execute(_createVentasPendientes);
+      dao = VentaDao(db);
+    });
+
+    tearDown(() async => db.close());
+
+    VentaPendiente makeVenta(int clienteId, String fecha) => VentaPendiente(
+      ventaMovilId: 'vm-$clienteId-$fecha',
+      vendedorId: 1,
+      clienteId: clienteId,
+      clienteNombre: 'Cliente $clienteId',
+      fechaHora: '${fecha}T10:00:00',
+      estado: 'pendiente',
+      total: 100.0,
+    );
+
+    test('getDelDia() solo retorna ventas de la fecha indicada', () async {
+      final hoy = DateTime.now().toIso8601String().substring(0, 10);
+      final ayer = DateTime.now().subtract(const Duration(days: 1)).toIso8601String().substring(0, 10);
+
+      for (int i = 1; i <= 89; i++) {
+        await dao.insert(makeVenta(i, ayer));
+      }
+      await dao.insert(makeVenta(90, hoy));
+      await dao.insert(makeVenta(91, hoy));
+
+      final result = await dao.getDelDia(hoy);
+      expect(result.length, equals(2));
+    });
+
+    test('getDelDia() con fecha nula cae al getAll() (fallback defensivo)', () async {
+      final hoy = DateTime.now().toIso8601String().substring(0, 10);
+      await dao.insert(makeVenta(1, hoy));
+      await dao.insert(makeVenta(2, hoy));
+
+      final result = await dao.getDelDia(null);
+      expect(result.length, equals(2));
+    });
+
+    test('visitasMap construido con getDelDia() no contamina con ventas de ayer', () async {
+      final hoy = DateTime.now().toIso8601String().substring(0, 10);
+      final ayer = DateTime.now().subtract(const Duration(days: 1)).toIso8601String().substring(0, 10);
+
+      for (int i = 1; i <= 89; i++) {
+        await dao.insert(makeVenta(i, ayer));
+      }
+      await dao.insert(makeVenta(90, hoy));
+
+      final ventasHoy = await dao.getDelDia(hoy);
+      final Map<int, VentaPendiente> visitasMap = {
+        for (final v in ventasHoy) v.clienteId: v,
+      };
+
+      expect(visitasMap.containsKey(90), isTrue);
+      for (int i = 1; i <= 89; i++) {
+        expect(visitasMap.containsKey(i), isFalse);
+      }
+    });
+  });
 }
+

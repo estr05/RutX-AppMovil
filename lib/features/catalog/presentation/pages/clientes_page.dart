@@ -7,8 +7,11 @@ import '../../../sales/presentation/pages/nueva_venta_page.dart';
 import '../../../sales/presentation/pages/no_venta_page.dart';
 import '../widgets/cliente_detalle_modal.dart';
 import '../../../../shared/widgets/feedback_utils.dart';
-import '../../../../shared/widgets/rutx_app_bar.dart';
 
+/// Lista de clientes del día con paginación por scroll infinito.
+///
+/// NOTA: Este widget NO contiene un [Scaffold] propio. El [Scaffold] raíz
+/// y el [AppBar] son provistos por [HomePage] según el tab activo.
 class ClientesPage extends StatefulWidget {
   final String initialFilter;
   final bool directToSale;
@@ -24,19 +27,61 @@ class ClientesPage extends StatefulWidget {
 }
 
 class _ClientesPageState extends State<ClientesPage> {
+  // ─── Estado de filtros ───────────────────────────────────────────────────
   String _searchQuery = '';
-  late String _selectedFilter; // 'Todos', 'Pendientes', 'Visitados'
+  late String _selectedFilter; // 'Todos' | 'Pendientes' | 'Visitados'
 
+  // ─── Datos ───────────────────────────────────────────────────────────────
   List<Cliente> _clientes = [];
-  Map<int, VentaPendiente> _visitasMap = {}; // Maps clienteId -> VentaPendiente
+  Map<int, VentaPendiente> _visitasMap = {}; // clienteId → VentaPendiente
   bool _isLoading = true;
+
+  // ─── Paginación UI (Infinite Scroll) ─────────────────────────────────────
+  /// Número de items renderizados actualmente. Se incrementa de 10 en 10
+  /// cuando el usuario llega cerca del fondo de la lista.
+  int _displayLimit = 30;
+  bool _isLoadingMore = false;
+  final ScrollController _scrollController = ScrollController();
+
+  // ─── Ciclo de vida ───────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
     _selectedFilter = widget.initialFilter;
+    _scrollController.addListener(_onScroll);
     _loadData();
   }
+
+  /// Listener de scroll: carga el siguiente batch cuando el usuario
+  /// está a menos de 200px del fondo. Se ignora si ya está cargando.
+  void _onScroll() {
+    if (_isLoadingMore) return;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      // Comparación barata contra la lista total para no recalcular filtros
+      // en cada evento de scroll (pueden ser decenas por segundo).
+      if (_displayLimit < _clientes.length) {
+        setState(() => _isLoadingMore = true);
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            setState(() {
+              _displayLimit += 10;
+              _isLoadingMore = false;
+            });
+          }
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // ─── Carga de datos ──────────────────────────────────────────────────────
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
@@ -44,9 +89,13 @@ class _ClientesPageState extends State<ClientesPage> {
       final db = AppDatabase();
       await db.initialize();
 
-      final clientesList = await db.clienteDao.getFirst(100);
+      // Sin limite artificial (corregido desde getFirst(100))
+      final clientesList = await db.clienteDao.getAll();
       clientesList.sort((a, b) => a.clienteId.compareTo(b.clienteId));
-      final ventasList = await db.ventaDao.getAll();
+
+      // Solo visitas de HOY, no contamina días anteriores
+      final String hoy = DateTime.now().toIso8601String().substring(0, 10);
+      final ventasList = await db.ventaDao.getDelDia(hoy);
 
       final Map<int, VentaPendiente> visitas = {};
       for (final v in ventasList) {
@@ -61,12 +110,14 @@ class _ClientesPageState extends State<ClientesPage> {
         });
       }
     } catch (e) {
-      print('Error al cargar clientes: $e');
+      debugPrint('Error al cargar clientes: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
   }
+
+  // ─── Filtrado ────────────────────────────────────────────────────────────
 
   List<Cliente> _getFilteredClientes() {
     return _clientes.where((c) {
@@ -78,17 +129,16 @@ class _ClientesPageState extends State<ClientesPage> {
       if (!matchesSearch) return false;
 
       final isVisited = _visitasMap.containsKey(c.clienteId);
-      if (_selectedFilter == 'Pendientes') {
-        return !isVisited;
-      } else if (_selectedFilter == 'Visitados') {
-        return isVisited;
-      }
+      if (_selectedFilter == 'Pendientes') return !isVisited;
+      if (_selectedFilter == 'Visitados') return isVisited;
       return true;
     }).toList();
   }
 
+  // ─── Helpers visuales ────────────────────────────────────────────────────
+
   Color _getAvatarColor(int index) {
-    final colors = [
+    const colors = [
       AppTheme.avatarBlue,
       AppTheme.avatarOrange,
       AppTheme.avatarCyan,
@@ -99,28 +149,46 @@ class _ClientesPageState extends State<ClientesPage> {
     return colors[index % colors.length];
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  /// Extrae iniciales de forma segura evitando [RangeError] por nombres
+  /// vacíos, de un solo carácter, o con espacios múltiples.
+  String _safeInitials(String nombreCliente) {
+    final raw = nombreCliente.trim();
+    if (raw.isEmpty) return 'RX';
+    final parts = raw.split(RegExp(r'\s+'));
+    final first = parts[0];
+    if (parts.length > 1 && parts[1].isNotEmpty) {
+      return '${first[0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (first.length >= 2) return first.substring(0, 2).toUpperCase();
+    return first[0].toUpperCase();
   }
+
+  /// Extrae HH:mm de [fechaHora] de forma segura.
+  /// Formato esperado: 'YYYY-MM-DD HH:mm:ss' (longitud mínima 16 chars).
+  String _safeHora(String? fechaHora) {
+    if (fechaHora == null || fechaHora.length < 16) return '--:--';
+    return fechaHora.substring(11, 16);
+  }
+
+  // ─── Build ───────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final filteredList = _getFilteredClientes();
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: RutxAppBar(
-        title: widget.directToSale ? 'Nueva Venta' : 'Clientes de hoy',
-      ),
-      body: Column(
+    // Sublista visible calculada UNA vez por build(), evitando
+    // take().toList() en cada llamada del itemBuilder (por frame/item).
+    final limitList = filteredList.take(_displayLimit).toList();
+
+    return SafeArea(
+      child: Column(
         children: [
-          // Search & Filter Row
+          // ── Buscador y Filtros ─────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                // Search bar
+                // Barra de búsqueda
                 TextField(
                   onChanged: (val) => setState(() => _searchQuery = val),
                   decoration: InputDecoration(
@@ -140,44 +208,44 @@ class _ClientesPageState extends State<ClientesPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Filters & Filter icon
+                // Filtros: Todos / Pendientes / Visitados + contador
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children:
-                          ['Todos', 'Pendientes', 'Visitados'].map((filter) {
-                            final isSelected = _selectedFilter == filter;
-                            return GestureDetector(
-                              onTap:
-                                  () =>
-                                      setState(() => _selectedFilter = filter),
-                              child: Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      isSelected
-                                          ? AppTheme.primaryColor
-                                          : AppTheme.primaryLightBg,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  filter,
-                                  style: TextStyle(
-                                    color:
-                                        isSelected
-                                            ? AppTheme.textWhite
-                                            : AppTheme.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                      children: ['Todos', 'Pendientes', 'Visitados'].map((
+                        filter,
+                      ) {
+                        final isSelected = _selectedFilter == filter;
+                        return GestureDetector(
+                          onTap:
+                              () => setState(() => _selectedFilter = filter),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected
+                                      ? AppTheme.primaryColor
+                                      : AppTheme.primaryLightBg,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              filter,
+                              style: TextStyle(
+                                color:
+                                    isSelected
+                                        ? AppTheme.textWhite
+                                        : AppTheme.primaryColor,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          }).toList(),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                     Row(
                       children: [
@@ -202,7 +270,7 @@ class _ClientesPageState extends State<ClientesPage> {
             ),
           ),
 
-          // Client List
+          // ── Lista de Clientes ──────────────────────────────────────────
           Expanded(
             child:
                 _isLoading
@@ -219,28 +287,42 @@ class _ClientesPageState extends State<ClientesPage> {
                       ),
                     )
                     : ListView.builder(
+                      controller: _scrollController,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredList.length,
+                      // +1 cuando está cargando el siguiente batch (spinner)
+                      itemCount: limitList.length + (_isLoadingMore ? 1 : 0),
                       addRepaintBoundaries: true,
                       addAutomaticKeepAlives: false,
                       itemBuilder: (context, index) {
-                        final c = filteredList[index];
-                        final hasVisited = _visitasMap.containsKey(c.clienteId);
+                        // Spinner de paginación al final de la lista
+                        if (index == limitList.length) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.0),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.accentColor,
+                              ),
+                            ),
+                          );
+                        }
+
+                        final c = limitList[index];
+                        final hasVisited = _visitasMap.containsKey(
+                          c.clienteId,
+                        );
                         final visit = _visitasMap[c.clienteId];
 
-                        // Generar iniciales
-                        final names = c.nombreCliente.split(' ');
-                        final initials =
-                            names.length > 1
-                                ? '${names[0][0]}${names[1][0]}'.toUpperCase()
-                                : c.nombreCliente.substring(0, 2).toUpperCase();
+                        final initials = _safeInitials(c.nombreCliente);
+                        final horaStr =
+                            hasVisited
+                                ? _safeHora(visit?.fechaHora)
+                                : '--:--';
 
                         return RepaintBoundary(
                           child: GestureDetector(
                             onTap: () async {
                               if (!hasVisited) {
                                 if (widget.directToSale) {
-                                  // Ir directo a la venta si estamos en el modo/tab Vender
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -251,12 +333,11 @@ class _ClientesPageState extends State<ClientesPage> {
                                   );
                                   _loadData();
                                 } else {
-                                  // Mostrar modal si estamos en la lista general de Clientes
                                   ClienteDetalleModal.show(
                                     context,
                                     cliente: c,
                                     onVender: () {
-                                      Navigator.pop(context); // Cerrar modal
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -267,7 +348,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                       ).then((_) => _loadData());
                                     },
                                     onNoVenta: () {
-                                      Navigator.pop(context); // Cerrar modal
+                                      Navigator.pop(context);
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -307,7 +388,7 @@ class _ClientesPageState extends State<ClientesPage> {
                               ),
                               child: Row(
                                 children: [
-                                  // Avatar
+                                  // Avatar con iniciales seguras
                                   Container(
                                     width: 48,
                                     height: 48,
@@ -328,7 +409,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                   ),
                                   const SizedBox(width: 16),
 
-                                  // Details
+                                  // Detalles del cliente
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -346,7 +427,8 @@ class _ClientesPageState extends State<ClientesPage> {
                                                   fontSize: 16,
                                                   color: AppTheme.textPrimary,
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
                                               ),
                                             ),
                                             Container(
@@ -358,8 +440,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                               decoration: BoxDecoration(
                                                 color:
                                                     hasVisited
-                                                        ? AppTheme
-                                                            .alertSuccessBg
+                                                        ? AppTheme.alertSuccessBg
                                                         : AppTheme
                                                             .alertWarningBg,
                                                 borderRadius:
@@ -405,7 +486,7 @@ class _ClientesPageState extends State<ClientesPage> {
                                           ),
                                         const SizedBox(height: 6),
 
-                                        // Time & Amount details
+                                        // Hora de visita y monto
                                         Row(
                                           children: [
                                             const Icon(
@@ -415,28 +496,25 @@ class _ClientesPageState extends State<ClientesPage> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              hasVisited
-                                                  ? visit!.fechaHora.substring(
-                                                    11,
-                                                    16,
-                                                  )
-                                                  : '--:--',
+                                              horaStr,
                                               style: const TextStyle(
                                                 color: AppTheme.textSecondary,
                                                 fontSize: 13,
                                               ),
                                             ),
-                                            if (hasVisited) ...[
+                                            if (hasVisited &&
+                                                visit != null) ...[
                                               const SizedBox(width: 12),
                                               const Text(
                                                 '•',
                                                 style: TextStyle(
-                                                  color: AppTheme.textSecondary,
+                                                  color:
+                                                      AppTheme.textSecondary,
                                                 ),
                                               ),
                                               const SizedBox(width: 12),
                                               Text(
-                                                '\$${visit!.total.toStringAsFixed(0)}',
+                                                '\$${visit.total.toStringAsFixed(0)}',
                                                 style: const TextStyle(
                                                   color: AppTheme.statusGreen,
                                                   fontWeight: FontWeight.bold,

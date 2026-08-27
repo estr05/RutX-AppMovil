@@ -59,8 +59,8 @@ class _NuevaVentaPageState extends State<NuevaVentaPage>
   Future<void> _loadProducts() async {
     final db = AppDatabase();
     await db.initialize();
-    // Carga perezosa: primeros 100 productos
-    final list = await db.productDao.getFirst(100);
+    // FIX: sin límite artificial, carga todos los productos activos
+    final list = await db.productDao.getAll();
     list.sort((a, b) => a.nombre.compareTo(b.nombre));
 
     // Cargar catálogo dinámico de Formas de Cobro desde SQLite

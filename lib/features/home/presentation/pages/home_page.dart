@@ -803,6 +803,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  PreferredSizeWidget? _buildAppBarForTab(int index) {
+    switch (index) {
+      case 1:
+        return const RutxAppBar(title: 'Clientes de hoy');
+      case 2:
+        return const RutxAppBar(title: 'Nueva Venta');
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
@@ -831,15 +842,16 @@ class _HomePageState extends State<HomePage> {
             _tabHistory.removeLast();
             _selectedIndex = _tabHistory.last;
           });
+          _loadDashboardStats();
           return;
         }
 
-        // 2. Estamos en Inicio con historial vacío → lógica de doble toque
-        final ahora = DateTime.now();
+        // 2. Si estamos en la pestaña base (0) o historial vacío
+        final now = DateTime.now();
         if (_lastBackPressTime == null ||
-            ahora.difference(_lastBackPressTime!) >
-                const Duration(seconds: 2)) {
-          _lastBackPressTime = ahora;
+            now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
+          // Primera pulsación → mostrar Toast/SnackBar
+          _lastBackPressTime = now;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Presiona de nuevo para salir'),
@@ -854,7 +866,11 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
-        body: pages[_selectedIndex],
+        appBar: _buildAppBarForTab(_selectedIndex),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: pages,
+        ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: (index) {
