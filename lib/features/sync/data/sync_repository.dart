@@ -9,6 +9,7 @@ import '../../../core/database/entities/forma_cobro_entity.dart';
 import '../../../core/network/sync_result.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/connection_state_service.dart';
+import '../../../core/network/telemetry_repository.dart';
 
 class SyncRepository {
   final Dio _dio;
@@ -34,7 +35,10 @@ class SyncRepository {
         // La identidad (vendedor, caja, almacen) viaja en el token JWT
         final response = await _dio.get('/api/v1/routes/sync');
         if (response.statusCode == 200 && response.data != null) {
-          return await _procesarRespuestaRuta(response.data);
+          final result = await _procesarRespuestaRuta(response.data);
+          // Iteracion 4: Telemetría Descarga Matutina
+          TelemetryRepository().captureAndQueue(eventType: 'descarga_matutina');
+          return result;
         } else {
           lastErrorMsg = 'Error del servidor (${response.statusCode}).';
         }

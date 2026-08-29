@@ -45,6 +45,7 @@ class AuthRepository {
           almacenId: almacenId,
           sucursalId: sucursalId,
         );
+
         return null;
       }
       return AppError(

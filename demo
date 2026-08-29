@@ -1,0 +1,31 @@
+Updating c016d44..3f3844a
+Fast-forward
+ .gitignore                                         |   7 +
+ ...DENCIA_WARNING_PREEXISTENTE_SALES_REPOSITORY.md |  35 +++
+ PLAN.md                                            |  30 +++
+ README.md                                          |  26 +++
+ android/app/build.gradle.kts                       |  30 ++-
+ android/key.properties.example                     |  18 ++
+ lib/core/constants/api_constants.dart              | 108 ++++-----
+ lib/core/helpers/jornada_helper.dart               |  40 ++++
+ lib/core/network/connection_state_service.dart     |  35 +++
+ lib/core/network/dio_client.dart                   |  37 ++-
+ .../catalog/presentation/pages/clientes_page.dart  | 248 ++++++++++++++-------
+ .../home/presentation/pages/home_page.dart         |  28 ++-
+ lib/features/sales/data/sales_repository.dart      |   8 +-
+ .../sales/presentation/pages/nueva_venta_page.dart |  16 +-
+ .../presentation/pages/cierre_jornada_page.dart    |  17 +-
+ .../presentation/pages/end_of_day_splash_page.dart |  31 +++
+ .../presentation/pages/resumen_dia_page.dart       |  41 +---
+ test/unit/api_constants_test.dart                  |  53 +++++
+ test/unit/daos_test.dart                           | 137 +++++++++++-
+ test/unit/dio_client_fallback_test.dart            |  46 ++++
+ test/unit/jornada_helper_test.dart                 |  73 ++++++
+ 21 files changed, 861 insertions(+), 203 deletions(-)
+ create mode 100644 Docs/EVIDENCIA_WARNING_PREEXISTENTE_SALES_REPOSITORY.md
+ create mode 100644 PLAN.md
+ create mode 100644 android/key.properties.example
+ create mode 100644 lib/core/helpers/jornada_helper.dart
+ create mode 100644 test/unit/api_constants_test.dart
+ create mode 100644 test/unit/dio_client_fallback_test.dart
+ create mode 100644 test/unit/jornada_helper_test.dart
