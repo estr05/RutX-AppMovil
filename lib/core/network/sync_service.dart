@@ -3,6 +3,7 @@ import 'connection_state_service.dart';
 import 'sync_queue_processor.dart';
 import '../../features/sales/data/sales_repository.dart';
 import '../../features/cobranza/data/cobranza_repository.dart';
+import 'telemetry_repository.dart';
 
 class SyncService {
   static final SyncService _instance = SyncService._();
@@ -19,6 +20,9 @@ class SyncService {
     });
     _processor.registerHandler('cobranza', (entidadId) async {
       return await CobranzaRepository().uploadOne(entidadId);
+    });
+    _processor.registerHandler('telemetria', (entidadId) async {
+      return await TelemetryRepository().sendOne(entidadId);
     });
 
     _subscription?.cancel();

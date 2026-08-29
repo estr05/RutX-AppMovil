@@ -95,4 +95,11 @@ class ColaSincronizacionDao {
   Future<void> limpiarTodo() async {
     await db.delete('cola_sincronizacion');
   }
+
+  Future<void> limpiarExceptoTelemetria() async {
+    await db.delete(
+      'cola_sincronizacion',
+      where: "tipo != 'telemetria'",
+    );
+  }
 }

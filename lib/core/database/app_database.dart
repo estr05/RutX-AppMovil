@@ -16,6 +16,7 @@ import 'daos/sucursal_dao.dart';
 import 'daos/cola_sincronizacion_dao.dart';
 import 'daos/folio_local_dao.dart';
 import 'daos/forma_cobro_dao.dart';
+import 'daos/telemetria_dao.dart';
 
 class AppDatabase {
   static final AppDatabase _instance = AppDatabase._();
@@ -34,6 +35,7 @@ class AppDatabase {
   ColaSincronizacionDao? _colaDao;
   FolioLocalDao? _folioLocalDao;
   FormaCobroDao? _formaCobroDao;
+  TelemetriaDao? _telemetriaDao;
 
   ClienteDao get clienteDao {
     if (_clienteDao == null) {
@@ -112,7 +114,14 @@ class AppDatabase {
     return _formaCobroDao!;
   }
 
-  static const int _version = 17;
+  TelemetriaDao get telemetriaDao {
+    if (_telemetriaDao == null) {
+      throw StateError('AppDatabase not initialized. Call initialize() first.');
+    }
+    return _telemetriaDao!;
+  }
+
+  static const int _version = 18;
   static const String _dbName = 'rutx_movil.db';
 
   Future<Database> get database async {
@@ -365,6 +374,33 @@ class AppDatabase {
         )
       ''');
     }
+    // Version 18: Telemetria pendiente
+    if (oldVersion < 18) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS telemetria_pendiente (
+          client_event_id    TEXT PRIMARY KEY,
+          event_type         TEXT NOT NULL,
+          customer_id        INTEGER NULL,
+          related_entity_id  TEXT NULL,
+          seller_id          INTEGER NOT NULL,
+          contract_number    TEXT NOT NULL,
+          device_installation_id TEXT NOT NULL,
+          latitude           REAL NULL,
+          longitude          REAL NULL,
+          accuracy           REAL NULL,
+          occurred_at        TEXT NOT NULL,
+          metadata_json      TEXT NULL,
+          estado             TEXT NOT NULL DEFAULT 'pendiente',
+          reintentos         INTEGER NOT NULL DEFAULT 0,
+          ultimo_error       TEXT NULL,
+          creado_en          TEXT NOT NULL,
+          enviado_en         TEXT NULL
+        )
+      ''');
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_telemetria_estado ON telemetria_pendiente(estado)',
+      );
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -523,6 +559,31 @@ class AppDatabase {
         actualizado_en TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE telemetria_pendiente (
+        client_event_id    TEXT PRIMARY KEY,
+        event_type         TEXT NOT NULL,
+        customer_id        INTEGER NULL,
+        related_entity_id  TEXT NULL,
+        seller_id          INTEGER NOT NULL,
+        contract_number    TEXT NOT NULL,
+        device_installation_id TEXT NOT NULL,
+        latitude           REAL NULL,
+        longitude          REAL NULL,
+        accuracy           REAL NULL,
+        occurred_at        TEXT NOT NULL,
+        metadata_json      TEXT NULL,
+        estado             TEXT NOT NULL DEFAULT 'pendiente',
+        reintentos         INTEGER NOT NULL DEFAULT 0,
+        ultimo_error       TEXT NULL,
+        creado_en          TEXT NOT NULL,
+        enviado_en         TEXT NULL
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX idx_telemetria_estado ON telemetria_pendiente(estado)',
+    );
   }
 
   Future<void> initialize() async {
@@ -539,6 +600,7 @@ class AppDatabase {
     _colaDao = ColaSincronizacionDao(db);
     _folioLocalDao = FolioLocalDao(db);
     _formaCobroDao = FormaCobroDao(db);
+    _telemetriaDao = TelemetriaDao(db);
 
     // Auto-seed ONLY if no clients exist (sync will provide real data)
     final clientesCount =
@@ -623,7 +685,7 @@ class AppDatabase {
     await notificacionDao.deleteAll();
     await emisorDao.delete();
     await sucursalDao.delete();
-    await colaDao.limpiarTodo();
+    await colaDao.limpiarExceptoTelemetria();
     // No eliminamos causaNoVentaDao porque son predeterminadas y no se sincronizan
   }
 

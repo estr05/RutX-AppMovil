@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+
 
 /// Constantes de conexión al Sincronizador.
 ///
