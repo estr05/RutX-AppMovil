@@ -9,6 +9,9 @@ class LocalStorage {
   static const String _cajaIdKey = 'caja_id';
   static const String _almacenIdKey = 'almacen_id';
   static const String _sucursalIdKey = 'sucursal_id';
+  static const String _deviceInstallationIdKey = 'device_installation_id';
+  static const String _contractNumberKey = 'contract_number';
+  static const String _deviceNumberKey = 'device_number';
 
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
@@ -151,5 +154,35 @@ class LocalStorage {
   Future<void> clearDiaCerrado() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('dia_cerrado');
+  }
+
+  Future<String?> getDeviceInstallationId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_deviceInstallationIdKey);
+  }
+
+  Future<void> saveDeviceInstallationId(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_deviceInstallationIdKey, id);
+  }
+
+  Future<String?> getContractNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_contractNumberKey);
+  }
+
+  Future<void> saveContractNumber(String number) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_contractNumberKey, number);
+  }
+
+  Future<int?> getDeviceNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_deviceNumberKey);
+  }
+
+  Future<void> saveDeviceNumber(int number) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_deviceNumberKey, number);
   }
 }

@@ -3,6 +3,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/entities/venta_pendiente_entity.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/connection_state_service.dart';
+import '../../../core/network/telemetry_repository.dart';
 
 class SummaryRepository {
   final Dio _dio = DioClient().dio;
@@ -48,6 +49,7 @@ class SummaryRepository {
     String? observaciones,
   }) async {
     if (_isOffline) {
+      TelemetryRepository().captureAndQueue(eventType: 'cierre_jornada');
       return {
         'mensaje':
             'Sin conexion. El cierre se guardara localmente y se enviara al recuperar conexion.',
@@ -55,6 +57,7 @@ class SummaryRepository {
       };
     }
     try {
+      TelemetryRepository().captureAndQueue(eventType: 'cierre_jornada');
       final response = await _dio.post(
         '/api/v1/routes/close',
         data: {

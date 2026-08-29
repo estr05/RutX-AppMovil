@@ -9,6 +9,7 @@ import '../../../core/network/connection_state_service.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/sync_result.dart';
 import '../../../core/network/sync_queue_processor.dart';
+import '../../../core/network/telemetry_repository.dart';
 
 class SalesRepository {
   static final SalesRepository _instance = SalesRepository._();
@@ -63,6 +64,12 @@ class SalesRepository {
       // guarda nada (retorna null) aunque la app esté offline.
       final guardada = await db.ventaDao.insertDescontandoExistencia(conFolio);
       if (!guardada) return null;
+
+      // Iteracion 4: Telemetría Venta o No Venta
+      TelemetryRepository().captureAndQueue(
+        eventType: conFolio.estado == 'no_venta' ? 'no_venta' : 'venta',
+        customerId: conFolio.clienteId,
+      );
 
       final queue = SyncQueueProcessor(db: db);
       await queue.enqueue('venta', conFolio.ventaMovilId);
@@ -306,7 +313,7 @@ class SalesRepository {
         'payload': jsonEncode(v.toNoVentaJson()),
         if (tieneFotoValida)
           'foto': await MultipartFile.fromFile(
-            fotoPath!,
+            fotoPath,
             filename: '${v.ventaMovilId}.jpg',
             contentType: DioMediaType('image', 'jpeg'),
           ),
